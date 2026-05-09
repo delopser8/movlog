@@ -1,0 +1,123 @@
+networks:
+  movlog_data_net: # red para streaming y base de datos
+    driver: bridge
+  movlog_observability_net: # red para telemetría de IA
+    driver: bridge
+
+volumes:
+  mongo_data:
+  langfuse_db_data:
+  ollama_data:
+  portainer_data:
+
+services:
+  # --- CAPA DE STREAMING (REDPANDA) ---
+  redpanda:
+    image: docker.redpanda.com/redpandadata/redpanda:v23.3.1
+    container_name: movlog_redpanda
+    networks:
+      - movlog_data_net
+    command:
+      - redpanda start
+      - --smp 1
+      - --memory 1G
+      - --reserve-memory 0M
+      - --overprovisioned
+      - --kafka-addr internal://0.0.0.0:9092,external://0.0.0.0:19092
+      - --advertise-kafka-addr internal://redpanda:9092,external://localhost:19092
+    ports:
+      - "19092:19092"
+    deploy:
+      resources:
+        limits:
+          memory: 1.5G
+
+  redpanda_console:
+    image: docker.redpanda.com/redpandadata/console:latest
+    container_name: movlog_redpanda_console
+    networks:
+      - movlog_data_net
+    environment:
+      KAFKA_BROKERS: "redpanda:9092"
+    ports:
+      - "8080:8080"
+    depends_on:
+      - redpanda
+
+  # --- CAPA DE CONFIGURACIÓN (MONGODB) ---
+  mongodb:
+    image: mongo:6.0
+    container_name: movlog_mongodb
+    networks:
+      - movlog_data_net
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  # --- CAPA DE OBSERVABILIDAD IA (LANGFUSE) ---
+  langfuse_db:
+    image: postgres:15-alpine
+    container_name: movlog_langfuse_db
+    networks:
+      - movlog_observability_net
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    volumes:
+      - langfuse_db_data:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  langfuse:
+    image: langfuse/langfuse:latest
+    container_name: movlog_langfuse
+    networks:
+      - movlog_observability_net
+      - movlog_data_net # Necesita ver la red de datos si quisieras tracear la API
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@langfuse_db:5432/postgres
+      - NEXTAUTH_URL=http://localhost:3000
+      - NEXTAUTH_SECRET=mysecret_random_key
+      - SALT=mysalt_random_key
+      - TELEMETRY_ENABLED=false
+    depends_on:
+      - langfuse_db
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+
+  # --- CAPA DE MODELOS (OLLAMA) ---
+  ollama:
+    image: ollama/ollama:latest
+    container_name: movlog_ollama
+    networks:
+      - movlog_observability_net
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    # Ollama gestionará dinámicamente la RAM para los modelos (Qwen)
+
+  # --- CAPA DE GESTIÓN (PORTAINER) ---
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: movlog_portainer
+    networks:
+      - movlog_data_net
+    ports:
+      - "9000:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    restart: always
