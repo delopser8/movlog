@@ -1,7 +1,7 @@
 networks:
   movlog_data_net: # red para streaming y base de datos
     driver: bridge
-  movlog_observability_net: # red para telemetría de IA
+  movlog_observability_net: # red para telemetria de IA
     driver: bridge
 
 volumes:
