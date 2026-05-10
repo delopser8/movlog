@@ -36,10 +36,12 @@ else
   echo "    ✅ Entorno limpio"
   docker compose -f "${COMPOSE_FILE}" up -d --remove-orphans
   # asegurar que redpanda y mongodb están corriendo
+  sleep 8
   docker start movlog_redpanda movlog_mongodb 2>/dev/null || true
 fi
 
 # asegurar que redpanda y mongodb están corriendo
+sleep 8
 docker start movlog_redpanda movlog_mongodb 2>/dev/null || true
 
 # --- 3. Esperar a servicios con healthcheck ---
