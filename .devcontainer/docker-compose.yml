@@ -94,7 +94,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres@langfuse_db:5432/postgres
+      - DATABASE_URL=postgresql://postgres:postgres@movlog_langfuse_db:5432/postgres
       - NEXTAUTH_URL=http://localhost:3000
       - NEXTAUTH_SECRET=mysecret_random_key
       - SALT=mysalt_random_key

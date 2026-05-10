@@ -11,8 +11,8 @@ echo -e "${BLUE}>>> Arrancando stack de Movlog...${NC}"
 
 
 # 0. permisos Docker y levantar compose
-sudo chmod 666 /var/run/docker.sock 2>/dev/null || true
-docker compose -f .devcontainer/docker-compose.yml up -d || true
+# sudo chmod 666 /var/run/docker.sock 2>/dev/null || true
+# docker compose -f .devcontainer/docker-compose.yml up -d || true
 
 
 # 1. chequeo de puertos clave
