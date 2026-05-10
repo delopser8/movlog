@@ -13,7 +13,7 @@ volumes:
 services:
   workspace:
       build:
-        context: .
+        context: ..
         dockerfile: Dockerfile
       container_name: movlog_workspace
       volumes:
