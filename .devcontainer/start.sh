@@ -34,6 +34,11 @@ wait_for_port "Langfuse" 3000
 wait_for_port "Ollama" 11434
 wait_for_port "Portainer" 9000
 
+# echo -e "Redpanda Console: http://localhost:8080"
+# echo -e "Langfuse UI:      http://localhost:3000"
+# echo -e "Portainer:        http://localhost:9000"
+# echo -e "Ollama API:       http://localhost:11434"
+
 
 # 2. descarga inicial del modelo Qwen 3.5 4B en Ollama
 echo -e "${YELLOW}>>> Sincronizando modelo Qwen 3.5 4B en segundo plano...${NC}"
@@ -46,12 +51,6 @@ sleep 5
     curl -s -X POST http://localhost:11434/api/pull -d '{"name": "qwen3.5:4b"}' > /dev/null
     echo -e "\n${GREEN}>>> [Ollama] Modelo Qwen 3.5 4B listo para usar.${NC}"
 ) & 
-
-
-# echo -e "Redpanda Console: http://localhost:8080"
-# echo -e "Langfuse UI:      http://localhost:3000"
-# echo -e "Portainer:        http://localhost:9000"
-# echo -e "Ollama API:       http://localhost:11434"
 
 
 # 3. creación del archivo .env con las variables de entorno
@@ -69,14 +68,14 @@ echo -e "${GREEN}   archivo .env creado  ${NC}"
 # configurar API Keys de las APIs externas (Alpaca Markets y NewsAPI)
 echo -e ""
 echo -e "${BLUE}>>> Configuración de las API Keys necesarias${NC}"
-echo -e "${YELLOW}>>> Es estrictamente necesario acceder al archivo .env y cambiar las siguientes claves:${NC}"
+echo -e "${YELLOW}>>> Es estrictamente necesario acceder al archivo .env y cambiar el contenido de las siguientes claves por las tuyas:${NC}"
 echo -e "${YELLOW}>>> - ALPACA_API_KEY${NC}"
 echo -e "${YELLOW}>>> - ALPACA_SECRET_KEY${NC}"
 echo -e "${YELLOW}>>> - NEWSAPI_KEY${NC}"
 echo -e "${YELLOW}>>> Sin estas claves, el proyecto no podrá funcionar correctamente.${NC}"
 echo -e ""
 
-# --- ALPACA MARKETS ---
+# --- indicaciones API Key - ALPACA MARKETS ---
 echo -e ""
 echo -e "${BLUE}>>> Indicaciones para rellenar ALPACA_API_KEY y ALPACA_SECRET_KEY:${NC}"
 echo -e "${YELLOW}>>> - Accede a https://alpaca.markets/${NC}"
@@ -86,15 +85,12 @@ echo -e "${YELLOW}>>>   la app de Google Authenticator en tu móvil${NC}"
 echo -e "${YELLOW}>>> - Accede al Home y abajo a la derecha encontrarás tu sección de API Keys${NC}"
 echo -e ""
 
-# --- NEWSAPI ---
+# --- indicaciones API Key - NEWSAPI ---
 echo -e "${BLUE}>>> Indicaciones para rellenar NEWSAPI_KEY:${NC}"
 echo -e "${YELLOW}>>> - Accede a https://newsapi.org/${NC}"
 echo -e "${YELLOW}>>> - Arriba a la derecha dale a Login o regístrate en Get API Key${NC}"
 echo -e ""
-echo -e "${Blue}>>> Una vez tengas el archivo .env correctamente configurado, escribe en el terminal 'start_movlog'${NC}"
-
+echo -e "${Blue}>>> Una vez tengas el archivo .env correctamente configurado, ejecuta el siguiente comando:${NC}"
 echo ""
-echo "    Ejecuta el siguiente comando para inicializar Movlog:"
-echo ""
-echo -e "${YELLOW}>>> source .devcontainer/init_all.sh"
+echo "source .devcontainer/init_all.sh"
 echo ""
