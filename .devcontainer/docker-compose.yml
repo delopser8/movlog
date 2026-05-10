@@ -102,6 +102,7 @@ services:
       - NEXTAUTH_URL=http://localhost:3000
       - NEXTAUTH_SECRET=mysecret_random_key
       - SALT=mysalt_random_key
+      - ENCRYPTION_KEY=clave_aleatoria_super_segura
       - TELEMETRY_ENABLED=false
     depends_on:
       - langfuse_db
