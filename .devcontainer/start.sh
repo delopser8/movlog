@@ -36,11 +36,17 @@ wait_for_port "Portainer" 9000
 
 
 # 2. descarga inicial del modelo Qwen 3.5 4B en Ollama
-echo -e "${YELLOW}>>> Sincronizando modelo Qwen 3.5 4B (esto puede tardar si no existe)...${NC}"
-curl -s http://localhost:11434/api/pull -d '{"name": "qwen3.5:4b"}' | jq -r '.status'
-echo -e "${GREEN}>>> Modelo Qwen 3.5 4B descargado o ya presente.${NC}"
+echo -e "${YELLOW}>>> Sincronizando modelo Qwen 3.5 4B en segundo plano...${NC}"
+(
+    until curl -s http://localhost:11434/api/tags > /dev/null; do
+        sleep 5
+    done
+    
+    curl -s -X POST http://localhost:11434/api/pull -d '{"name": "qwen3.5:4b"}' > /dev/null
+    echo -e "\n${GREEN}>>> [Ollama] Modelo Qwen 3.5 4B listo para usar.${NC}"
+) & 
 
-echo -e "${GREEN}   EL STACK DE MOVLOG ESTÁ EN PERFECTO FUNCIONAMIENTO  ${NC}"
+
 # echo -e "Redpanda Console: http://localhost:8080"
 # echo -e "Langfuse UI:      http://localhost:3000"
 # echo -e "Portainer:        http://localhost:9000"
@@ -57,6 +63,7 @@ echo "# API Keys" >> .env
 echo "ALPACA_API_KEY=tu_key_aqui" >> .env
 echo "ALPACA_SECRET_KEY=tu_secret_aqui" >> .env
 echo "NEWSAPI_KEY=tu_key_aqui" >> .env
+echo -e "${GREEN}   archivo .env creado  ${NC}"
 
 # configurar API Keys de las APIs externas (Alpaca Markets y NewsAPI)
 echo -e ""
@@ -84,3 +91,9 @@ echo -e "${YELLOW}>>> - Accede a https://newsapi.org/${NC}"
 echo -e "${YELLOW}>>> - Arriba a la derecha dale a Login o regístrate en Get API Key${NC}"
 echo -e ""
 echo -e "${Blue}>>> Una vez tengas el archivo .env correctamente configurado, escribe en el terminal 'start_movlog'${NC}"
+
+echo ""
+echo "    Ejecuta el siguiente comando para inicializar Movlog:"
+echo ""
+echo -e "${YELLOW}>>> source .devcontainer/init_all.sh"
+echo ""
