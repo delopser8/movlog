@@ -35,10 +35,12 @@ else
   docker container prune -f 2>/dev/null || true
   echo "    ✅ Entorno limpio"
   docker compose -f "${COMPOSE_FILE}" up -d --remove-orphans
-  # Asegurar que redpanda y mongodb están corriendo
+  # asegurar que redpanda y mongodb están corriendo
   docker start movlog_redpanda movlog_mongodb 2>/dev/null || true
 fi
 
+# asegurar que redpanda y mongodb están corriendo
+docker start movlog_redpanda movlog_mongodb 2>/dev/null || true
 
 # --- 3. Esperar a servicios con healthcheck ---
 echo -e "${BLUE}>>> Esperando a que los servicios críticos estén healthy...${NC}"
