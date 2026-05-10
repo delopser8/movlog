@@ -7,8 +7,15 @@ BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-echo -e "${BLUE}>>> Iniciando chequeo completo de salud del stack de Movlog...${NC}"
+echo -e "${BLUE}>>> Arrancando stack de Movlog...${NC}"
 
+
+# 0. permisos Docker y levantar compose
+sudo chmod 666 /var/run/docker.sock 2>/dev/null || true
+docker compose -f .devcontainer/docker-compose.yml up -d || true
+
+
+# 1. chequeo de puertos clave
 MAX_RETRIES=30
 wait_for_port() {
     local name=$1
@@ -26,16 +33,6 @@ wait_for_port() {
     echo -e "${GREEN}¡LISTO!${NC}"
 }
 
-# 0. permisos Docker
-echo "Ajustando permisos del socket Docker..."
-if sudo chmod 666 /var/run/docker.sock 2>/dev/null; then
-  echo -e "    ${GREEN} Permisos ajustados correctamente${NC}"
-else
-  echo -e "    ${YELLOW} No se pudieron ajustar permisos del socket Docker${NC}"
-  echo    "    Intentando continuar de todas formas..."
-fi
-
-# 1. chequeo de puertos clave
 wait_for_port "MongoDB" 27017
 wait_for_port "Redpanda" 19092
 wait_for_port "Redpanda Console" 8080
@@ -51,27 +48,26 @@ wait_for_port "Portainer" 9000
 
 # 2. descarga inicial del modelo Qwen 3.5 4B en Ollama
 echo -e "${YELLOW}>>> Sincronizando modelo Qwen 3.5 4B en segundo plano...${NC}"
-sleep 5
 (
-    until curl -s http://localhost:11434/api/tags > /dev/null; do
-        sleep 5
-    done
-    
-    curl -s -X POST http://localhost:11434/api/pull -d '{"name": "qwen3.5:4b"}' > /dev/null
-    echo -e "\n${GREEN}>>> [Ollama] Modelo Qwen 3.5 4B listo para usar.${NC}"
-) & 
+    until curl -sf http://localhost:11434/api/tags > /dev/null 2>&1; do sleep 5; done
+    curl -s -X POST http://localhost:11434/api/pull -d '{"name":"qwen3.5:4b"}' > /dev/null
+    echo -e "\n${GREEN}>>> [Ollama] Modelo listo.${NC}"
+) &
 
 
 # 3. creación del archivo .env con las variables de entorno
-echo "# infraestructura" > .env
-echo "MONGODB_URL=mongodb://localhost:27017" >> .env
-echo "REDPANDA_BROKERS=localhost:19092" >> .env
-echo "LANGFUSE_HOST=http://localhost:3000" >> .env
-echo "" >> .env
-echo "# API Keys" >> .env
-echo "ALPACA_API_KEY=tu_key_aqui" >> .env
-echo "ALPACA_SECRET_KEY=tu_secret_aqui" >> .env
-echo "NEWSAPI_KEY=tu_key_aqui" >> .env
+if [ ! -f .env ]; then
+    cat > .env <<EOF
+# infraestructura
+MONGODB_URL=mongodb://localhost:27017
+REDPANDA_BROKERS=localhost:19092
+LANGFUSE_HOST=http://localhost:3000
+
+# API Keys
+ALPACA_API_KEY=tu_key_aqui
+ALPACA_SECRET_KEY=tu_secret_aqui
+NEWSAPI_KEY=tu_key_aqui
+EOF
 echo -e "${GREEN}   archivo .env creado  ${NC}"
 
 # configurar API Keys de las APIs externas (Alpaca Markets y NewsAPI)
@@ -103,3 +99,5 @@ echo -e "${Blue}>>> Una vez tengas el archivo .env correctamente configurado, ej
 echo ""
 echo "source .devcontainer/init_all.sh"
 echo ""
+
+exit 0

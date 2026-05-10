@@ -13,8 +13,8 @@ volumes:
 services:
   workspace:
       build:
-        context: .
-        dockerfile: Dockerfile
+        context: ..
+        dockerfile: .devcontainer/Dockerfile
       container_name: movlog_workspace
       volumes:
         - ..:/workspaces:cached
