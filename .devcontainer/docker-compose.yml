@@ -14,7 +14,7 @@ services:
   workspace:
       build:
         context: .
-        dockerfile: .devcontainer/Dockerfile
+        dockerfile: Dockerfile
       container_name: movlog_workspace
       volumes:
         - ..:/workspaces:cached
