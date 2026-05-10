@@ -15,7 +15,7 @@ services:
       image: mcr.microsoft.com/devcontainers/python:3.11
       container_name: movlog_workspace
       volumes:
-        - ..:/workspaces:cached
+        - ..:/workspaces/Movlog:cached
         - /var/run/docker.sock:/var/run/docker.sock
       networks:
         - movlog_data_net
