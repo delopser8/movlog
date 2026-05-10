@@ -1,0 +1,9 @@
+# ENTORNO
+.env
+
+# DEPENDENCIAS 
+__pycache__/
+*.py[cod]
+
+# LOGS
+*.log

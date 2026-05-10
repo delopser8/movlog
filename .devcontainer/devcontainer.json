@@ -1,0 +1,33 @@
+{
+  "name": "Movlog",
+  "dockerComposeFile": [
+    "../docker-compose.yml"
+  ],
+  "service": "workspace",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "hostRequirements": {
+    "cpus": 4,
+    "memory": "16gb"
+  },
+  "postCreateCommand": "pip install --upgrade pip && pip install -r requirements.txt && chmod +x .devcontainer/start.sh",
+  "postStartCommand": "bash .devcontainer/start.sh",
+  "forwardPorts": [
+    19092, 8080, 27017, 3000, 11434, 9000
+  ],
+  "portsAttributes": {
+    "19092": { "label": "Redpanda Kafka", "onAutoForward": "ignore" },
+    "8080": { "label": "Redpanda Console" },
+    "3000": { "label": "Langfuse" },
+    "11434": { "label": "Ollama API" },
+    "9000": { "label": "Portainer" }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-azuretools.vscode-docker",
+        "ms-python.python",
+        "njpwerner.autodocstring"
+      ]
+    }
+  }
+}

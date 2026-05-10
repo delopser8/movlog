@@ -11,6 +11,17 @@ volumes:
   portainer_data:
 
 services:
+  workspace:
+      image: mcr.microsoft.com/devcontainers/python:3.11
+      container_name: movlog_workspace
+      volumes:
+        - ..:/workspaces/${localWorkspaceFolderBasename}:cached
+        - /var/run/docker.sock:/var/run/docker.sock
+      networks:
+        - movlog_data_net
+        - movlog_observability_net
+      command: sleep infinity
+
   # --- CAPA DE STREAMING (REDPANDA) ---
   redpanda:
     image: docker.redpanda.com/redpandadata/redpanda:v23.3.1
@@ -107,7 +118,7 @@ services:
       - "11434:11434"
     volumes:
       - ollama_data:/root/.ollama
-    # Ollama gestionará dinámicamente la RAM para los modelos (Qwen)
+    # Ollama gestiona dinámicamente la RAM para los modelos locales
 
   # --- CAPA DE GESTIÓN (PORTAINER) ---
   portainer:
