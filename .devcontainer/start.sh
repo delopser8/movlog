@@ -59,6 +59,7 @@ echo -e "${YELLOW}>>> Sincronizando modelo Qwen 3.5 4B en segundo plano...${NC}"
 if [ ! -f .env ]; then
     cat > .env <<EOF
 # infraestructura
+OLLAMA_HOST=http://movlog_ollama:11434
 MONGODB_URL=mongodb://localhost:27017
 REDPANDA_BROKERS=localhost:19092
 LANGFUSE_HOST=http://localhost:3000
