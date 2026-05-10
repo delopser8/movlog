@@ -1,10 +1,8 @@
 {
   "name": "Movlog",
-  "dockerComposeFile": [
-    "../docker-compose.yml"
-  ],
+  "dockerComposeFile": ["docker-compose.yml"],
   "service": "workspace",
-  "workspaceFolder": "/workspaces/Movlog",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
   "hostRequirements": {
     "cpus": 4,
     "memory": "16gb"
