@@ -41,7 +41,7 @@ fi
 # --- 3. Esperar a servicios con healthcheck ---
 echo -e "${BLUE}>>> Esperando a que los servicios críticos estén healthy...${NC}"
 
-SERVICES=("redpanda" "mongodb" "langfuse_db" "langfuse" "ollama" "portainer")
+SERVICES=("redpanda" "mongodb" "langfuse_db" "langfuse" "ollama")
 
 for SERVICE in "${SERVICES[@]}"; do
   echo -n "    Esperando ${SERVICE} "

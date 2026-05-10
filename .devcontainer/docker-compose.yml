@@ -154,11 +154,11 @@ services:
       langfuse_db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/api/public/health"]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/public/health || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 10
-      start_period: 40s 
+      start_period: 60s
 
   # --- CAPA DE MODELOS (OLLAMA) ---
   ollama:
@@ -176,7 +176,7 @@ services:
         limits:
           memory: 8G
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      test: ["CMD", "ollama", "list"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -195,9 +195,3 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
     restart: always
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9000/"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
