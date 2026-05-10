@@ -12,7 +12,9 @@ volumes:
 
 services:
   workspace:
-      image: mcr.microsoft.com/devcontainers/python:3.11
+      build:
+        context: .
+        dockerfile: .devcontainer/Dockerfile
       container_name: movlog_workspace
       volumes:
         - ..:/workspaces:cached
