@@ -37,6 +37,7 @@ wait_for_port "Portainer" 9000
 
 # 2. descarga inicial del modelo Qwen 3.5 4B en Ollama
 echo -e "${YELLOW}>>> Sincronizando modelo Qwen 3.5 4B en segundo plano...${NC}"
+sleep 5
 (
     until curl -s http://localhost:11434/api/tags > /dev/null; do
         sleep 5

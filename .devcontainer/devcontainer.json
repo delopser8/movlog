@@ -7,7 +7,7 @@
     "cpus": 4,
     "memory": "16gb"
   },
-  "postCreateCommand": "sudo apt-get update && sudo apt-get install -y jq && pip install --upgrade pip && pip install -r requirements.txt && chmod +x .devcontainer/start.sh",
+  "postCreateCommand": "pip install -r requirements.txt && chmod +x .devcontainer/start.sh",
   "postStartCommand": "bash .devcontainer/start.sh",
   "forwardPorts": [
     19092, 8080, 27017, 3000, 11434, 9000
