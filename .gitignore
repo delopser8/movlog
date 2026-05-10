@@ -7,3 +7,6 @@ __pycache__/
 
 # LOGS
 *.log
+
+# DB
+db_data/movlog.duckdb

@@ -3,6 +3,7 @@ networks:
     driver: bridge
 
 volumes:
+  redpanda-data:
   mongo_data:
   langfuse_db_data:
   ollama_data:
@@ -11,8 +12,9 @@ volumes:
 services:
   workspace:
       build:
-        context: .
-        dockerfile: Dockerfile
+        context: ..
+        dockerfile: .devcontainer/Dockerfile
+      restart: unless-stopped
       container_name: movlog_workspace
       volumes:
         - ..:/workspaces:cached
@@ -20,43 +22,74 @@ services:
       networks:
         - movlog_net
       command: sleep infinity
+      ports:
+        - "18000:8000" # FastAPI
+        - "18501:8501" # Streamlit
 
   # --- CAPA DE STREAMING (REDPANDA) ---
   redpanda:
-    image: docker.redpanda.com/redpandadata/redpanda:v23.3.1
+    image: docker.redpanda.com/redpandadata/redpanda:v25.3.10
     container_name: movlog_redpanda
+    hostname: redpanda
     networks:
       - movlog_net
     command:
-      - redpanda start
-      - --smp 1
-      - --memory 1G
-      - --reserve-memory 0M
+      - redpanda
+      - start
+      - --smp
+      - "1"
+      - --memory
+      - "1G"
+      - --reserve-memory
+      - "0M"
       - --overprovisioned
-      - --kafka-addr internal://0.0.0.0:9092,external://0.0.0.0:19092
-      - --advertise-kafka-addr internal://redpanda:9092,external://localhost:19092
+      - --node-id
+      - "0"
+      - --check=false
+      - --kafka-addr
+      - PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
+      - --advertise-kafka-addr
+      - PLAINTEXT://redpanda:29092,OUTSIDE://localhost:19092
     ports:
       - "19092:19092"
-    deploy:
-      resources:
-        limits:
-          memory: 1.5G
+    volumes:
+      - redpanda-data:/var/lib/redpanda/data
+    healthcheck:
+      test: ["CMD-SHELL", "rpk cluster health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   redpanda_console:
-    image: docker.redpanda.com/redpandadata/console:latest
+    image: docker.redpanda.com/redpandadata/console:v3.5.3
     container_name: movlog_redpanda_console
+    hostname: redpanda-console
+    restart: unless-stopped
     networks:
       - movlog_net
     environment:
-      KAFKA_BROKERS: "redpanda:9092"
+      KAFKA_BROKERS: "redpanda:29092"
     ports:
-      - "8080:8080"
+      - "18080:8080"
     depends_on:
-      - redpanda
+      redpanda:
+        condition: service_healthy
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   # --- CAPA DE CONFIGURACIÓN (MONGODB) ---
   mongodb:
     image: mongo:6.0
+    hostname: mongodb
     container_name: movlog_mongodb
     networks:
       - movlog_net
@@ -68,11 +101,18 @@ services:
       resources:
         limits:
           memory: 512M
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
   # --- CAPA DE OBSERVABILIDAD IA (LANGFUSE) ---
   langfuse_db:
     image: postgres:15-alpine
     container_name: movlog_langfuse_db
+    hostname: langfuse-db
     networks:
       - movlog_net
     environment:
@@ -85,31 +125,45 @@ services:
       resources:
         limits:
           memory: 512M
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   langfuse:
     image: langfuse/langfuse:2
     container_name: movlog_langfuse
+    hostname: langfuse
     networks:
       - movlog_net
     ports:
-      - "3000:3000"
+      - "13000:3000"
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres@movlog_langfuse_db:5432/postgres
+      - DATABASE_URL=postgresql://postgres:postgres@langfuse-db:5432/postgres
       - NEXTAUTH_URL=http://localhost:3000
       - NEXTAUTH_SECRET=mysecret_random_key
       - SALT=mysalt_random_key
       - ENCRYPTION_KEY=0000000000000000000000000000000000000000000000000000000000000000
-      - TELEMETRY_ENABLED=false
-    depends_on:
-      - langfuse_db
     deploy:
       resources:
         limits:
           memory: 1G
+    depends_on:
+      langfuse_db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/public/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 40s 
 
   # --- CAPA DE MODELOS (OLLAMA) ---
   ollama:
     image: ollama/ollama:latest
+    hostname: ollama
     container_name: movlog_ollama
     networks:
       - movlog_net
@@ -117,17 +171,33 @@ services:
       - "11434:11434"
     volumes:
       - ollama_data:/root/.ollama
-    # Ollama gestiona dinámicamente la RAM para los modelos locales
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   # --- CAPA DE GESTIÓN (PORTAINER) ---
   portainer:
     image: portainer/portainer-ce:latest
+    hostname: portainer
     container_name: movlog_portainer
     networks:
       - movlog_net
     ports:
-      - "9000:9000"
+      - "19000:9000"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
     restart: always
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9000/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s

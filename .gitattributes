@@ -1,0 +1,2 @@
+# Forzar que los archivos .sh siempre usen LF, incluso en Windows
+*.sh text eol=lf

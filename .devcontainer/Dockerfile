@@ -15,5 +15,5 @@ RUN apt-get update \
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-COPY requirements.txt /tmp/
+COPY config/requirements.txt /tmp/
 RUN uv pip install --system --no-cache -r /tmp/requirements.txt

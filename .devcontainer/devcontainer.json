@@ -6,29 +6,46 @@
   "mounts": [
     "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
   ],
-  "hostRequirements": {
-    "cpus": 4,
-    "memory": "16gb"
-  },
-  "postCreateCommand": "chmod +x .devcontainer/start.sh",
-  "postStartCommand": "bash .devcontainer/start.sh",
-  "forwardPorts": [
-    19092, 8080, 27017, 3000, 11434, 9000
-  ],
-  "portsAttributes": {
-    "19092": { "label": "Redpanda Kafka", "onAutoForward": "ignore" },
-    "8080": { "label": "Redpanda Console" },
-    "3000": { "label": "Langfuse" },
-    "11434": { "label": "Ollama API" },
-    "9000": { "label": "Portainer" }
-  },
   "customizations": {
     "vscode": {
       "extensions": [
         "ms-azuretools.vscode-docker",
+        "redhat.vscode-yaml",
         "ms-python.python",
-        "njpwerner.autodocstring"
-      ]
+        "cweijan.vscode-database-client2",
+        "njpwerner.autodocstring",
+        "usernamehw.errorlens",
+        "yzhang.markdown-all-in-one"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python"
+      }
     }
+  },
+  "remoteEnv": {
+    "REDPANDA_BROKERS": "redpanda:29092",
+    "FASTAPI_URL": "http://localhost:8000",
+    "OLLAMA_HOST": "http://ollama:11434",
+    "LANGFUSE_HOST": "http://langfuse:3000",
+    "MONGODB_URL": "mongodb://mongodb:27017"
+  },
+  "hostRequirements": {
+    "cpus": 4,
+    "memory": "16gb"
+  },
+  "postCreateCommand": "chmod +x .devcontainer/start.sh .devcontainer/init_all.sh && python3 -c \"import duckdb; con = duckdb.connect('db_data/movlog.duckdb'); con.execute('INSTALL httpfs; LOAD httpfs'); con.close()\"",
+  "postStartCommand": "bash .devcontainer/start.sh",
+  "forwardPorts": [
+    19092, 18080, 27017, 13000, 11434, 19000, 18501, 18000
+  ],
+  "portsAttributes": {
+    "19092": { "label": "Redpanda Kafka", "onAutoForward": "ignore" },
+    "18080": { "label": "Redpanda Console", "onAutoForward": "ignore" },
+    "13000": { "label": "Langfuse", "onAutoForward": "ignore" },
+    "11434": { "label": "Ollama API", "onAutoForward": "ignore" },
+    "19000": { "label": "Portainer", "onAutoForward": "ignore" },
+    "18501": { "label": "Streamlit", "onAutoForward": "ignore"},
+    "18000": { "label": "FastAPI","onAutoForward": "ignore"},
+    "27017": { "label": "MongoDB", "onAutoForward": "ignore"}
   }
 }
