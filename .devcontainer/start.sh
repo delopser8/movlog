@@ -26,6 +26,15 @@ wait_for_port() {
     echo -e "${GREEN}¡LISTO!${NC}"
 }
 
+# 0. permisos Docker
+echo "Ajustando permisos del socket Docker..."
+if sudo chmod 666 /var/run/docker.sock 2>/dev/null; then
+  echo -e "    ${GREEN} Permisos ajustados correctamente${NC}"
+else
+  echo -e "    ${YELLOW} No se pudieron ajustar permisos del socket Docker${NC}"
+  echo    "    Intentando continuar de todas formas..."
+fi
+
 # 1. chequeo de puertos clave
 wait_for_port "MongoDB" 27017
 wait_for_port "Redpanda" 19092
