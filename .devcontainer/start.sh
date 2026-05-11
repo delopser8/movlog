@@ -92,10 +92,10 @@ for SERVICE in "${SERVICES[@]}"; do
 done
 
 
-# --- 4. Descargar modelo Qwen 3.5:2b en Ollama ---
-echo -e "${BLUE}>>> Descargando modelo Qwen 3.5:2b en Ollama...${NC}"
-docker exec movlog_ollama ollama pull qwen3.5:2b 2>/dev/null || {
-  echo -e "    ${YELLOW}⚠️  No se pudo descargar el modelo Qwen 3.5:2b en Ollama${NC}"
+# --- 4. Descargar modelo Qwen 3.5:0.8b en Ollama ---
+echo -e "${BLUE}>>> Descargando modelo Qwen 3.5:0.8b en Ollama...${NC}"
+docker exec movlog_ollama ollama pull qwen3.5:0.8b 2>/dev/null || {
+  echo -e "    ${YELLOW}⚠️  No se pudo descargar el modelo Qwen 3.5:0.8b en Ollama${NC}"
   echo    "    Revisa los logs de Ollama para más detalles: docker logs movlog_ollama"
 }
 
