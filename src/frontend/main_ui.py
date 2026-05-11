@@ -99,7 +99,7 @@ html, body, [class*="css"] {
 }
 
 /* ocultar botón de colapso */
-[data-testid="collapsedControl"] { display: none !important; }
+[data-testid="stSidebarCollapseButton"] { display: none !important; }
 
 /* sidebar como columna flex para poder empujar items al fondo */
 [data-testid="stSidebar"] > div:first-child {
