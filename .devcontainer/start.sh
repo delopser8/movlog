@@ -136,12 +136,15 @@ EOF
 
 source "$BASHRC" 2>/dev/null || true
 
-
 echo ""
-echo " ✔ TODO OK ✔ "
+echo "+-----------------------+"
+echo "|                       |"
+echo "|     ✔ TODO OK ✔      |"
+echo "|                       |"
+echo "+-----------------------+"
 echo ""
-echo "Accede al documento /docs/api_key_guide.md donde se explica cómo configurar tus API Key de Alpaca Markets y NewsAPI."
+echo -e "${YELLOW}Accede al documento /docs/api_key_guide.md donde se explica cómo configurar tus API Key de Alpaca Markets y NewsAPI.${NC}"
 echo ""
-echo "Cuando las tengas correctamente configuradas en el archivo .env, ejecuta por consola el siguiente comando:"
+echo -e "${YELLOW}Cuando las tengas correctamente configuradas en el archivo .env, ejecuta por consola el siguiente comando:${NC}"
 echo ""
-echo -e "${YELLOW}   start_movlog  ${NC}"
+echo -e "${YELLOW}  start_movlog  ${NC}"
