@@ -88,8 +88,8 @@ button[kind="secondary"] {
     color: white;
 }
 .nav-btn:hover, button[kind="secondary"]:hover {
-    background-color: rgb(151 166 195 / 32%);
-    color: white;
+    background-color: rgb(95 111 141 / 32%);
+    color: #d8d6d6;
 }
 .nav-btn.active, button[kind="secondary"].active {
     background: #1a2236;
