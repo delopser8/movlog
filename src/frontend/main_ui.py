@@ -157,14 +157,14 @@ with st.sidebar:
     st.markdown('<div class="sidebar-logo">MOV<span>LOG</span></div>', unsafe_allow_html=True)
 
     nav_top = [
-        ("seguimientos",    "📊", "Seguimientos"),
-        ("infraestructura", "⚙️", "Infraestructura"),
-        ("modelos",         "🤖", "Modelos"),
+        ("seguimientos",    "", "Seguimientos"),
+        ("infraestructura", "", "Infraestructura"),
+        ("modelos",         "", "Modelos"),
     ]
 
     nav_bottom = [
-        ("alertas",        "🔔", "Alertas"),
-        ("configuracion",  "⚡", "Configuración"),
+        ("alertas",        "", "Alertas"),
+        ("configuracion",  "", "Configuración"),
     ]
 
     for key, icon, label in nav_top:

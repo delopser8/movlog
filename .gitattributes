@@ -1,3 +1,4 @@
 # forzar que los archivos .sh siempre usen LF, incluso en Windows
 *.sh text eol=lf
 *.md text eol=lf
+*.py text eol=lf
