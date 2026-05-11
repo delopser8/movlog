@@ -98,10 +98,21 @@ html, body, [class*="css"] {
     text-align: center;
 }
 
+/* ocultar botón de colapso */
+[data-testid="collapsedControl"] { display: none !important; }
+
+/* sidebar como columna flex para poder empujar items al fondo */
+[data-testid="stSidebar"] > div:first-child {
+    padding: 1.5rem 1rem 1rem;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+            
 /* Ocultar elementos nativos de Streamlit */
 #MainMenu, footer, header { visibility: hidden; }
 [data-testid="stSidebarNav"] { display: none; }
-
+            
 /* Área de contenido principal */
 .main .block-container {
     padding: 2rem 2.5rem;
@@ -146,33 +157,33 @@ if "seccion_activa" not in st.session_state:
 with st.sidebar:
     st.markdown('<div class="sidebar-logo">MOV<span>LOG</span></div>', unsafe_allow_html=True)
 
-    nav_items = [
-        ("seguimientos",   "📊", "Seguimientos"),
-        ("infraestructura","⚙️", "Infraestructura"),
-        ("modelos",        "🤖", "Modelos"),
+    nav_top = [
+        ("seguimientos",    "📊", "Seguimientos"),
+        ("infraestructura", "⚙️", "Infraestructura"),
+        ("modelos",         "🤖", "Modelos"),
+    ]
+
+    nav_bottom = [
         ("alertas",        "🔔", "Alertas"),
         ("configuracion",  "⚡", "Configuración"),
     ]
 
-    for key, icon, label in nav_items:
-        is_active = st.session_state.seccion_activa == key
-        css_class = "nav-btn active" if is_active else "nav-btn"
-        clicked = st.button(
-            f"{icon}  {label}",
-            key=f"nav_{key}",
-            use_container_width=True,
-        )
+    for key, icon, label in nav_top:
+        clicked = st.button(f"{icon}  {label}", key=f"nav_{key}", use_container_width=True)
         if clicked:
             st.session_state.seccion_activa = key
             st.rerun()
 
-    # footer del sidebar
-    st.markdown("""
-    <div class="sidebar-footer">
-        v0.1.0 · local
-    </div>
-    """, unsafe_allow_html=True)
+    # empuja alertas y configuración al fondo
+    st.markdown('<div style="flex: 1;"></div>', unsafe_allow_html=True)
 
+    for key, icon, label in nav_bottom:
+        clicked = st.button(f"{icon}  {label}", key=f"nav_{key}", use_container_width=True)
+        if clicked:
+            st.session_state.seccion_activa = key
+            st.rerun()
+
+    st.markdown('<div class="sidebar-footer">v0.1.0 · local</div>', unsafe_allow_html=True)
 
 # --- renderizado de sección activa ---
 seccion = st.session_state.seccion_activa
