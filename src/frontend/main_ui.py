@@ -183,7 +183,6 @@ with st.sidebar:
             st.session_state.seccion_activa = key
             st.rerun()
 
-    st.markdown('<div class="sidebar-footer">v0.1.0 · local</div>', unsafe_allow_html=True)
 
 # --- renderizado de sección activa ---
 seccion = st.session_state.seccion_activa
