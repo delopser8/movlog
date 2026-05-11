@@ -87,7 +87,7 @@ html, body, [class*="css"] {
     background-color: rgb(151 166 195 / 32%);
     color: white;
 }
-.nav-btn.active, button[kind="secondary"]:hover {
+.nav-btn.active, button[kind="secondary"]:active {
     background: #1a2236;
     color: #3b82f6;
     font-weight: 500;
