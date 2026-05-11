@@ -84,12 +84,12 @@ html, body, [class*="css"] {
     transition: all 0.15s ease;
 }
 button[kind="secondary"] {
-    background-color: rgb(151 166 195 / 32%);
-    color: white;
-}
-.nav-btn:hover, button[kind="secondary"]:hover {
     background-color: rgb(95 111 141 / 32%);
     color: #d8d6d6;
+}
+.nav-btn:hover, button[kind="secondary"]:hover {
+    background-color: rgb(84 92 109 / 32%);
+    color: white;
 }
 .nav-btn.active, button[kind="secondary"].active {
     background: #1a2236;
