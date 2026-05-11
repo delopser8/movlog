@@ -14,6 +14,7 @@ echo ""
 echo -e "${BLUE}>>> Arrancando stack de Movlog...${NC}"
 echo ""
 
+
 # --- 1. Permisos Docker ---
 echo -e "${BLUE}>>> Ajustando permisos del socket Docker...${NC}"
 if sudo chmod 666 /var/run/docker.sock 2>/dev/null; then
@@ -25,24 +26,18 @@ fi
 
 
 # --- 2. Levantar contenedores ---
-echo -e "${BLUE}>>> Levantando contenedores (docker compose up -d)...${NC}"
+echo -e "${BLUE}>>> Levantando contenedores...${NC}"
 
-if docker ps --filter "name=redpanda" --filter "status=running" -q 2>/dev/null | grep -q .; then
-  echo "    ℹ️  Contenedores ya activos (gestionados por Codespaces), saltando start..."
-else
-  echo ">>> Limpiando estado anterior..."
-  docker compose -f "${COMPOSE_FILE}" down --remove-orphans --timeout 10 2>/dev/null || true
-  docker container prune -f 2>/dev/null || true
-  echo "    ✅ Entorno limpio"
-  docker compose -f "${COMPOSE_FILE}" up -d --remove-orphans
-  # asegurar que redpanda y mongodb están corriendo
-  sleep 8
-  docker start movlog_redpanda movlog_mongodb 2>/dev/null || true
-fi
+# Arrancar contenedores que estén Created o Exited
+docker start movlog_redpanda movlog_mongodb movlog_langfuse_db movlog_langfuse movlog_ollama movlog_portainer movlog_redpanda_console 2>/dev/null || true
 
-# asegurar que redpanda y mongodb están corriendo
-sleep 8
+# Si no existen, crearlos con compose
+docker compose -f "${COMPOSE_FILE}" up -d --no-recreate 2>/dev/null || true
+
+# Segunda pasada por si alguno quedó sin arrancar
+sleep 5
 docker start movlog_redpanda movlog_mongodb 2>/dev/null || true
+
 
 # --- 3. Esperar a servicios con healthcheck ---
 echo -e "${BLUE}>>> Esperando a que los servicios críticos estén healthy...${NC}"
