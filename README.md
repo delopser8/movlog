@@ -7,6 +7,6 @@
 ```bash
 bash .devcontainer/start.sh
 ```
-3. Cuando veas `✔ TODO OK ✔` el entorno está listo
+3. Cuando veas al final `✔ TODO OK ✔` el entorno está listo
 4. Configura tus API keys en `.env` siguiendo `/docs/api_key_guide.md`
 5. Ejecuta `start_movlog` para iniciar la aplicación

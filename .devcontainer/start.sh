@@ -136,6 +136,7 @@ EOF
 
 source "$BASHRC" 2>/dev/null || true
 
+echo "-------------------------------------------------------------------------------------"
 echo ""
 echo "+-----------------------+"
 echo "|                       |"
@@ -148,3 +149,4 @@ echo ""
 echo -e "${YELLOW}Cuando las tengas correctamente configuradas en el archivo .env, ejecuta por consola el siguiente comando:${NC}"
 echo ""
 echo -e "${YELLOW}  start_movlog  ${NC}"
+echo "-------------------------------------------------------------------------------------"
