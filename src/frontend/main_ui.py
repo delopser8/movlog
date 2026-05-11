@@ -83,7 +83,7 @@ html, body, [class*="css"] {
     text-align: left;
     transition: all 0.15s ease;
 }
-.nav-btn:hover {
+.nav-btn:hover, button[kind="secondary"]:hover {
     background-color: rgb(151 166 195 / 32%);
     color: white;
 }
