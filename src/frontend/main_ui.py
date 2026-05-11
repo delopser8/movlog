@@ -84,8 +84,7 @@ html, body, [class*="css"] {
     transition: all 0.15s ease;
 }
 .nav-btn:hover {
-    background: #1a1f26;
-    color: #c9cdd4;
+    background: rgb(134 149 180);
 }
 .nav-btn.active {
     background: #1a2236;
