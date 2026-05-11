@@ -25,16 +25,14 @@ else
 fi
 
 
-# --- 2. Levantar contenedores ---
+# --- 2. Levantar contenedores del tirón ---
 echo -e "${BLUE}>>> Levantando contenedores...${NC}"
 
-# Arrancar contenedores que estén Created o Exited
-docker start movlog_redpanda movlog_mongodb movlog_langfuse_db movlog_langfuse movlog_ollama movlog_portainer movlog_redpanda_console 2>/dev/null || true
+docker volume rm devcontainer_redpanda-data 2>/dev/null || true
 
-# Si no existen, crearlos con compose
+docker start movlog_redpanda movlog_mongodb movlog_langfuse_db movlog_langfuse movlog_ollama movlog_portainer movlog_redpanda_console 2>/dev/null || true
 docker compose -f "${COMPOSE_FILE}" up -d --no-recreate 2>/dev/null || true
 
-# Segunda pasada por si alguno quedó sin arrancar
 sleep 5
 docker start movlog_redpanda movlog_mongodb 2>/dev/null || true
 
