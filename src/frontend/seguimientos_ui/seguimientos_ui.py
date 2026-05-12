@@ -314,11 +314,13 @@ CSS = """
 .seg-cell-num { flex: 1.5; text-align: right; }
 
 /* botón selección invisible */
+/*
 .stColumn button[kind="secondary"] p,
 .stColumn button[kind="primary"] p {
     color: transparent !important;
     font-size: 1px !important;
 }
+*/
 
 /* Buscador */
 .buscar-wrap { margin: 1rem 0 0.5rem; display: flex; gap: 6px; }
