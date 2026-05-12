@@ -163,16 +163,16 @@ def _grafico_velas(df: pd.DataFrame, simbolo: str) -> go.Figure:
 CSS = """
 <style>
 /* Default de botones*/
-stMainBlockContainer  button[kind="primary"] {
+stMainBlockContainer button[kind="primary"] {
     background-color: #3b82f6;
     color: #333333;
     border: 1px solid #1f1fc9;
 }
-stMainBlockContainer  button[kind="primary"]:hover {
+stMainBlockContainer button[kind="primary"]:hover {
     background-color: #6399f1;
     border: 1px solid #1f1fc9;
 }
-stMainBlockContainer  button[kind="secondary"] {
+stMainBlockContainer button[kind="secondary"] {
     color: #333333;
 }
 
