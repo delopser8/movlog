@@ -590,10 +590,11 @@ def render():
 
                 csel, cx = st.columns([2, 1])
                 with csel:
-                    if st.button("seleccionar", key=f"sel_{i}", use_container_width=True,
-                                 type="primary" if i == idx else "secondary"):
-                        st.session_state.seg_activo_idx = i
-                        st.rerun()
+                    if i != idx:
+                        if st.button("seleccionar", key=f"sel_{i}", use_container_width=True,
+                                     type="secondary"):
+                            st.session_state.seg_activo_idx = i
+                            st.rerun()
                 with cx:
                     if st.button("eliminar", key=f"del_{i}", use_container_width=True):
                         st.session_state.seg_activos.pop(i)
