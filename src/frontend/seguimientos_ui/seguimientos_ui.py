@@ -165,7 +165,7 @@ CSS = """
 /* Default de botones*/
 .stMainBlockContainer button[kind="primary"] {
     background-color: #3b82f6;
-    color: #333333;
+    color: #ffffff;
     border: 1px solid #1f1fc9;
 }
 .stMainBlockContainer button[kind="primary"]:hover {
