@@ -642,7 +642,7 @@ def render():
         with buscar_col:
             query = st.text_input(
                 "buscar",
-                placeholder="buscar activo...",
+                placeholder="Buscar símbolo...",
                 label_visibility="collapsed",
                 key="seg_busqueda_input",
                 on_change=_on_busqueda_change,
@@ -655,30 +655,27 @@ def render():
 
         # Resultados de búsqueda
         if st.session_state.seg_resultados:
-            items_html = '<div class="resultados-wrap">'
-            for r in st.session_state.seg_resultados:
-                items_html += f'<div class="resultado-item">{r}</div>'
-            items_html += "</div>"
-            st.markdown(items_html, unsafe_allow_html=True)
-
-            # Botones para añadir resultado (uno por resultado)
             for r in st.session_state.seg_resultados:
                 if r == "Sin resultados":
-                    continue
-                if st.button(f"+ {r}", key=f"add_{r}", use_container_width=True):
-                    nuevo = {
-                        "simbolo": r, "nombre": r, "tipo": "—",
-                        "ultimo": 0.0, "var_abs": 0.0, "var_rel": 0.0,
-                        "ultima_act": "—", "mercado_abierto": False,
-                        "sector": "—", "industria": "—", "url": "—", "ticker": r,
-                        "cierre_diario": 0, "cierre_semanal": 0, "cierre_mensual": 0,
-                        "apertura_diaria": 0, "apertura_semanal": 0, "apertura_mensual": 0,
-                        "maximo_diario": 0, "maximo_semanal": 0, "maximo_mensual": 0,
-                        "minimo_diario": 0, "minimo_semanal": 0, "minimo_mensual": 0,
-                        "ratio_pe": "—", "eps": "—", "market_cap": "—", "dividend_yield": "—",
-                        "esg_score": "—", "operacion_recomendada": "Holdea", "target_price": 0,
-                        "fecha_dividendo": "—", "splits": "—",
-                    }
-                    st.session_state.seg_activos.append(nuevo)
-                    st.session_state.seg_resultados = []
-                    st.rerun()
+                    st.markdown(
+                        '<div class="resultado-item" style="color:#4b5563">Sin resultados</div>',
+                        unsafe_allow_html=True,
+                    )
+                else:
+                    if st.button(r, key=f"add_{r}", use_container_width=True):
+                        nuevo = {
+                            "simbolo": r, "nombre": r, "tipo": "—",
+                            "ultimo": 0.0, "var_abs": 0.0, "var_rel": 0.0,
+                            "ultima_act": "—", "mercado_abierto": False,
+                            "sector": "—", "industria": "—", "url": "—", "ticker": r,
+                            "cierre_diario": 0, "cierre_semanal": 0, "cierre_mensual": 0,
+                            "apertura_diaria": 0, "apertura_semanal": 0, "apertura_mensual": 0,
+                            "maximo_diario": 0, "maximo_semanal": 0, "maximo_mensual": 0,
+                            "minimo_diario": 0, "minimo_semanal": 0, "minimo_mensual": 0,
+                            "ratio_pe": "—", "eps": "—", "market_cap": "—", "dividend_yield": "—",
+                            "esg_score": "—", "operacion_recomendada": "Holdea", "target_price": 0,
+                            "fecha_dividendo": "—", "splits": "—",
+                        }
+                        st.session_state.seg_activos.append(nuevo)
+                        st.session_state.seg_resultados = []
+                        st.rerun()
