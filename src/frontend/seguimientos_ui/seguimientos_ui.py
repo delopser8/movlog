@@ -544,7 +544,6 @@ def render():
             # Cabecera
             st.markdown("""
             <div class="seg-row seg-header">
-                <div class="seg-cell seg-cell-x"></div>
                 <div class="seg-cell seg-cell-sym">Símbolo</div>
                 <div class="seg-cell seg-cell-num">Último</div>
                 <div class="seg-cell seg-cell-num">Var. Abs.</div>
@@ -558,29 +557,26 @@ def render():
                 color_abs = _color_var(a["var_abs"])
                 color_rel = _color_var(a["var_rel"])
 
-                # HTML de la fila (sin botones)
                 st.markdown(f"""
                 <div class="seg-row {sel_style}">
-                    <div class="seg-cell seg-cell-x">·</div>
                     <div class="seg-cell seg-cell-sym" style="color:#e8eaed;font-weight:500">{a["simbolo"]}</div>
                     <div class="seg-cell seg-cell-num">{a["ultimo"]:,.2f}</div>
                     <div class="seg-cell seg-cell-num" style="color:{color_abs}">{_fmt_var(a["var_abs"])}</div>
                     <div class="seg-cell seg-cell-num" style="color:{color_rel}">{_fmt_var(a["var_rel"], pct=True)}</div>
-                    <div class="seg-cell seg-cell-x">·</div>
+                    <div class="seg-cell seg-cell-x">✖</div>
                 </div>
                 """, unsafe_allow_html=True)
 
-                # Botones nativos superpuestos sobre la fila
-                cx, csel = st.columns([1, 11])
-                with cx:
-                    if st.button("✕", key=f"del_{i}", use_container_width=True):
-                        st.session_state.seg_activos.pop(i)
-                        st.session_state.seg_activo_idx = max(0, idx - 1)
-                        st.rerun()
+                csel, cx = st.columns([11, 1])
                 with csel:
                     if st.button(" ", key=f"sel_{i}", use_container_width=True,
                                  type="primary" if i == idx else "secondary"):
                         st.session_state.seg_activo_idx = i
+                        st.rerun()
+                with cx:
+                    if st.button("✕", key=f"del_{i}", use_container_width=True):
+                        st.session_state.seg_activos.pop(i)
+                        st.session_state.seg_activo_idx = max(0, idx - 1)
                         st.rerun()
         else:
             st.markdown(
