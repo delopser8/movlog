@@ -317,10 +317,10 @@ CSS = """
 .seg-cell-num { flex: 1.5; text-align: right; }
 
 /* Botones de fila — sel y del */
-.st-emotion-cache-3pwa5w + .st-emotion-cache-18kf3ut.e1rw0b1u4 .stHorizontalBlock.st-emotion-cache-1permvm.e1rw0b1u3 {
+div[width="100%"] + .st-emotion-cache-18kf3ut.e1rw0b1u4 .stHorizontalBlock.st-emotion-cache-1permvm.e1rw0b1u3 {
     scale: 0.7;
 }
-.st-emotion-cache-3pwa5w + .st-emotion-cache-18kf3ut.e1rw0b1u4 .stHorizontalBlock.st-emotion-cache-1permvm.e1rw0b1u3 p{
+div[width="100%"] + .st-emotion-cache-18kf3ut.e1rw0b1u4 .stHorizontalBlock.st-emotion-cache-1permvm.e1rw0b1u3 p{
     font-size: 1.1em;
 }
 
