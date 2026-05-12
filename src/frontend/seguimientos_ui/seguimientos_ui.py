@@ -314,15 +314,15 @@ CSS = """
 .seg-cell-num { flex: 1.5; text-align: right; }
 
 /* botón selección invisible */
-.stVerticalBlock:last-child button[kind="secondary"] p,
-.stVerticalBlock:last-child button[kind="primary"] p {
+.stColumn:last-child button[kind="secondary"] p,
+.stColumn:last-child button[kind="primary"] p {
     color: transparent !important;
     font-size: 1px !important;
 }
 
 /* Botones de fila — sel y del */
-.stVerticalBlock:last-child button[kind="secondary"],
-.stVerticalBlock:last-child button[kind="primary"] {
+.bloqueDerecha button[kind="secondary"],
+.bloqueDerecha button[kind="primary"] {
     font-family: 'IBM Plex Mono', monospace !important;
     font-size: 9px !important;
     padding: 2px 6px !important;
@@ -331,17 +331,17 @@ CSS = """
     border-radius: 4px !important;
 }
 
-.stVerticalBlock:last-child button[kind="secondary"] {
+.bloqueDerecha button[kind="secondary"] {
     background: transparent !important;
     border: 1px solid #1e2329 !important;
     color: #4b5563 !important;
 }
-.stVerticalBlock:last-child button[kind="secondary"]:hover {
+.bloqueDerecha button[kind="secondary"]:hover {
     border-color: #3b82f6 !important;
     color: #c9cdd4 !important;
 }
 
-.stVerticalBlock:last-child button[kind="primary"] {
+.bloqueDerecha button[kind="primary"] {
     background: #1a2236 !important;
     border: 1px solid #3b82f6 !important;
     color: #3b82f6 !important;
@@ -561,6 +561,7 @@ def render():
 
     # +++ BLOQUE DERECHO +++
     with col_der:
+        st.markdown('<div class="bloque-derecha">', unsafe_allow_html=True)
 
         # Título
         st.markdown('<div class="panel-titulo">Activos en seguimiento</div>', unsafe_allow_html=True)
@@ -689,3 +690,5 @@ def render():
             </div>
             """
             st.markdown(card_html, unsafe_allow_html=True)
+            
+        st.markdown('</div>', unsafe_allow_html=True)
