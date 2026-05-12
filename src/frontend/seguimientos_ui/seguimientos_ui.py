@@ -288,6 +288,9 @@ CSS = """
     border-top: 1px solid #1a1f26;
     padding: 0;
 }
+.seg-row .seg-cell {
+    color: rgb(112 113 114);
+}
 .seg-row-selected {
     background: #0f1a2e;
     border-left: 2px solid #3b82f6;
