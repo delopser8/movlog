@@ -317,12 +317,20 @@ CSS = """
 .seg-cell-num { flex: 1.5; text-align: right; }
 
 /* Botones de fila — sel y del */
-.stHorizontalBlock.st-emotion-cache-1permvm.e1rw0b1u3:not(:first-of-type) {
+.stHorizontalBlock.st-emotion-cache-1permvm.e1rw0b1u3 {
     scale: 0.7;
 }
-stHorizontalBlock.st-emotion-cache-1permvm.e1rw0b1u3:not(:first-of-type) p{
+stHorizontalBlock.st-emotion-cache-1permvm.e1rw0b1u3 p{
     font-size: 1.1em;
 }
+
+.stHorizontalBlock.st-emotion-cache-1permvm.e1rw0b1u3:first-of-type {
+    scale: inherit;
+}
+stHorizontalBlock.st-emotion-cache-1permvm.e1rw0b1u3:first-of-type p{
+    font-size: inherit;
+}
+
 
 /* Buscador */
 .buscar-wrap { margin: 1rem 0 0.5rem; display: flex; gap: 6px; }
