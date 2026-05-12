@@ -321,8 +321,8 @@ CSS = """
 }
 
 /* Botones de fila — sel y del */
-.bloque-derecha button[kind="secondary"],
-.bloque-derecha button[kind="primary"] {
+div[data-testid="stColumn"]:nth-child(2) button[kind="secondary"],
+div[data-testid="stColumn"]:nth-child(2) button[kind="primary"] {
     font-family: 'IBM Plex Mono', monospace !important;
     font-size: 9px !important;
     padding: 2px 6px !important;
@@ -331,17 +331,17 @@ CSS = """
     border-radius: 4px !important;
 }
 
-.bloque-derecha button[kind="secondary"] {
+div[data-testid="stColumn"]:nth-child(2) button[kind="secondary"] {
     background: transparent !important;
     border: 1px solid #1e2329 !important;
     color: #4b5563 !important;
 }
-.bloque-derecha button[kind="secondary"]:hover {
+div[data-testid="stColumn"]:nth-child(2) button[kind="secondary"]:hover {
     border-color: #3b82f6 !important;
     color: #c9cdd4 !important;
 }
 
-.bloque-derecha button[kind="primary"] {
+div[data-testid="stColumn"]:nth-child(2) button[kind="primary"] {
     background: #1a2236 !important;
     border: 1px solid #3b82f6 !important;
     color: #3b82f6 !important;
@@ -561,7 +561,6 @@ def render():
 
     # +++ BLOQUE DERECHO +++
     with col_der:
-        st.markdown('<div class="bloque-derecha">', unsafe_allow_html=True)
 
         # Título
         st.markdown('<div class="panel-titulo">Activos en seguimiento</div>', unsafe_allow_html=True)
@@ -690,5 +689,3 @@ def render():
             </div>
             """
             st.markdown(card_html, unsafe_allow_html=True)
-
-        st.markdown('</div>', unsafe_allow_html=True)
