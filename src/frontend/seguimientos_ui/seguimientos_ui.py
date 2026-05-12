@@ -510,8 +510,110 @@ def render():
                 unsafe_allow_html=True,
             )
 
-    # +++ BLOQUE DERECHO +++
+    # +++ BLOQUE DERECHO (CORREGIDO) +++
     with col_der:
+        st.markdown('<div class="panel-titulo">Activos en seguimiento</div>', unsafe_allow_html=True)
+        st.markdown('<hr class="panel-sep">', unsafe_allow_html=True)
+
+        # 1. TABLA DE ACTIVOS
+        if activos:
+            colores_activo = ["#3b82f6", "#6b7280", "#22c55e", "#f59e0b", "#a855f7", "#ef4444"]
+            
+            # Construcción de la tabla HTML
+            tabla_html = '<table class="seg-table"><thead><tr><th style="width:20px"></th><th style="text-align:left">Símbolo</th><th>Último</th><th>Var. Abs.</th><th>Var. Rel.</th><th style="width:24px"></th></tr></thead><tbody>'
+            
+            for i, a in enumerate(activos):
+                selected = "selected" if i == idx else ""
+                color_abs = _color_var(a["var_abs"])
+                color_rel = _color_var(a["var_rel"])
+                color_indicador = colores_activo[i % len(colores_activo)]
+                
+                tabla_html += f"""
+                <tr class="{selected}">
+                  <td style="padding-right:4px"><div style="width:12px;height:12px;border-radius:2px;background:{color_indicador}"></div></td>
+                  <td style="text-align:left;font-weight:500;color:#e8eaed">{a["simbolo"]}</td>
+                  <td>{a["ultimo"]:,.2f}</td>
+                  <td style="color:{color_abs}">{_fmt_var(a["var_abs"])}</td>
+                  <td style="color:{color_rel}">{_fmt_var(a["var_rel"], pct=True)}</td>
+                  <td></td>
+                </tr>"""
+            tabla_html += "</tbody></table>"
+            st.markdown(tabla_html, unsafe_allow_html=True)
+
+            # Botones invisibles para interactuar con la tabla
+            for i, a in enumerate(activos):
+                c1, c2 = st.columns([6, 1])
+                with c1:
+                    if st.button(f"Seleccionar {a['simbolo']}", key=f"sel_row_{i}", use_container_width=True, help="Click para ver detalles"):
+                        st.session_state.seg_activo_idx = i
+                        st.rerun()
+                with c2:
+                    if st.button("✕", key=f"delete_btn_{i}", use_container_width=True):
+                        st.session_state.seg_activos.pop(i)
+                        st.session_state.seg_activo_idx = max(0, i - 1)
+                        st.rerun()
+
+        # 2. BLOQUE DE BÚSQUEDA UNIFICADO (Como en la imagen)
+        st.markdown('<div style="height:20px"></div>', unsafe_allow_html=True)
+        
+        with st.container():
+            # Caja oscura contenedora
+            st.markdown('<div class="busqueda-wrap">', unsafe_allow_html=True)
+            
+            buscar_col, btn_col = st.columns([5, 1])
+            with buscar_col:
+                query = st.text_input("buscar", placeholder="buscar activo...", label_visibility="collapsed", key="main_search_input")
+            with btn_col:
+                if st.button("🔍", key="main_search_btn"):
+                    if query:
+                        st.session_state.seg_resultados = [r for r in RESULTADOS_BUSQUEDA if query.upper() in r] or ["Sin resultados"]
+            
+            # Resultados dentro de la misma caja
+            if st.session_state.seg_resultados:
+                st.markdown('<div style="margin-top:10px; border-top: 1px solid #1e2329; padding-top:10px;">', unsafe_allow_html=True)
+                for r in st.session_state.seg_resultados:
+                    res_col, add_col = st.columns([5, 1])
+                    with res_col:
+                        st.markdown(f'<div class="resultado-item">{r}</div>', unsafe_allow_html=True)
+                    with add_col:
+                        if r != "Sin resultados":
+                            if st.button("+", key=f"add_res_{r}"):
+                                # Lógica para añadir (puedes usar el diccionario 'nuevo' que ya tenías)
+                                nuevo_activo = {k: v for k, v in ACTIVOS_SEGUIMIENTO[0].items()} # Clonamos estructura
+                                nuevo_activo["simbolo"] = r
+                                nuevo_activo["nombre"] = r
+                                st.session_state.seg_activos.append(nuevo_activo)
+                                st.session_state.seg_resultados = []
+                                st.rerun()
+                st.markdown('</div>', unsafe_allow_html=True)
+            
+            st.markdown('</div>', unsafe_allow_html=True) # Cierre de busqueda-wrap
+
+        # 3. CARD DEL ACTIVO SELECCIONADO (Abajo del todo)
+        if activo:
+            st.markdown("<div style='height:20px'></div>", unsafe_allow_html=True)
+            color_abs = _color_var(activo["var_abs"])
+            color_rel = _color_var(activo["var_rel"])
+            mercado_badge = (
+                '<span class="badge-mercado-open">● Mercado abierto</span>'
+                if activo["mercado_abierto"]
+                else '<span class="badge-mercado-closed">● Mercado cerrado</span>'
+            )
+            
+            card_html = f"""
+            <div class="activo-card">
+                <div class="activo-card-simbolo">{activo["simbolo"]}</div>
+                <div class="activo-card-nombre">{activo["nombre"]}</div>
+                <div class="activo-card-tipo">{activo["tipo"]}</div>
+                <div class="activo-card-precio">{activo["ultimo"]:,.2f} <span style="font-size:13px;color:#6b7280">USD</span></div>
+                <div class="activo-card-vars">
+                    <span style="color:{color_abs}">{_fmt_var(activo["var_abs"])}</span> &nbsp;
+                    <span style="color:{color_rel}">{_fmt_var(activo["var_rel"], pct=True)}</span>
+                </div>
+                <div class="activo-card-meta">Última act. {activo["ultima_act"]}</div>
+                {mercado_badge}
+            </div>"""
+            st.markdown(card_html, unsafe_allow_html=True)
 
         # Título
         st.markdown('<div class="panel-titulo">Activos en seguimiento</div>', unsafe_allow_html=True)
