@@ -176,21 +176,6 @@ CSS = """
     color: #333333;
 }
 
-.seg-th {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 10px;
-    color: #4b5563;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    padding: 0 0 6px;
-}
-.seg-td {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 12px;
-    color: #c9cdd4;
-    padding: 6px 0;
-}
-
 /* Tabs General / Noticias */
 .seg-tabs { display: flex; gap: 0; margin-bottom: 1.25rem; border-bottom: 1px solid #1e2329; }
 .seg-tab {
@@ -517,39 +502,55 @@ def render():
 
         # Tabla de activos en seguimiento
         if activos:
-            # Cabecera
-            h0, h1, h2, h3, h4, h5 = st.columns([1, 3, 2.5, 2, 2, 1])
-            for col, txt in zip([h1,h2,h3,h4], ["Símbolo","Último","Var. Abs.","Var. Rel."]):
-                col.markdown(f'<div class="seg-th">{txt}</div>', unsafe_allow_html=True)
-            st.markdown('<hr class="panel-sep" style="margin:4px 0 0">', unsafe_allow_html=True)
+            header_html = """
+            <table class="seg-table">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>Símbolo</th>
+                  <th>Último</th>
+                  <th>Var. Abs.</th>
+                  <th>Var. Rel.</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+            """
+            st.markdown(header_html, unsafe_allow_html=True)
 
             for i, a in enumerate(activos):
-                selected_bg = "background:#0f1a2e;border-left:2px solid #3b82f6;" if i == idx else ""
+                selected = "selected" if i == idx else ""
                 color_abs = _color_var(a["var_abs"])
                 color_rel = _color_var(a["var_rel"])
 
-                c0, c1, c2, c3, c4, c5 = st.columns([1, 3, 2.5, 2, 2, 1])
+                row_html = f"""
+                <tr class="{selected}">
+                  <td>BOTONXXX</td>
+                  <td>{a["simbolo"]}</td>
+                  <td>{a["ultimo"]:,.2f}</td>
+                  <td style="color:{color_abs}">{_fmt_var(a["var_abs"])}</td>
+                  <td style="color:{color_rel}">{_fmt_var(a["var_rel"], pct=True)}</td>
+                  <td>X</td>
+                </tr>
+                """
+                st.markdown(row_html, unsafe_allow_html=True)
 
-                with c0:
+            st.markdown("</tbody></table>", unsafe_allow_html=True)
+
+            # Botones de selección y eliminación por fila (nativos Streamlit)
+            for i, a in enumerate(activos):
+                c1, c2 = st.columns([5, 1])
+                with c1:
+                    if st.button(a["simbolo"], key=f"sel_{i}",
+                                 use_container_width=True,
+                                 type="primary" if i == idx else "secondary"):
+                        st.session_state.seg_activo_idx = i
+                        st.rerun()
+                with c2:
                     if st.button("✕", key=f"del_{i}", use_container_width=True):
                         st.session_state.seg_activos.pop(i)
                         st.session_state.seg_activo_idx = max(0, idx - 1)
                         st.rerun()
-                with c1:
-                    st.markdown(f'<div class="seg-td" style="{selected_bg}font-weight:500;color:#e8eaed">{a["simbolo"]}</div>', unsafe_allow_html=True)
-                with c2:
-                    st.markdown(f'<div class="seg-td">{a["ultimo"]:,.2f}</div>', unsafe_allow_html=True)
-                with c3:
-                    st.markdown(f'<div class="seg-td" style="color:{color_abs}">{_fmt_var(a["var_abs"])}</div>', unsafe_allow_html=True)
-                with c4:
-                    st.markdown(f'<div class="seg-td" style="color:{color_rel}">{_fmt_var(a["var_rel"], pct=True)}</div>', unsafe_allow_html=True)
-                with c5:
-                    if st.button("›", key=f"sel_{i}", use_container_width=True,
-                                 type="primary" if i == idx else "secondary"):
-                        st.session_state.seg_activo_idx = i
-                        st.rerun()
-
-                st.markdown('<hr class="panel-sep" style="margin:0">', unsafe_allow_html=True)
         else:
             st.markdown(
                 "<div style='color:#4b5563;font-size:12px;font-family:IBM Plex Mono,monospace;"
