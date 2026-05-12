@@ -313,13 +313,6 @@ CSS = """
 .seg-cell-sym { flex: 2; }
 .seg-cell-num { flex: 1.5; text-align: right; }
 
-/* botón selección invisible */
-.stColumn:last-child button[kind="secondary"] p,
-.stColumn:last-child button[kind="primary"] p {
-    color: transparent !important;
-    font-size: 1px !important;
-}
-
 /* Botones de fila — sel y del */
 div[data-testid="stColumn"]:nth-child(2) button[kind="secondary"],
 div[data-testid="stColumn"]:nth-child(2) button[kind="primary"] {
@@ -594,7 +587,7 @@ def render():
                 </div>
                 """, unsafe_allow_html=True)
 
-                csel, cx = st.columns([11, 1])
+                csel, cx = st.columns([2, 1])
                 with csel:
                     if st.button("seleccionar", key=f"sel_{i}", use_container_width=True,
                                  type="primary" if i == idx else "secondary"):
