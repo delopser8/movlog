@@ -591,6 +591,8 @@ def render():
 
         st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
 
+        st.markdown('<hr class="panel-sep">', unsafe_allow_html=True)
+
         # Buscador
         buscar_col, btn_col = st.columns([5, 1])
         with buscar_col:
@@ -639,6 +641,8 @@ def render():
                     st.session_state.seg_resultados = []
                     st.rerun()
 
+        st.markdown('<hr class="panel-sep">', unsafe_allow_html=True)
+        
         # Card activo seleccionado (fondo del panel)
         if activo:
             st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
