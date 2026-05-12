@@ -281,6 +281,45 @@ CSS = """
 .seg-table tr.selected td { background: #0f1a2e; }
 .seg-table tr.selected td:first-child { border-left: 2px solid #3b82f6; }
 
+/* Filas simuladas */
+.seg-row {
+    display: flex;
+    align-items: center;
+    border-top: 1px solid #1a1f26;
+    padding: 0;
+}
+.seg-row-selected {
+    background: #0f1a2e;
+    border-left: 2px solid #3b82f6;
+}
+.seg-header {
+    border-top: none;
+}
+.seg-header .seg-cell {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: #4b5563;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding-bottom: 6px;
+}
+.seg-cell {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: #c9cdd4;
+    padding: 6px 4px;
+}
+.seg-cell-x   { width: 24px; flex-shrink: 0; text-align: center; }
+.seg-cell-sym { flex: 2; }
+.seg-cell-num { flex: 1.5; text-align: right; }
+
+/* botón selección invisible */
+.stMainBlockContainer div[data-testid="stHorizontalBlock"] button[kind="secondary"] p,
+.stMainBlockContainer div[data-testid="stHorizontalBlock"] button[kind="primary"] p {
+    color: transparent !important;
+    font-size: 1px !important;
+}
+
 /* Buscador */
 .buscar-wrap { margin: 1rem 0 0.5rem; display: flex; gap: 6px; }
 
@@ -502,52 +541,46 @@ def render():
 
         # Tabla de activos en seguimiento
         if activos:
-            header_html = """
-            <table class="seg-table">
-              <thead>
-                <tr>
-                  <th>Símbolo</th>
-                  <th>Último</th>
-                  <th>Var. Abs.</th>
-                  <th>Var. Rel.</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-            """
-            st.markdown(header_html, unsafe_allow_html=True)
+            # Cabecera
+            st.markdown("""
+            <div class="seg-row seg-header">
+                <div class="seg-cell seg-cell-x"></div>
+                <div class="seg-cell seg-cell-sym">Símbolo</div>
+                <div class="seg-cell seg-cell-num">Último</div>
+                <div class="seg-cell seg-cell-num">Var. Abs.</div>
+                <div class="seg-cell seg-cell-num">Var. Rel.</div>
+                <div class="seg-cell seg-cell-x"></div>
+            </div>
+            """, unsafe_allow_html=True)
 
             for i, a in enumerate(activos):
-                selected = "selected" if i == idx else ""
+                sel_style = "seg-row-selected" if i == idx else ""
                 color_abs = _color_var(a["var_abs"])
                 color_rel = _color_var(a["var_rel"])
 
-                row_html = f"""
-                <tr class="{selected}">
-                  <td>{a["simbolo"]}</td>
-                  <td>{a["ultimo"]:,.2f}</td>
-                  <td style="color:{color_abs}">{_fmt_var(a["var_abs"])}</td>
-                  <td style="color:{color_rel}">{_fmt_var(a["var_rel"], pct=True)}</td>
-                  <td>X</td>
-                </tr>
-                """
-                st.markdown(row_html, unsafe_allow_html=True)
+                # HTML de la fila (sin botones)
+                st.markdown(f"""
+                <div class="seg-row {sel_style}">
+                    <div class="seg-cell seg-cell-x">·</div>
+                    <div class="seg-cell seg-cell-sym" style="color:#e8eaed;font-weight:500">{a["simbolo"]}</div>
+                    <div class="seg-cell seg-cell-num">{a["ultimo"]:,.2f}</div>
+                    <div class="seg-cell seg-cell-num" style="color:{color_abs}">{_fmt_var(a["var_abs"])}</div>
+                    <div class="seg-cell seg-cell-num" style="color:{color_rel}">{_fmt_var(a["var_rel"], pct=True)}</div>
+                    <div class="seg-cell seg-cell-x">·</div>
+                </div>
+                """, unsafe_allow_html=True)
 
-            st.markdown("</tbody></table>", unsafe_allow_html=True)
-
-            # Botones de selección y eliminación por fila (nativos Streamlit)
-            for i, a in enumerate(activos):
-                c1, c2 = st.columns([5, 1])
-                with c1:
-                    if st.button(a["simbolo"], key=f"sel_{i}",
-                                 use_container_width=True,
-                                 type="primary" if i == idx else "secondary"):
-                        st.session_state.seg_activo_idx = i
-                        st.rerun()
-                with c2:
+                # Botones nativos superpuestos sobre la fila
+                cx, csel = st.columns([1, 11])
+                with cx:
                     if st.button("✕", key=f"del_{i}", use_container_width=True):
                         st.session_state.seg_activos.pop(i)
                         st.session_state.seg_activo_idx = max(0, idx - 1)
+                        st.rerun()
+                with csel:
+                    if st.button(" ", key=f"sel_{i}", use_container_width=True,
+                                 type="primary" if i == idx else "secondary"):
+                        st.session_state.seg_activo_idx = i
                         st.rerun()
         else:
             st.markdown(
