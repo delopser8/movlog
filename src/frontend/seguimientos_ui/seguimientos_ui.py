@@ -394,6 +394,19 @@ CSS = """
 </style>
 """
 
+# --- FUNCIONES de BÚSQUEDA ---
+def _ejecutar_busqueda(query: str):
+    if query:
+        st.session_state.seg_resultados = [
+            r for r in RESULTADOS_BUSQUEDA if query.upper() in r
+        ] or ["Sin resultados"]
+    else:
+        st.session_state.seg_resultados = []
+
+
+def _on_busqueda_change():
+    query = st.session_state.seg_busqueda_input
+    _ejecutar_busqueda(query)
 
 # --- RENDER PRINCIPAL ---
 def render():
@@ -593,9 +606,6 @@ def render():
 
         st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
 
-        #--- <hr> ---
-        # st.markdown('<hr class="panel-sep">', unsafe_allow_html=True)
-
         # Card activo seleccionado (fondo del panel)
         if activo:
             st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
@@ -632,18 +642,16 @@ def render():
         with buscar_col:
             query = st.text_input(
                 "buscar",
-                placeholder="Buscar activo...",
+                placeholder="buscar activo...",
                 label_visibility="collapsed",
                 key="seg_busqueda_input",
+                on_change=_on_busqueda_change,
             )
         with btn_col:
             buscar = st.button("🔍", key="btn_buscar", use_container_width=True)
 
-        if buscar and query:
-            # Mock: filtra por texto. Aquí irá la llamada real a yfinance/Alpaca.
-            st.session_state.seg_resultados = [
-                r for r in RESULTADOS_BUSQUEDA if query.upper() in r
-            ] or ["Sin resultados"]
+        if buscar:
+            _ejecutar_busqueda(query)
 
         # Resultados de búsqueda
         if st.session_state.seg_resultados:
