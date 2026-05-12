@@ -162,9 +162,16 @@ def _grafico_velas(df: pd.DataFrame, simbolo: str) -> go.Figure:
 # --- CSS de SEGUIMIENTOS ---
 CSS = """
 <style>
-/* Default para botones*/
+/* Default de botones*/
 button[kind="primary"] {
     background-color: #3b82f6;
+    color: #333333;
+    border: 1px solid #1f1fc9;
+}
+button[kind="primary"]:hover {
+    background-color: #6399f1;
+}
+button[kind="secondary"] {
     color: #333333;
 }
 
