@@ -57,7 +57,7 @@ ACTIVOS_SEGUIMIENTO = [
 
 RESULTADOS_BUSQUEDA = ["BITCOIN", "SP500", "NASDAQ", "GOLD", "AAPL"]
 
-def _mock_velas(simbolo: str) -> pd.DataFrame:
+def _mock_velas(simbolo: str) -> pd.DataFrame:          # <-- GENERADOR DE DATOS DE PRUEBA PARA EL GRÁFICO DE VELAS (OHLCV)
     """Genera datos OHLCV de prueba para el gráfico de velas."""
     np.random.seed(hash(simbolo) % 9999)
     n = 120
@@ -75,7 +75,8 @@ def _mock_velas(simbolo: str) -> pd.DataFrame:
     return pd.DataFrame(datos)
 
 
-# --- Helpers visuales ---
+# --- HELPERS VISUALES ---
+# color número -> POSITIVO (verde) | NEGATIVO (rojo) | NEUTRO (gris)
 def _color_var(val: float) -> str:
     if val > 0:
         return "#22c55e"
@@ -83,13 +84,13 @@ def _color_var(val: float) -> str:
         return "#ef4444"
     return "#6b7280"
 
-
-def _fmt_var(val: float, pct: bool = False) -> str:
+# formato número -> añade signo +/-, separador de 'miles', 2 decimales, opcionalmente añade % al final
+def _fmt_var(val: float, pct: bool = False) -> str: 
     signo = "+" if val > 0 else ""
     sufijo = "%" if pct else ""
     return f"{signo}{val:,.2f}{sufijo}"
 
-
+# gráfico de velas (Plotly), con colores personalizados y diseño adaptado al tema oscuro
 def _grafico_velas(df: pd.DataFrame, simbolo: str) -> go.Figure:
     fig = go.Figure()
 
@@ -158,9 +159,15 @@ def _grafico_velas(df: pd.DataFrame, simbolo: str) -> go.Figure:
     return fig
 
 
-# --- CSS de seguimientos ---
+# --- CSS de SEGUIMIENTOS ---
 CSS = """
 <style>
+/* Default para botones*/
+button[kind="primary"] {
+    background-color: #3b82f6;
+    color: #333333;
+}
+
 /* Tabs General / Noticias */
 .seg-tabs { display: flex; gap: 0; margin-bottom: 1.25rem; border-bottom: 1px solid #1e2329; }
 .seg-tab {
@@ -380,7 +387,7 @@ def render():
 
         st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
 
-        # TAB GENERAL
+        # --- TAB GENERAL ---
         if st.session_state.seg_tab == "general":
 
             if not activo:
@@ -522,7 +529,7 @@ def render():
                 """
                 st.markdown(grid_html, unsafe_allow_html=True)
 
-        # TAB NOTICIAS
+        # --- TAB NOTICIAS ---
         else:
             st.markdown(
                 "<div style='color:#4b5563;font-size:13px;padding:2rem 0;text-align:center'>"
