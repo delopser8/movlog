@@ -347,7 +347,7 @@ CSS = """
     margin-bottom: 4px;
 }
 .badge-mercado-open   { background: #052e16; color: #22c55e; font-size: 10px; padding: 2px 8px; border-radius: 20px; font-family: 'IBM Plex Mono', monospace; }
-.badge-mercado-closed { background: #1a1f26; color: #6b7280; font-size: 10px; padding: 2px 8px; border-radius: 20px; font-family: 'IBM Plex Mono', monospace; }
+.badge-mercado-closed { background: #4f4200; color: #9a9a9a; font-size: 10px; padding: 2px 8px; border-radius: 20px; font-family: 'IBM Plex Mono', monospace; }
 </style>
 """
 
