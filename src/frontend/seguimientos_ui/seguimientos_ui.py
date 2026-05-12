@@ -320,6 +320,33 @@ CSS = """
     font-size: 1px !important;
 }
 
+/* Botones de fila — sel y del */
+div[data-testid="stHorizontalBlock"] button[kind="secondary"],
+div[data-testid="stHorizontalBlock"] button[kind="primary"] {
+    font-family: 'IBM Plex Mono', monospace !important;
+    font-size: 9px !important;
+    padding: 2px 6px !important;
+    height: 22px !important;
+    min-height: unset !important;
+    border-radius: 4px !important;
+}
+
+div[data-testid="stHorizontalBlock"] button[kind="secondary"] {
+    background: transparent !important;
+    border: 1px solid #1e2329 !important;
+    color: #4b5563 !important;
+}
+div[data-testid="stHorizontalBlock"] button[kind="secondary"]:hover {
+    border-color: #3b82f6 !important;
+    color: #c9cdd4 !important;
+}
+
+div[data-testid="stHorizontalBlock"] button[kind="primary"] {
+    background: #1a2236 !important;
+    border: 1px solid #3b82f6 !important;
+    color: #3b82f6 !important;
+}
+
 /* Buscador */
 .buscar-wrap { margin: 1rem 0 0.5rem; display: flex; gap: 6px; }
 
@@ -569,12 +596,12 @@ def render():
 
                 csel, cx = st.columns([11, 1])
                 with csel:
-                    if st.button(" ", key=f"sel_{i}", use_container_width=True,
+                    if st.button("seleccionar", key=f"sel_{i}", use_container_width=True,
                                  type="primary" if i == idx else "secondary"):
                         st.session_state.seg_activo_idx = i
                         st.rerun()
                 with cx:
-                    if st.button("✕", key=f"del_{i}", use_container_width=True):
+                    if st.button("eliminar", key=f"del_{i}", use_container_width=True):
                         st.session_state.seg_activos.pop(i)
                         st.session_state.seg_activo_idx = max(0, idx - 1)
                         st.rerun()
