@@ -584,7 +584,7 @@ def render():
 
                 st.markdown(f"""
                 <div class="seg-row {sel_style}">
-                    <div class="seg-cell seg-cell-sym" style="color:#e8eaed;font-weight:500">{a["simbolo"]}</div>
+                    <div class="seg-cell seg-cell-sym" style="color:rgb(112 113 114);font-weight:500">{a["simbolo"]}</div>
                     <div class="seg-cell seg-cell-num">{a["ultimo"]:,.2f}</div>
                     <div class="seg-cell seg-cell-num" style="color:{color_abs}">{_fmt_var(a["var_abs"])}</div>
                     <div class="seg-cell seg-cell-num" style="color:{color_rel}">{_fmt_var(a["var_rel"], pct=True)}</div>
