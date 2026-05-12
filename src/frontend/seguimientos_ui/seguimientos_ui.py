@@ -658,7 +658,7 @@ def render():
             for r in st.session_state.seg_resultados:
                 if r == "Sin resultados":
                     st.markdown(
-                        '<div class="resultado-item" style="color:#4b5563">Sin resultados</div>',
+                        '<div class="resultado-item" style="color:rgb(134 151 174)">Sin resultados</div>',
                         unsafe_allow_html=True,
                     )
                 else:
