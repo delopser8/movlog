@@ -317,33 +317,12 @@ CSS = """
 .seg-cell-num { flex: 1.5; text-align: right; }
 
 /* Botones de fila — sel y del */
-/*
-div[data-testid="stColumn"]:nth-child(2) button[kind="secondary"],
-div[data-testid="stColumn"]:nth-child(2) button[kind="primary"] {
-    font-family: 'IBM Plex Mono', monospace !important;
-    font-size: 9px !important;
-    padding: 2px 6px !important;
-    height: 22px !important;
-    min-height: unset !important;
-    border-radius: 4px !important;
+.stHorizontalBlock.st-emotion-cache-1permvm.e1rw0b1u3 {
+    scale: 0.7;
 }
-
-div[data-testid="stColumn"]:nth-child(2) button[kind="secondary"] {
-    background: transparent !important;
-    border: 1px solid #1e2329 !important;
-    color: #4b5563 !important;
+.stHorizontalBlock.st-emotion-cache-1permvm.e1rw0b1u3 p{
+    font-size: 1.1em;
 }
-div[data-testid="stColumn"]:nth-child(2) button[kind="secondary"]:hover {
-    border-color: #3b82f6 !important;
-    color: #c9cdd4 !important;
-}
-
-div[data-testid="stColumn"]:nth-child(2) button[kind="primary"] {
-    background: #1a2236 !important;
-    border: 1px solid #3b82f6 !important;
-    color: #3b82f6 !important;
-}
-*/
 
 /* Buscador */
 .buscar-wrap { margin: 1rem 0 0.5rem; display: flex; gap: 6px; }
