@@ -314,15 +314,15 @@ CSS = """
 .seg-cell-num { flex: 1.5; text-align: right; }
 
 /* botón selección invisible */
-.stColumn:last-child button[kind="secondary"] p,
-.stColumn:last-child button[kind="primary"] p {
+.stVerticalBlock:last-child div[data-testid="stHorizontalBlock"] button[kind="secondary"] p,
+.stVerticalBlock:last-child div[data-testid="stHorizontalBlock"] button[kind="primary"] p {
     color: transparent !important;
     font-size: 1px !important;
 }
 
 /* Botones de fila — sel y del */
-div[data-testid="stHorizontalBlock"] button[kind="secondary"],
-div[data-testid="stHorizontalBlock"] button[kind="primary"] {
+.stVerticalBlock:last-child div[data-testid="stHorizontalBlock"] button[kind="secondary"],
+.stVerticalBlock:last-child div[data-testid="stHorizontalBlock"] button[kind="primary"] {
     font-family: 'IBM Plex Mono', monospace !important;
     font-size: 9px !important;
     padding: 2px 6px !important;
@@ -331,17 +331,17 @@ div[data-testid="stHorizontalBlock"] button[kind="primary"] {
     border-radius: 4px !important;
 }
 
-div[data-testid="stHorizontalBlock"] button[kind="secondary"] {
+.stVerticalBlock:last-child div[data-testid="stHorizontalBlock"] button[kind="secondary"] {
     background: transparent !important;
     border: 1px solid #1e2329 !important;
     color: #4b5563 !important;
 }
-div[data-testid="stHorizontalBlock"] button[kind="secondary"]:hover {
+.stVerticalBlock:last-child div[data-testid="stHorizontalBlock"] button[kind="secondary"]:hover {
     border-color: #3b82f6 !important;
     color: #c9cdd4 !important;
 }
 
-div[data-testid="stHorizontalBlock"] button[kind="primary"] {
+.stVerticalBlock:last-child div[data-testid="stHorizontalBlock"] button[kind="primary"] {
     background: #1a2236 !important;
     border: 1px solid #3b82f6 !important;
     color: #3b82f6 !important;
