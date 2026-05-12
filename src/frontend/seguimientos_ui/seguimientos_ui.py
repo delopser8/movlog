@@ -625,14 +625,14 @@ def render():
             st.markdown(card_html, unsafe_allow_html=True)
 
         #--- <hr> ---
-        st.markdown('<hr class="panel-sep">', unsafe_allow_html=True)
+        # st.markdown('<hr class="panel-sep">', unsafe_allow_html=True)
 
         # Buscador
         buscar_col, btn_col = st.columns([5, 1])
         with buscar_col:
             query = st.text_input(
                 "buscar",
-                placeholder="buscar activo...",
+                placeholder="Buscar activo...",
                 label_visibility="collapsed",
                 key="seg_busqueda_input",
             )
@@ -657,7 +657,7 @@ def render():
             for r in st.session_state.seg_resultados:
                 if r == "Sin resultados":
                     continue
-                if st.button(f"+ Añadir {r}", key=f"add_{r}", use_container_width=True):
+                if st.button(f"+ {r}", key=f"add_{r}", use_container_width=True):
                     nuevo = {
                         "simbolo": r, "nombre": r, "tipo": "—",
                         "ultimo": 0.0, "var_abs": 0.0, "var_rel": 0.0,
