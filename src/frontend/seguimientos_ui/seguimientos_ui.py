@@ -314,6 +314,7 @@ CSS = """
 .seg-cell-num { flex: 1.5; text-align: right; }
 
 /* Botones de fila — sel y del */
+/*
 div[data-testid="stColumn"]:nth-child(2) button[kind="secondary"],
 div[data-testid="stColumn"]:nth-child(2) button[kind="primary"] {
     font-family: 'IBM Plex Mono', monospace !important;
@@ -339,6 +340,7 @@ div[data-testid="stColumn"]:nth-child(2) button[kind="primary"] {
     border: 1px solid #3b82f6 !important;
     color: #3b82f6 !important;
 }
+*/
 
 /* Buscador */
 .buscar-wrap { margin: 1rem 0 0.5rem; display: flex; gap: 6px; }
@@ -583,7 +585,6 @@ def render():
                     <div class="seg-cell seg-cell-num">{a["ultimo"]:,.2f}</div>
                     <div class="seg-cell seg-cell-num" style="color:{color_abs}">{_fmt_var(a["var_abs"])}</div>
                     <div class="seg-cell seg-cell-num" style="color:{color_rel}">{_fmt_var(a["var_rel"], pct=True)}</div>
-                    <div class="seg-cell seg-cell-x">✖</div>
                 </div>
                 """, unsafe_allow_html=True)
 
