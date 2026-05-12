@@ -594,7 +594,7 @@ def render():
         st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
 
         #--- <hr> ---
-        st.markdown('<hr class="panel-sep">', unsafe_allow_html=True)
+        # st.markdown('<hr class="panel-sep">', unsafe_allow_html=True)
 
         # Card activo seleccionado (fondo del panel)
         if activo:
@@ -625,7 +625,7 @@ def render():
             st.markdown(card_html, unsafe_allow_html=True)
 
         #--- <hr> ---
-        # st.markdown('<hr class="panel-sep">', unsafe_allow_html=True)
+        st.markdown('<hr class="panel-sep">', unsafe_allow_html=True)
 
         # Buscador
         buscar_col, btn_col = st.columns([5, 1])
