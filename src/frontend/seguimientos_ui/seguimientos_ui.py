@@ -506,7 +506,6 @@ def render():
             <table class="seg-table">
               <thead>
                 <tr>
-                  <th></th>
                   <th>Símbolo</th>
                   <th>Último</th>
                   <th>Var. Abs.</th>
@@ -525,7 +524,6 @@ def render():
 
                 row_html = f"""
                 <tr class="{selected}">
-                  <td>BOTONXXX</td>
                   <td>{a["simbolo"]}</td>
                   <td>{a["ultimo"]:,.2f}</td>
                   <td style="color:{color_abs}">{_fmt_var(a["var_abs"])}</td>
