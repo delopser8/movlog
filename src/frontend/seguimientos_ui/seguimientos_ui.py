@@ -541,6 +541,8 @@ def render():
 
         # Título
         st.markdown('<div class="panel-titulo">Activos en seguimiento</div>', unsafe_allow_html=True)
+
+        #--- <hr> ---
         st.markdown('<hr class="panel-sep">', unsafe_allow_html=True)
 
         # Tabla de activos en seguimiento
@@ -591,6 +593,38 @@ def render():
 
         st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
 
+        #--- <hr> ---
+        st.markdown('<hr class="panel-sep">', unsafe_allow_html=True)
+
+        # Card activo seleccionado (fondo del panel)
+        if activo:
+            st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
+            color_abs = _color_var(activo["var_abs"])
+            color_rel = _color_var(activo["var_rel"])
+            mercado_badge = (
+                '<span class="badge-mercado-open">● Mercado abierto</span>'
+                if activo["mercado_abierto"]
+                else '<span class="badge-mercado-closed">● Mercado cerrado</span>'
+            )
+
+            card_html = f"""
+            <div class="activo-card">
+                <div class="activo-card-simbolo">{activo["simbolo"]}</div>
+                <div class="activo-card-nombre">{activo["nombre"]}</div>
+                <div class="activo-card-tipo">{activo["tipo"]}</div>
+                <div class="activo-card-precio">{activo["ultimo"]:,.2f} <span style="font-size:13px;color:#6b7280">USD</span></div>
+                <div class="activo-card-vars">
+                    <span style="color:{color_abs}">{_fmt_var(activo["var_abs"])}</span>
+                    &nbsp;
+                    <span style="color:{color_rel}">{_fmt_var(activo["var_rel"], pct=True)}</span>
+                </div>
+                <div class="activo-card-meta">Última act. {activo["ultima_act"]}</div>
+                {mercado_badge}
+            </div>
+            """
+            st.markdown(card_html, unsafe_allow_html=True)
+
+        #--- <hr> ---
         st.markdown('<hr class="panel-sep">', unsafe_allow_html=True)
 
         # Buscador
@@ -640,33 +674,3 @@ def render():
                     st.session_state.seg_activos.append(nuevo)
                     st.session_state.seg_resultados = []
                     st.rerun()
-
-        st.markdown('<hr class="panel-sep">', unsafe_allow_html=True)
-        
-        # Card activo seleccionado (fondo del panel)
-        if activo:
-            st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
-            color_abs = _color_var(activo["var_abs"])
-            color_rel = _color_var(activo["var_rel"])
-            mercado_badge = (
-                '<span class="badge-mercado-open">● Mercado abierto</span>'
-                if activo["mercado_abierto"]
-                else '<span class="badge-mercado-closed">● Mercado cerrado</span>'
-            )
-
-            card_html = f"""
-            <div class="activo-card">
-                <div class="activo-card-simbolo">{activo["simbolo"]}</div>
-                <div class="activo-card-nombre">{activo["nombre"]}</div>
-                <div class="activo-card-tipo">{activo["tipo"]}</div>
-                <div class="activo-card-precio">{activo["ultimo"]:,.2f} <span style="font-size:13px;color:#6b7280">USD</span></div>
-                <div class="activo-card-vars">
-                    <span style="color:{color_abs}">{_fmt_var(activo["var_abs"])}</span>
-                    &nbsp;
-                    <span style="color:{color_rel}">{_fmt_var(activo["var_rel"], pct=True)}</span>
-                </div>
-                <div class="activo-card-meta">Última act. {activo["ultima_act"]}</div>
-                {mercado_badge}
-            </div>
-            """
-            st.markdown(card_html, unsafe_allow_html=True)
