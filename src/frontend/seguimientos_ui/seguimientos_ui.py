@@ -289,7 +289,7 @@ CSS = """
     padding: 0;
 }
 .seg-row .seg-cell {
-    color: rgb(112 113 114);
+    color: rgb(160 160 160);
 }
 .seg-row-selected {
     background: #0f1a2e;
@@ -578,7 +578,7 @@ def render():
 
                 st.markdown(f"""
                 <div class="seg-row {sel_style}">
-                    <div class="seg-cell seg-cell-sym" style="color:rgb(160 160 160);font-weight:500">{a["simbolo"]}</div>
+                    <div class="seg-cell seg-cell-sym" style="color:rgb(184 184 184);font-weight:500">{a["simbolo"]}</div>
                     <div class="seg-cell seg-cell-num">{a["ultimo"]:,.2f}</div>
                     <div class="seg-cell seg-cell-num" style="color:{color_abs}">{_fmt_var(a["var_abs"])}</div>
                     <div class="seg-cell seg-cell-num" style="color:{color_rel}">{_fmt_var(a["var_rel"], pct=True)}</div>
