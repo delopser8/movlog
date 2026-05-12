@@ -314,8 +314,8 @@ CSS = """
 .seg-cell-num { flex: 1.5; text-align: right; }
 
 /* botón selección invisible */
-.stMainBlockContainer div[data-testid="stHorizontalBlock"] button[kind="secondary"] p,
-.stMainBlockContainer div[data-testid="stHorizontalBlock"] button[kind="primary"] p {
+.stColumn  div[data-testid="stHorizontalBlock"] button[kind="secondary"] p,
+.stColumn  div[data-testid="stHorizontalBlock"] button[kind="primary"] p {
     color: transparent !important;
     font-size: 1px !important;
 }
