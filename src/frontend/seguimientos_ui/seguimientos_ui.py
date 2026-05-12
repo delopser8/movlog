@@ -228,7 +228,7 @@ CSS = """
 .info-label {
     font-family: 'IBM Plex Mono', monospace;
     font-size: 10px;
-    color: #4b5563;
+    color: #818a98;
     text-transform: uppercase;
     letter-spacing: 0.06em;
     margin-bottom: 3px;
@@ -236,7 +236,7 @@ CSS = """
 .info-value {
     font-family: 'IBM Plex Mono', monospace;
     font-size: 12px;
-    color: #c9cdd4;
+    color: #d6dae0;
 }
 .info-value a { color: #3b82f6; text-decoration: none; }
 .info-value a:hover { text-decoration: underline; }
@@ -360,13 +360,13 @@ CSS = """
 .activo-card-nombre {
     font-family: 'IBM Plex Sans', sans-serif;
     font-size: 12px;
-    color: #6b7280;
+    color: #8f96a5;
     margin-bottom: 8px;
 }
 .activo-card-tipo {
     font-family: 'IBM Plex Mono', monospace;
     font-size: 10px;
-    color: #4b5563;
+    color: #8f96a5;
     text-transform: uppercase;
     letter-spacing: 0.06em;
     margin-bottom: 6px;
@@ -386,7 +386,7 @@ CSS = """
 .activo-card-meta {
     font-family: 'IBM Plex Mono', monospace;
     font-size: 10px;
-    color: #4b5563;
+    color: #8f96a5;
     margin-bottom: 4px;
 }
 .badge-mercado-open   { background: #052e16; color: #22c55e; font-size: 10px; padding: 2px 8px; border-radius: 20px; font-family: 'IBM Plex Mono', monospace; }
