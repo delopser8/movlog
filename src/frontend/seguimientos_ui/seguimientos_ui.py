@@ -347,7 +347,7 @@ CSS = """
     margin-bottom: 4px;
 }
 .badge-mercado-open   { background: #052e16; color: #22c55e; font-size: 10px; padding: 2px 8px; border-radius: 20px; font-family: 'IBM Plex Mono', monospace; }
-.badge-mercado-closed { background: #4f4200; color: #9a9a9a; font-size: 10px; padding: 2px 8px; border-radius: 20px; font-family: 'IBM Plex Mono', monospace; }
+.badge-mercado-closed { background: #4f4200; color: #dab600; font-size: 10px; padding: 2px 8px; border-radius: 20px; font-family: 'IBM Plex Mono', monospace; }
 </style>
 """
 
@@ -424,6 +424,12 @@ def render():
                 badge_cls = f"badge-{rec}"
                 badge_html = f'<span class="{badge_cls}">{activo["operacion_recomendada"]}</span>'
 
+                # formateo de números seguro según si es número eltero-decimal / string  
+                def safe_fmt(val):
+                    if isinstance(val, (int, float)):
+                        return f"{val:,.2f}"
+                    return str(val)
+
                 grid_html = f"""
                 <div class="info-grid">
                     <div class="info-cell">
@@ -442,88 +448,29 @@ def render():
                         <div class="info-label">Industria</div>
                         <div class="info-value">{activo["industria"]}</div>
                     </div>
-
                     <div class="info-cell">
                         <div class="info-label">Cierre ajust. diario</div>
-                        <div class="info-value">{activo["cierre_diario"]:,.2f}</div>
+                        <div class="info-value">{safe_fmt(activo["cierre_diario"])}</div>
                     </div>
                     <div class="info-cell">
                         <div class="info-label">Cierre ajust. semanal</div>
-                        <div class="info-value">{activo["cierre_semanal"]:,.2f}</div>
+                        <div class="info-value">{safe_fmt(activo["cierre_semanal"])}</div>
                     </div>
                     <div class="info-cell">
                         <div class="info-label">Cierre ajust. mensual</div>
-                        <div class="info-value">{activo["cierre_mensual"]:,.2f}</div>
+                        <div class="info-value">{safe_fmt(activo["cierre_mensual"])}</div>
                     </div>
-
                     <div class="info-cell">
                         <div class="info-label">Apertura diaria</div>
-                        <div class="info-value">{activo["apertura_diaria"]:,.2f}</div>
+                        <div class="info-value">{safe_fmt(activo["apertura_diaria"])}</div>
                     </div>
-                    <div class="info-cell">
-                        <div class="info-label">Apertura semanal</div>
-                        <div class="info-value">{activo["apertura_semanal"]:,.2f}</div>
-                    </div>
-                    <div class="info-cell">
-                        <div class="info-label">Apertura mensual</div>
-                        <div class="info-value">{activo["apertura_mensual"]:,.2f}</div>
-                    </div>
-
-                    <div class="info-cell">
-                        <div class="info-label">Máximo diario</div>
-                        <div class="info-value">{activo["maximo_diario"]:,.2f}</div>
-                    </div>
-                    <div class="info-cell">
-                        <div class="info-label">Máximo semanal</div>
-                        <div class="info-value">{activo["maximo_semanal"]:,.2f}</div>
-                    </div>
-                    <div class="info-cell">
-                        <div class="info-label">Máximo mensual</div>
-                        <div class="info-value">{activo["maximo_mensual"]:,.2f}</div>
-                    </div>
-
-                    <div class="info-cell">
-                        <div class="info-label">Mínimo diario</div>
-                        <div class="info-value">{activo["minimo_diario"]:,.2f}</div>
-                    </div>
-                    <div class="info-cell">
-                        <div class="info-label">Mínimo semanal</div>
-                        <div class="info-value">{activo["minimo_semanal"]:,.2f}</div>
-                    </div>
-                    <div class="info-cell">
-                        <div class="info-label">Mínimo mensual</div>
-                        <div class="info-value">{activo["minimo_mensual"]:,.2f}</div>
-                    </div>
-
                     <div class="info-cell">
                         <div class="info-label">Ratio P/E</div>
                         <div class="info-value">{activo["ratio_pe"]}</div>
                     </div>
                     <div class="info-cell">
-                        <div class="info-label">EPS</div>
-                        <div class="info-value">{activo["eps"]}</div>
-                    </div>
-                    <div class="info-cell">
                         <div class="info-label">Market Cap</div>
                         <div class="info-value">{activo["market_cap"]}</div>
-                    </div>
-
-                    <div class="info-cell">
-                        <div class="info-label">Dividend Yield</div>
-                        <div class="info-value">{activo["dividend_yield"]}</div>
-                    </div>
-                    <div class="info-cell">
-                        <div class="info-label">Fecha dividendo</div>
-                        <div class="info-value">{activo["fecha_dividendo"]}</div>
-                    </div>
-                    <div class="info-cell">
-                        <div class="info-label">Splits</div>
-                        <div class="info-value">{activo["splits"]}</div>
-                    </div>
-
-                    <div class="info-cell">
-                        <div class="info-label">ESG Score</div>
-                        <div class="info-value">{activo["esg_score"]}</div>
                     </div>
                     <div class="info-cell">
                         <div class="info-label">Recomendación</div>
@@ -531,7 +478,7 @@ def render():
                     </div>
                     <div class="info-cell">
                         <div class="info-label">Precio objetivo</div>
-                        <div class="info-value">{activo["target_price"]:,.2f}</div>
+                        <div class="info-value">{safe_fmt(activo["target_price"])}</div>
                     </div>
                 </div>
                 """
