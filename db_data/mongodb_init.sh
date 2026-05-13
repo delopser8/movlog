@@ -47,7 +47,7 @@ db.alertas.insertMany([
         alerta_id: "ram_critica",
         nombre: "RAM crítica",
         descripcion: "Uso de RAM del host en nivel crítico",
-        umbral: [95, 100],
+        umbral: 95,
         tipo: "critico",
         estado: "ON"
     },
@@ -55,7 +55,6 @@ db.alertas.insertMany([
         alerta_id: "llm_fallo",
         nombre: "Fallo LLM",
         descripcion: "El modelo de IA no ha respondido correctamente",
-        umbral: [1, 1],
         tipo: "critico",
         estado: "ON"
     }

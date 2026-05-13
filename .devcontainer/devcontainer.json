@@ -18,7 +18,16 @@
         "yzhang.markdown-all-in-one"
       ],
       "settings": {
-        "python.defaultInterpreterPath": "/usr/local/bin/python"
+          "python.defaultInterpreterPath": "/usr/local/bin/python",
+          "database-client.connections": [
+              {
+                  "name": "Movlog MongoDB",
+                  "dbType": "MongoDB",
+                  "host": "mongodb",
+                  "port": 27017,
+                  "database": "movlog"
+              }
+          ]
       }
     }
   },
