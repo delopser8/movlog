@@ -215,17 +215,27 @@ done
 echo -e " ${GREEN}✅ UI lista${NC}"
 
 
-# --- 6. mostrar enlace a la UI y API de Movlog en streamlit ---
+# --- 6. mostrar enlace a la UI y API de Movlog ---
 echo ""
 echo "────────────────────────────────────────────────────────"
 echo ""
 echo -e "  ${GREEN}✔ Movlog arrancado correctamente${NC}"
 echo ""
-echo "  UI disponible en:"
-echo -e "  ${CYAN}  http://localhost:18501${NC}"
-echo ""
-echo "  API disponible en:"
-echo -e "  ${CYAN}  http://localhost:18000/docs${NC}"
+
+if [ -n "${CODESPACE_NAME}" ]; then
+    echo "  UI disponible en:"
+    echo -e "  ${CYAN}  https://${CODESPACE_NAME}-18501.app.github.dev${NC}"
+    echo ""
+    echo "  API docs disponible en:"
+    echo -e "  ${CYAN}  https://${CODESPACE_NAME}-18000.app.github.dev/docs${NC}"
+else
+    echo "  UI disponible en:"
+    echo -e "  ${CYAN}  http://localhost:18501${NC}"
+    echo ""
+    echo "  API docs disponible en:"
+    echo -e "  ${CYAN}  http://localhost:18000/docs${NC}"
+fi
+
 echo ""
 echo -e "  Ejecuta ${YELLOW}menu${NC} para ver todos los comandos."
 echo ""

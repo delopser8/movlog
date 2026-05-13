@@ -2,7 +2,7 @@
 
 ## Inicio rápido
 
-1. Abre el Codespace y espera ~10 minutos a que se construya el entorno
+1. Abre el Codespace y espera ~8 minutos a que se construya el entorno
 2. Abre el terminal y ejecuta:
 ```bash
 bash .devcontainer/start.sh
