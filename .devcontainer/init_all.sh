@@ -92,7 +92,7 @@ fi
 # MongoDB
 if [ -f "$WORKDIR/db_data/mongodb_init.sh" ]; then
     docker cp "$WORKDIR/db_data/mongodb_init.sh" movlog_mongodb:/tmp/mongodb_init.sh
-    docker exec movlog_mongodb bash /tmp/mongodb_init.sh \
+    docker exec movlog_mongodb bash /tmp/mongodb_init.sh > /dev/null \
         && echo -e "    ${GREEN}✅ MongoDB OK${NC}" \
         || echo -e "    ${YELLOW}⚠️  MongoDB: error en mongodb_init.sh${NC}"
 else
