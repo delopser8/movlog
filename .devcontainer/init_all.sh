@@ -113,8 +113,8 @@ menu() {
     echo "  ─────────────────────────────────────────"
     echo "  start_movlog       → arranca el entorno completo"
     echo "  menu               → muestra este menú"
-    echo "  services_show      → servicios activos y sus puertos"
-    echo "  reset_all          → reinicia todo el entorno"
+    echo "  services_show      → servicios activos y su URL de acceso"
+    echo "  reset_all          → seinicia todos los servicios, sin tocar los datos"
     echo "  services_health    → chequea salud de servicios"
     echo "  databases_check    → verifica el estado de las bases de datos"
     echo "  seguimientos_check → test del pipeline completo"
@@ -126,15 +126,45 @@ services_show() {
     echo ""
     echo "  Movlog — servicios activos"
     echo "  ─────────────────────────────────────────"
-    echo "  Streamlit (UI)   → http://localhost:18501"
-    echo "  FastAPI          → http://localhost:18000"
-    echo "  FastAPI docs     → http://localhost:18000/docs"
-    echo "  Redpanda Console → http://localhost:18080"
-    echo "  Langfuse         → http://localhost:13000"
-    echo "  Portainer        → http://localhost:19000"
-    echo "  Ollama API       → http://localhost:11434"
-    echo "  MongoDB          → localhost:27017"
+    if [ -n "${CODESPACE_NAME}" ]; then
+        echo "  Streamlit (UI)   → https://${CODESPACE_NAME}-18501.app.github.dev"
+        echo "  FastAPI docs     → https://${CODESPACE_NAME}-18000.app.github.dev/docs"
+        echo "  Redpanda Console → https://${CODESPACE_NAME}-18080.app.github.dev"
+        echo "  Langfuse         → https://${CODESPACE_NAME}-13000.app.github.dev"
+        echo "  Portainer        → https://${CODESPACE_NAME}-19000.app.github.dev"
+        echo "  Ollama API       → https://${CODESPACE_NAME}-11434.app.github.dev"
+    else
+        echo "  Streamlit (UI)   → http://localhost:18501"
+        echo "  FastAPI docs     → http://localhost:18000/docs"
+        echo "  Redpanda Console → http://localhost:18080"
+        echo "  Langfuse         → http://localhost:13000"
+        echo "  Portainer        → http://localhost:19000"
+        echo "  Ollama API       → http://localhost:11434"
+    fi
+    echo "  MongoDB          → Panel lateral de VS Code (Database Client)"
     echo ""
+}
+
+reset_all() {
+    echo "⚠️  Esto reiniciará todos los servicios de Movlog (los datos no se tocan)."
+    read -p "   ¿Continuar? [s/N] " confirm
+    if [[ ! "$confirm" =~ ^[sS]$ ]]; then
+        echo "Cancelado."
+        return
+    fi
+
+    echo ""
+    echo "  Deteniendo FastAPI y Streamlit..."
+    pkill -f "uvicorn app:app" 2>/dev/null || true
+    pkill -f "streamlit run" 2>/dev/null || true
+    sleep 1
+
+    echo "  Reiniciando contenedores Docker..."
+    docker compose -f /workspaces/movlog/.devcontainer/docker-compose.yml restart
+    sleep 5
+
+    echo "  Relanzando Movlog..."
+    source /workspaces/movlog/.devcontainer/init_all.sh
 }
  
 services_health()    { bash "$HOME/tests/services_health_test.sh"; }

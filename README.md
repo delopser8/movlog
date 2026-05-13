@@ -13,6 +13,8 @@ bash .devcontainer/start.sh
 
 ## Soluciones de errores
 
-- Si una vez arrancado todo el sistema, "start_movlog" da problemas, se recomienda borrar el Codespaces actual y crear uno nuevo.
+- **Entorno roto tras `start_movlog`:** Borra el Codespace actual y crea uno nuevo.
 
-- Si la vista de swagger de la API no carga, comprueba que al final de la URL esté el /docs.
+- **API /docs (Swagger) no carga:** Comprueba que la URL termine en `/docs`.
+
+- **Servicio caído o UI/API sin respuesta:** Ejecuta `reset_all` en el terminal para reiniciar todos los servicios sin tocar los datos.
