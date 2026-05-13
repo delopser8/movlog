@@ -170,7 +170,7 @@ echo -e "${CYAN}>>> Inicializando Movlog...${NC}"
 pkill -f "uvicorn app:app" 2>/dev/null || true
 sleep 1
  
-nohup python3 -m uvicorn app:app \
+nohup env PYTHONPATH="$WORKDIR/src/backend" python3 -m uvicorn app:app \
     --host 0.0.0.0 \
     --port 8000 \
     --reload \
@@ -193,7 +193,7 @@ echo -e " ${GREEN}✅ FastAPI lista${NC}"
 pkill -f "streamlit run" 2>/dev/null || true
 sleep 1
  
-nohup python3 -m streamlit run \
+nohup env PYTHONPATH="$WORKDIR/src" python3 -m streamlit run \
     "$WORKDIR/src/frontend/main_ui.py" \
     --server.port 8501 \
     --server.address 0.0.0.0 \
