@@ -45,7 +45,7 @@ while true; do
     # Hugging Face
     HF_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
         -H "Authorization: Bearer ${HF_API_TOKEN}" \
-        "https://huggingface.co/api/whoami")
+        "https://huggingface.co/api/models/ProsusAI/finbert")
 
     if [ "${HF_STATUS}" = "200" ]; then
         echo -e "    ${GREEN}✅ Hugging Face OK${NC}"
