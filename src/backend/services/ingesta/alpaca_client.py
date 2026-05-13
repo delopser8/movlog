@@ -16,6 +16,7 @@ from loguru import logger
 from alpaca.trading.client import TradingClient
 from alpaca.trading.requests import GetAssetsRequest
 from alpaca.trading.enums import AssetClass, AssetStatus
+from dotenv import load_dotenv
 
 
 ALPACA_API_KEY    = os.getenv("ALPACA_API_KEY", "")
@@ -24,7 +25,10 @@ ASSETS_PATH       = Path("db_data/alpaca_assets.json")
 
 
 def _get_client() -> TradingClient:
-    return TradingClient(ALPACA_API_KEY, ALPACA_SECRET_KEY, paper=True)
+    load_dotenv()
+    api_key = os.getenv("ALPACA_API_KEY", "")
+    secret_key = os.getenv("ALPACA_SECRET_KEY", "")
+    return TradingClient(api_key, secret_key, paper=True)
 
 
 # --- Carga de assets (catálogo de símbolos) ---
