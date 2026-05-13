@@ -83,13 +83,19 @@ def assets_disponibles() -> list[dict]:
         return []
 
 def buscar_assets(query: str, limite: int = 10) -> list[dict]:
-    #filtra la lista local por ticker o nombre.
     q = query.upper()
     assets = assets_disponibles()
-    resultados = [
-        a for a in assets
-        if q in a["ticker"].upper() or q in a["nombre"].upper()
-    ]
+    
+    # 1. ticker empieza por q (más relevante)
+    exactos = [a for a in assets if a["ticker"].startswith(q)]
+    
+    # 2. ticker contiene q pero no empieza por él
+    contiene_ticker = [a for a in assets if q in a["ticker"] and not a["ticker"].startswith(q)]
+    
+    # 3. solo aparece en el nombre
+    solo_nombre = [a for a in assets if q not in a["ticker"] and q in a["nombre"].upper()]
+    
+    resultados = exactos + contiene_ticker + solo_nombre
     return resultados[:limite]
 
 
