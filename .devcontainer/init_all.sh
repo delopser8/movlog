@@ -71,23 +71,28 @@ echo ""
         # db_data/duckdb_init.sql
         # db_data/mongodb_init.sh
 echo -e "${CYAN}>>> Inicializando bases de datos...${NC}"
- 
-if [ -f "$WORKDIR/db_data/duckdb_init.sql" ]; then
+
+# DuckDB
+if [ -f "$WORKDIR/db_data/duckdb_init.sql" ] && [ -s "$WORKDIR/db_data/duckdb_init.sql" ]; then
     python3 -c "
 import duckdb
 con = duckdb.connect('$WORKDIR/db_data/movlog.duckdb')
 with open('$WORKDIR/db_data/duckdb_init.sql', 'r') as f:
     sql = f.read()
-con.executescript(sql)
+for statement in sql.split(';'):
+    if statement.strip():
+        con.execute(statement)
 con.close()
 " && echo -e "    ${GREEN}✅ DuckDB OK${NC}" \
   || echo -e "    ${YELLOW}⚠️  DuckDB: error al ejecutar duckdb_init.sql${NC}"
 else
-    echo -e "    ${YELLOW}⚠️  db_data/duckdb_init.sql no encontrado — saltando${NC}"
+    echo -e "    ${YELLOW}⚠️  duckdb_init.sql vacío — saltando${NC}"
 fi
- 
+
+# MongoDB
 if [ -f "$WORKDIR/db_data/mongodb_init.sh" ]; then
-    bash "$WORKDIR/db_data/mongodb_init.sh" \
+    docker cp "$WORKDIR/db_data/mongodb_init.sh" movlog_mongodb:/tmp/mongodb_init.sh
+    docker exec movlog_mongodb bash /tmp/mongodb_init.sh \
         && echo -e "    ${GREEN}✅ MongoDB OK${NC}" \
         || echo -e "    ${YELLOW}⚠️  MongoDB: error en mongodb_init.sh${NC}"
 else
@@ -280,6 +285,6 @@ else
 fi
 
 echo ""
-echo -e "  Ejecuta ${YELLOW}menu${NC} para ver todos los comandos."
+echo -e "  Ejecuta ${YELLOW}menu${NC} para ver todos los comandos disponibles"
 echo ""
 echo "────────────────────────────────────────────────────────"

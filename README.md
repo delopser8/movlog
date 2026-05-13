@@ -10,11 +10,12 @@ bash .devcontainer/start.sh
 3. Cuando veas al final `✔ TODO OK ✔` el entorno está listo
 4. Configura tus API keys en `.env` siguiendo `/docs/api_key_guide.md`
 5. Ejecuta `start_movlog` para iniciar la aplicación
+6. Revisa que todo haya ido `✅ OK` y accede a la URL indicada por consola
 
 ## Soluciones de errores
 
 - **Entorno roto tras `start_movlog`:** Borra el Codespace actual y crea uno nuevo.
 
-- **API /docs (Swagger) no carga:** Comprueba que la URL termine en `/docs`.
+- **Fallos puntuales o servicios caídos:** Ejecuta `reset_all` para reiniciar todos los servicios sin tocar los datos. Si el problema persiste, borra el Codespace y crea uno nuevo.
 
-- **Servicio caído o UI/API sin respuesta:** Ejecuta `reset_all` en el terminal para reiniciar todos los servicios sin tocar los datos.
+- **API /docs (Swagger) no carga:** Comprueba que la URL termine en `/docs`.
