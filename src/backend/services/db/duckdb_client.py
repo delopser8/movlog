@@ -1,4 +1,4 @@
 '''
-    cliente centralizado para interactuar con DuckDB
+    servicio del cliente de DuckDB para consultas SQL a su base de datos
 '''
 

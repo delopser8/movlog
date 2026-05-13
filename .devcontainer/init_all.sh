@@ -6,6 +6,8 @@ RED="\033[0;31m"
 CYAN="\033[0;36m"
 NC="\033[0m"
 
+WORKDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
 # --- 1. CURL a Alpaca Markets y NewsAPI para validar las claves API (no se avanza hasta que den OK las peticiones) ---
 echo -e "${CYAN}>>> Validando claves API...${NC}"
 
@@ -51,30 +53,146 @@ done
 echo ""
 
 
-# 2. arrancar los esquemas de las bases de datos (PostgreSQL y MongoDB) + sus insert defaults. Están en:
-    # db_data/duckdb_init.sql
-    # db_data/mongodb_init.sh
+# --- 2. arrancar los esquemas de las bases de datos (PostgreSQL y MongoDB) + sus insert defaults ---
+    # están en: 
+        # db_data/duckdb_init.sql
+        # db_data/mongodb_init.sh
+echo -e "${CYAN}>>> Inicializando bases de datos...${NC}"
+ 
+if [ -f "$WORKDIR/db_data/duckdb_init.sql" ]; then
+    python3 -c "
+import duckdb
+con = duckdb.connect('$WORKDIR/db_data/movlog.duckdb')
+with open('$WORKDIR/db_data/duckdb_init.sql', 'r') as f:
+    sql = f.read()
+con.executescript(sql)
+con.close()
+" && echo -e "    ${GREEN}✅ DuckDB OK${NC}" \
+  || echo -e "    ${YELLOW}⚠️  DuckDB: error al ejecutar duckdb_init.sql${NC}"
+else
+    echo -e "    ${YELLOW}⚠️  db_data/duckdb_init.sql no encontrado — saltando${NC}"
+fi
+ 
+if [ -f "$WORKDIR/db_data/mongodb_init.sh" ]; then
+    bash "$WORKDIR/db_data/mongodb_init.sh" \
+        && echo -e "    ${GREEN}✅ MongoDB OK${NC}" \
+        || echo -e "    ${YELLOW}⚠️  MongoDB: error en mongodb_init.sh${NC}"
+else
+    echo -e "    ${YELLOW}⚠️  db_data/mongodb_init.sh no encontrado — saltando${NC}"
+fi
+ 
+echo ""
 
 
-# 3. crear topics de Redpanda
+# --- 3. crear topics de Redpanda ---
+echo -e "${CYAN}>>> Creando topics de Redpanda...${NC}"
+ 
+TOPICS=("activos.precios" "activos.detalles" "noticias.raw" "noticias.sentimientos" "ia.metricas")
+for TOPIC in "${TOPICS[@]}"; do
+    docker exec movlog_redpanda rpk topic create "${TOPIC}" --partitions 3 --replicas 1 2>/dev/null || true
+    echo -e "    ${GREEN}✅ ${TOPIC}${NC}"
+done
+ 
+echo ""
 
 
-# 4. crear los alias de scripts
+# --- 4. crear los alias de scripts ---
+echo -e "${CYAN}>>> Registrando alias...${NC}"
+ 
+BASHRC="$HOME/.bashrc"
+MARKER_START="# === MOVLOG ALIASES START ==="
+MARKER_END="# === MOVLOG ALIASES END ==="
+sed -i "/$MARKER_START/,/$MARKER_END/d" "$BASHRC"
+ 
+cat >> "$BASHRC" << 'ALIASES'
+# === MOVLOG ALIASES START ===
+ 
+menu() {
+    echo ""
+    echo "  Movlog — alias disponibles"
+    echo "  ─────────────────────────────────────────"
+    echo "  start_movlog       → arranca el entorno completo"
+    echo "  menu               → muestra este menú"
+    echo "  services_show      → servicios activos y sus puertos"
+    echo "  reset_all          → reinicia todo el entorno"
+    echo "  services_health    → chequea salud de servicios"
+    echo "  databases_check    → verifica el estado de las bases de datos"
+    echo "  seguimientos_check → test del pipeline completo"
+    echo "  stress_check       → prueba de estrés (aviso previo)"
+    echo ""
+}
+ 
+services_show() {
+    echo ""
+    echo "  Movlog — servicios activos"
+    echo "  ─────────────────────────────────────────"
+    echo "  Streamlit (UI)   → http://localhost:18501"
+    echo "  FastAPI          → http://localhost:18000"
+    echo "  FastAPI docs     → http://localhost:18000/docs"
+    echo "  Redpanda Console → http://localhost:18080"
+    echo "  Langfuse         → http://localhost:13000"
+    echo "  Portainer        → http://localhost:19000"
+    echo "  Ollama API       → http://localhost:11434"
+    echo "  MongoDB          → localhost:27017"
+    echo ""
+}
+ 
+services_health()    { bash "$HOME/tests/services_health_test.sh"; }
+databases_check()    { python3 "$HOME/tests/databases_test.py"; }
+seguimientos_check() { python3 "$HOME/tests/seguimientos_pipeline_test.py"; }
+ 
+stress_check() {
+    echo "⚠️  Esta prueba detendrá el sistema temporalmente."
+    read -p "   ¿Continuar? [s/N] " confirm
+    if [[ "$confirm" =~ ^[sS]$ ]]; then
+        python3 "$HOME/tests/stress_test.py"
+    else
+        echo "Cancelado."
+    fi
+}
+ 
+# === MOVLOG ALIASES END ===
+ALIASES
+ 
+source "$BASHRC" 2>/dev/null || true
+echo -e "    ${GREEN}✅ Alias registrados${NC}"
+echo ""
 
 
-# 5. inicializar todo el pipeline de Movlog
-    # inicializar schedules
-    # inicial main_ui.py
-    # ...
+# --- 5. inicializar todo el pipeline de Movlog ---
+    # inicializar API + schedules (están declarados en el arranque de app.py)
+    # inicial UI del frontend con main_ui.py
+    # esperar a que ambos estén activos antes de mostrar el menú (check de endpoints /health y /docs)
+    # mostrar enlace a la UI y API de Movlog
+    # revisar logs en /tmp/movlog_fastapi.log y /tmp/movlog_streamlit.log si alguno tarda mucho en arrancar o da error
 echo -e "${CYAN}>>> Inicializando Movlog...${NC}"
  
-# matar instancias previas de Streamlit si las hay
+pkill -f "uvicorn app:app" 2>/dev/null || true
+sleep 1
+ 
+nohup python3 -m uvicorn app:app \
+    --host 0.0.0.0 \
+    --port 8000 \
+    --reload \
+    --app-dir "$WORKDIR/src/backend" \
+    > /tmp/movlog_fastapi.log 2>&1 &
+ 
+echo -n "    Esperando FastAPI "
+ELAPSED=0
+until curl -s http://localhost:8000/health | grep -q "ok" 2>/dev/null; do
+    echo -n "."
+    sleep 2
+    ELAPSED=$((ELAPSED + 2))
+    if [ $ELAPSED -ge 30 ]; then
+        echo -e "\n    ${YELLOW}⚠️  FastAPI tardó más de 30s — revisa /tmp/movlog_fastapi.log${NC}"
+        break
+    fi
+done
+echo -e " ${GREEN}✅ FastAPI lista${NC}"
+ 
 pkill -f "streamlit run" 2>/dev/null || true
 sleep 1
-
-WORKDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
  
-# start Streamlit en background con log
 nohup python3 -m streamlit run \
     "$WORKDIR/src/frontend/main_ui.py" \
     --server.port 8501 \
@@ -83,10 +201,9 @@ nohup python3 -m streamlit run \
     --server.fileWatcherType watchdog \
     > /tmp/movlog_streamlit.log 2>&1 &
  
-# esperar a que Streamlit responda
-echo -n "    Esperando a la UI "
+echo -n "    Esperando UI "
 ELAPSED=0
-until curl -s -o /dev/null -w "%{http_code}" http://localhost:8501 | grep -q "200"; do
+until curl -s -o /dev/null -w "%{http_code}" http://localhost:8501 | grep -q "200" 2>/dev/null; do
     echo -n "."
     sleep 2
     ELAPSED=$((ELAPSED + 2))
@@ -95,9 +212,10 @@ until curl -s -o /dev/null -w "%{http_code}" http://localhost:8501 | grep -q "20
         break
     fi
 done
+echo -e " ${GREEN}✅ UI lista${NC}"
 
 
-# 6. mostrar enlace de la UI de Movlog en streamlit
+# --- 6. mostrar enlace a la UI y API de Movlog en streamlit ---
 echo ""
 echo "────────────────────────────────────────────────────────"
 echo ""
@@ -106,6 +224,9 @@ echo ""
 echo "  UI disponible en:"
 echo -e "  ${CYAN}  http://localhost:18501${NC}"
 echo ""
-echo "  Ejecuta 'menu' para ver todos los comandos disponibles."
+echo "  API disponible en:"
+echo -e "  ${CYAN}  http://localhost:18000/docs${NC}"
+echo ""
+echo -e "  Ejecuta ${YELLOW}menu${NC} para ver todos los comandos."
 echo ""
 echo "────────────────────────────────────────────────────────"

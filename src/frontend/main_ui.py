@@ -27,7 +27,7 @@ st.set_page_config(
 )
 
 # --- CSS global ---
-st.markdown("""
+st.markdown('''
 <style>
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap');
 
@@ -149,7 +149,7 @@ h2 {
     text-align: left;
 }
 </style>
-""", unsafe_allow_html=True)
+''', unsafe_allow_html=True)
 
 
 # --- estado de sesión ---

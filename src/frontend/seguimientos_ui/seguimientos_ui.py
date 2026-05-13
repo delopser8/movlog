@@ -8,6 +8,13 @@ import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
 
+from backend.services.ui.user_service import (
+    buscar_assets,
+    listar_seguimientos,
+    añadir_seguimiento,
+    eliminar_seguimiento,
+)
+
 
 # --- MOCK DATA (luego cambiar por los resultados reales) ---
 ACTIVOS_SEGUIMIENTO = [
@@ -58,7 +65,7 @@ ACTIVOS_SEGUIMIENTO = [
 RESULTADOS_BUSQUEDA = ["BITCOIN", "SP500", "NASDAQ", "GOLD", "AAPL"]
 
 def _mock_velas(simbolo: str) -> pd.DataFrame:          # <-- GENERADOR DE DATOS DE PRUEBA PARA EL GRÁFICO DE VELAS (OHLCV)
-    """Genera datos OHLCV de prueba para el gráfico de velas."""
+    '''Genera datos OHLCV de prueba para el gráfico de velas.'''
     np.random.seed(hash(simbolo) % 9999)
     n = 120
     fechas = [datetime.today() - timedelta(days=n - i) for i in range(n)]
@@ -74,6 +81,22 @@ def _mock_velas(simbolo: str) -> pd.DataFrame:          # <-- GENERADOR DE DATOS
         datos.append({"fecha": fecha, "open": open_, "high": high, "low": low, "close": close, "vol": vol})
     return pd.DataFrame(datos)
 
+
+# --- FALLBACK DE DATOS REALES (para que no pete la UI completa solo con los datos del catálogo de activos) ---
+def _activo_vacio(ticker: str, nombre: str) -> dict:
+    return {
+        "simbolo": ticker, "nombre": nombre, "tipo": "—",
+        "ultimo": 0.0, "var_abs": 0.0, "var_rel": 0.0,
+        "ultima_act": "—", "mercado_abierto": False,
+        "sector": "—", "industria": "—", "url": "—", "ticker": ticker,
+        "cierre_diario": 0, "cierre_semanal": 0, "cierre_mensual": 0,
+        "apertura_diaria": 0, "apertura_semanal": 0, "apertura_mensual": 0,
+        "maximo_diario": 0, "maximo_semanal": 0, "maximo_mensual": 0,
+        "minimo_diario": 0, "minimo_semanal": 0, "minimo_mensual": 0,
+        "ratio_pe": "—", "eps": "—", "market_cap": "—", "dividend_yield": "—",
+        "esg_score": "—", "operacion_recomendada": "—", "target_price": 0,
+        "fecha_dividendo": "—", "splits": "—",
+    }
 
 # --- HELPERS VISUALES ---
 # color número -> POSITIVO (verde) | NEGATIVO (rojo) | NEUTRO (gris)
@@ -160,7 +183,7 @@ def _grafico_velas(df: pd.DataFrame, simbolo: str) -> go.Figure:
 
 
 # --- CSS de SEGUIMIENTOS ---
-CSS = """
+CSS = '''
 <style>
 /* Default de botones*/
 .stMainBlockContainer button[kind="primary"] {
@@ -251,7 +274,8 @@ CSS = """
     font-family: 'IBM Plex Mono', monospace;
     font-size: 13px;
     font-weight: 500;
-    color: #e8eaed;
+    color: #666666;
+    font-size: 0.9em;
     margin-bottom: 0.5rem;
 }
 .panel-sep { border: none; border-top: 1px solid #1e2329; margin: 0 0 0.75rem; }
@@ -392,21 +416,23 @@ CSS = """
 .badge-mercado-open   { background: #052e16; color: #22c55e; font-size: 10px; padding: 2px 8px; border-radius: 20px; font-family: 'IBM Plex Mono', monospace; }
 .badge-mercado-closed { background: #4f4200; color: #dab600; font-size: 10px; padding: 2px 8px; border-radius: 20px; font-family: 'IBM Plex Mono', monospace; }
 </style>
-"""
+'''
 
 # --- FUNCIONES de BÚSQUEDA ---
 def _ejecutar_busqueda(query: str):
     if query:
-        st.session_state.seg_resultados = [
-            r for r in RESULTADOS_BUSQUEDA if query.upper() in r
-        ] or ["Sin resultados"]
+        resultados = buscar_assets(query, limite=8)
+        if resultados:
+            st.session_state.seg_resultados = resultados  # lista de dicts {ticker, nombre, ...}
+        else:
+            st.session_state.seg_resultados = [{"ticker": "Sin resultados", "nombre": ""}]
     else:
         st.session_state.seg_resultados = []
-
 
 def _on_busqueda_change():
     query = st.session_state.seg_busqueda_input
     _ejecutar_busqueda(query)
+
 
 # --- RENDER PRINCIPAL ---
 def render():
@@ -417,8 +443,11 @@ def render():
         st.session_state.seg_tab = "general"
     if "seg_activo_idx" not in st.session_state:
         st.session_state.seg_activo_idx = 0
-    if "seg_activos" not in st.session_state:
-        st.session_state.seg_activos = ACTIVOS_SEGUIMIENTO.copy()
+    if "seg_activos" not in st.session_state: 
+        raw = listar_seguimientos()
+        st.session_state.seg_activos = [
+            _activo_vacio(a["ticker"], a.get("nombre", a["ticker"])) for a in raw          # <---- provisional hasta que tenga el resto de datos del activo
+        ]
     if "seg_busqueda" not in st.session_state:
         st.session_state.seg_busqueda = ""
     if "seg_resultados" not in st.session_state:
@@ -434,7 +463,7 @@ def render():
     # +++ BLOQUE IZQUIERDO +++
     with col_izq:
 
-        # Tabs General / Noticias
+        # --- Tabs General / Noticias ---
         tab_col1, tab_col2, _ = st.columns([1, 1, 6])
         with tab_col1:
             if st.button("General", key="tab_general",
@@ -486,7 +515,7 @@ def render():
                         return f"{val:,.2f}"
                     return str(val)
 
-                grid_html = f"""
+                grid_html = f'''
                 <div class="info-grid">
                     <div class="info-cell">
                         <div class="info-label">Ticker</div>
@@ -537,7 +566,7 @@ def render():
                         <div class="info-value">{safe_fmt(activo["target_price"])}</div>
                     </div>
                 </div>
-                """
+                '''
                 st.markdown(grid_html, unsafe_allow_html=True)
 
         # --- TAB NOTICIAS ---
@@ -561,7 +590,7 @@ def render():
         # Tabla de activos en seguimiento
         if activos:
             # Cabecera
-            st.markdown("""
+            st.markdown('''
             <div class="seg-row seg-header">
                 <div class="seg-cell seg-cell-sym">Símbolo</div>
                 <div class="seg-cell seg-cell-num">Último</div>
@@ -569,21 +598,21 @@ def render():
                 <div class="seg-cell seg-cell-num">Var. Rel.</div>
                 <div class="seg-cell seg-cell-x"></div>
             </div>
-            """, unsafe_allow_html=True)
+            ''', unsafe_allow_html=True)
 
             for i, a in enumerate(activos):
                 sel_style = "seg-row-selected" if i == idx else ""
                 color_abs = _color_var(a["var_abs"])
                 color_rel = _color_var(a["var_rel"])
 
-                st.markdown(f"""
+                st.markdown(f'''
                 <div class="seg-row {sel_style}">
                     <div class="seg-cell seg-cell-sym" style="color:rgb(184 184 184);font-weight:500">{a["simbolo"]}</div>
                     <div class="seg-cell seg-cell-num">{a["ultimo"]:,.2f}</div>
                     <div class="seg-cell seg-cell-num" style="color:{color_abs}">{_fmt_var(a["var_abs"])}</div>
                     <div class="seg-cell seg-cell-num" style="color:{color_rel}">{_fmt_var(a["var_rel"], pct=True)}</div>
                 </div>
-                """, unsafe_allow_html=True)
+                ''', unsafe_allow_html=True)
 
                 csel, cx = st.columns([2, 1])
                 with csel:
@@ -594,7 +623,8 @@ def render():
                             st.rerun()
                 with cx:
                     if st.button("eliminar", key=f"del_{i}", use_container_width=True):
-                        st.session_state.seg_activos.pop(i)
+                        eliminar_seguimiento(a["ticker"])
+                        st.session_state.seg_activos = listar_seguimientos()  # recarga desde mongo
                         st.session_state.seg_activo_idx = max(0, idx - 1)
                         st.rerun()
         else:
@@ -617,7 +647,7 @@ def render():
                 else '<span class="badge-mercado-closed">● Mercado cerrado</span>'
             )
 
-            card_html = f"""
+            card_html = f'''
             <div class="activo-card">
                 <div class="activo-card-simbolo">{activo["simbolo"]}</div>
                 <div class="activo-card-nombre">{activo["nombre"]}</div>
@@ -631,7 +661,7 @@ def render():
                 <div class="activo-card-meta">Última act. {activo["ultima_act"]}</div>
                 {mercado_badge}
             </div>
-            """
+            '''
             st.markdown(card_html, unsafe_allow_html=True)
 
         #--- <hr> ---
@@ -656,26 +686,17 @@ def render():
         # Resultados de búsqueda
         if st.session_state.seg_resultados:
             for r in st.session_state.seg_resultados:
-                if r == "Sin resultados":
+                if r["ticker"] == "Sin resultados":
                     st.markdown(
                         '<div class="resultado-item" style="color:rgb(134 151 174)">Sin resultados</div>',
                         unsafe_allow_html=True,
                     )
                 else:
-                    if st.button(r, key=f"add_{r}", use_container_width=True):
-                        nuevo = {
-                            "simbolo": r, "nombre": r, "tipo": "—",
-                            "ultimo": 0.0, "var_abs": 0.0, "var_rel": 0.0,
-                            "ultima_act": "—", "mercado_abierto": False,
-                            "sector": "—", "industria": "—", "url": "—", "ticker": r,
-                            "cierre_diario": 0, "cierre_semanal": 0, "cierre_mensual": 0,
-                            "apertura_diaria": 0, "apertura_semanal": 0, "apertura_mensual": 0,
-                            "maximo_diario": 0, "maximo_semanal": 0, "maximo_mensual": 0,
-                            "minimo_diario": 0, "minimo_semanal": 0, "minimo_mensual": 0,
-                            "ratio_pe": "—", "eps": "—", "market_cap": "—", "dividend_yield": "—",
-                            "esg_score": "—", "operacion_recomendada": "Holdea", "target_price": 0,
-                            "fecha_dividendo": "—", "splits": "—",
-                        }
-                        st.session_state.seg_activos.append(nuevo)
-                        st.session_state.seg_resultados = []
+                    label = f"{r['ticker']} — {r['nombre']}" if r.get('nombre') else r['ticker']
+                    if st.button(label, key=f"add_{r['ticker']}", use_container_width=True):
+                        ok = añadir_seguimiento(r["ticker"], r.get("nombre", r["ticker"]))
+                        if ok:
+                            st.session_state.seg_activos = listar_seguimientos()  # recarga desde mongo
+                            st.session_state.seg_resultados = []
+                            st.session_state.seg_activo_idx = len(st.session_state.seg_activos) - 1
                         st.rerun()
