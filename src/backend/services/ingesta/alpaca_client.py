@@ -102,9 +102,7 @@ def _schedule_loop():
         time.sleep(60)
 
 def iniciar_schedule():
-    # arranca el schedule en un thread daemon, llamar desde app.py al inicio
-    # carga inicial si no existe el archivo
-    if not ASSETS_PATH.exists():
+    if not ASSETS_PATH.exists() or ASSETS_PATH.stat().st_size == 0:
         logger.info("Carga inicial de assets Alpaca...")
         cargar_assets()
 

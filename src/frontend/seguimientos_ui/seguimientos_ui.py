@@ -624,7 +624,10 @@ def render():
                 with cx:
                     if st.button("eliminar", key=f"del_{i}", use_container_width=True):
                         eliminar_seguimiento(a["ticker"])
-                        st.session_state.seg_activos = listar_seguimientos()  # recarga desde mongo
+                        st.session_state.seg_activos = [
+                            _activo_vacio(a["ticker"], a.get("nombre", a["ticker"])) 
+                            for a in listar_seguimientos()
+                        ]  # recarga desde mongo
                         st.session_state.seg_activo_idx = max(0, idx - 1)
                         st.rerun()
         else:
@@ -696,7 +699,10 @@ def render():
                     if st.button(label, key=f"add_{r['ticker']}", use_container_width=True):
                         ok = añadir_seguimiento(r["ticker"], r.get("nombre", r["ticker"]))
                         if ok:
-                            st.session_state.seg_activos = listar_seguimientos()  # recarga desde mongo
+                            st.session_state.seg_activos = [
+                                _activo_vacio(a["ticker"], a.get("nombre", a["ticker"])) 
+                                for a in listar_seguimientos()
+                            ]  # recarga desde mongo
                             st.session_state.seg_resultados = []
                             st.session_state.seg_activo_idx = len(st.session_state.seg_activos) - 1
                         st.rerun()
