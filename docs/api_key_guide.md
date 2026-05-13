@@ -21,7 +21,7 @@ Indicaciones para rellenar NEWSAPI_KEY:
 Indicaciones para rellenar HF_API_TOKEN:
 1. Accede a https://huggingface.co/ e inicia sesión o regístrate
 2. Accede a tu [configuración de tokens](https://huggingface.co/settings/tokens/new?ownUserPermissions=inference.serverless.write&tokenType=fineGrained)
-3. Crea un token de tipo "read" y llámalo "movlog-dev"
+3. Crea un token de tipo "read" con el nombre que quieras
 
 
 >>>Una vez tengas el archivo .env correctamente configurado, ejecuta por consola el siguiente comando:

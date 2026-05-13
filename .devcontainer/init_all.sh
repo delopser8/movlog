@@ -8,7 +8,7 @@ NC="\033[0m"
 
 WORKDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-# --- 1. CURL a Alpaca Markets y NewsAPI para validar las claves API (no se avanza hasta que den OK las peticiones) ---
+# --- 1. CURL a Alpaca Markets, NewsAPI y Hugging Face para validar las claves API (no se avanza hasta que den OK las peticiones) ---
 echo -e "${CYAN}>>> Validando claves API...${NC}"
 
 source .env 2>/dev/null || true
@@ -16,6 +16,7 @@ source .env 2>/dev/null || true
 while true; do
     ALPACA_OK=false
     NEWSAPI_OK=false
+    HF_OK=false
 
     # Alpaca Markets
     ALPACA_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
@@ -41,13 +42,25 @@ while true; do
         echo -e "    ${RED}❌ NewsAPI falló (HTTP ${NEWSAPI_STATUS}) — revisa NEWSAPI_KEY en .env${NC}"
     fi
 
-    if [ "${ALPACA_OK}" = true ] && [ "${NEWSAPI_OK}" = true ]; then
+    # Hugging Face
+    HF_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+        -H "Authorization: Bearer ${HF_API_TOKEN}" \
+        "https://huggingface.co/api/whoami")
+
+    if [ "${HF_STATUS}" = "200" ]; then
+        echo -e "    ${GREEN}✅ Hugging Face OK${NC}"
+        HF_OK=true
+    else
+        echo -e "    ${RED}❌ Hugging Face falló (HTTP ${HF_STATUS}) — revisa HF_API_TOKEN en .env${NC}"
+    fi
+
+    if [ "${ALPACA_OK}" = true ] && [ "${NEWSAPI_OK}" = true ] && [ "${HF_OK}" = true ]; then
         break
     fi
 
     echo -e "    ${YELLOW}⏳ Reintentando en 10s... (edita .env y guarda para que el próximo intento use los nuevos valores)${NC}"
     sleep 10
-    source .env 2>/dev/null || true  # recarga .env en cada intento por si el usuario ha editado las keys
+    source .env 2>/dev/null || true
 done
 
 echo ""
