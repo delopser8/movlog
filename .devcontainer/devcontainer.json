@@ -26,6 +26,11 @@
                   "host": "mongodb",
                   "port": 27017,
                   "database": "movlog"
+              },
+              {
+                  "name": "Movlog DuckDB",
+                  "dbType": "DuckDB",
+                  "path": "/workspaces/movlog/db_data/movlog.duckdb"
               }
           ]
       }

@@ -56,3 +56,12 @@ def añadir_seguimiento(ticker: str, nombre: str) -> bool:
 def eliminar_seguimiento(ticker: str) -> bool:
     resultado = _delete(f"/seguimientos/{ticker}")
     return bool(resultado and resultado.get("ok"))
+
+
+# --- Detalles y velas ---
+def get_detalles(ticker: str) -> dict | None:
+    return _get(f"/activos/{ticker}/detalles")
+
+def get_velas(ticker: str, timeframe: str = "1Min", limite: int = 500) -> list[dict]:
+    resultado = _get(f"/activos/{ticker}/velas", {"timeframe": timeframe, "limite": limite})
+    return resultado if isinstance(resultado, list) else []

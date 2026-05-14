@@ -7,66 +7,92 @@ CYAN="\033[0;36m"
 NC="\033[0m"
 
 WORKDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+source "$WORKDIR/.env" 2>/dev/null || true 
+
+# --- 0. MOCK MODE (modo offline) ---
+USAR_MOCK=false
+ 
+if [ "${MOCK_MODE}" = "true" ]; then
+    USAR_MOCK=true
+    echo -e "${YELLOW}>>> Modo offline activado (MOCK_MODE=true en .env)${NC}"
+    echo -e "    Datos mock de AAPL y TSLA. APIs y polling desactivados."
+    echo ""
+else
+    echo -e "${CYAN}¿Arrancar en modo offline con mock data de AAPL y TSLA? [s/N]${NC}"
+    echo -e "    (10s para responder, default N)"
+    read -t 10 -r respuesta || respuesta="n"
+    echo ""
+    if [[ "$respuesta" =~ ^[sS]$ ]]; then
+        USAR_MOCK=true
+        echo -e "    ${YELLOW}Modo offline activado.${NC}"
+        echo ""
+    fi
+fi
+
 
 # --- 1. CURL a Alpaca Markets, NewsAPI y Hugging Face para validar las claves API (no se avanza hasta que den OK las peticiones) ---
-echo -e "${CYAN}>>> Validando claves API...${NC}"
 
-source .env 2>/dev/null || true
+if [ "${USAR_MOCK}" = "false" ]; then
+    echo -e "${CYAN}>>> Validando claves API...${NC}"
+ 
+    while true; do
+        ALPACA_OK=false
+        NEWSAPI_OK=false
+        HF_OK=false
+ 
+        # Alpaca Markets
+        ALPACA_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "APCA-API-KEY-ID: ${ALPACA_API_KEY}" \
+            -H "APCA-API-SECRET-KEY: ${ALPACA_SECRET_KEY}" \
+            "https://paper-api.alpaca.markets/v2/account")
+ 
+        if [ "${ALPACA_STATUS}" = "200" ]; then
+            echo -e "    ${GREEN}✅ Alpaca Markets OK${NC}"
+            ALPACA_OK=true
+        else
+            echo -e "    ${RED}❌ Alpaca Markets falló (HTTP ${ALPACA_STATUS}) — revisa ALPACA_API_KEY y ALPACA_SECRET_KEY en .env${NC}"
+        fi
+ 
+        # NewsAPI
+        NEWSAPI_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            "https://newsapi.org/v2/top-headlines?country=us&apiKey=${NEWSAPI_KEY}&pageSize=1")
+ 
+        if [ "${NEWSAPI_STATUS}" = "200" ]; then
+            echo -e "    ${GREEN}✅ NewsAPI OK${NC}"
+            NEWSAPI_OK=true
+        else
+            echo -e "    ${RED}❌ NewsAPI falló (HTTP ${NEWSAPI_STATUS}) — revisa NEWSAPI_KEY en .env${NC}"
+        fi
+ 
+        # Hugging Face
+        HF_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Authorization: Bearer ${HF_API_TOKEN}" \
+            "https://huggingface.co/api/models/ProsusAI/finbert")
+ 
+        if [ "${HF_STATUS}" = "200" ]; then
+            echo -e "    ${GREEN}✅ Hugging Face OK${NC}"
+            HF_OK=true
+        else
+            echo -e "    ${RED}❌ Hugging Face falló (HTTP ${HF_STATUS}) — revisa HF_API_TOKEN en .env${NC}"
+        fi
+ 
+        if [ "${ALPACA_OK}" = true ] && [ "${NEWSAPI_OK}" = true ] && [ "${HF_OK}" = true ]; then
+            break
+        fi
+ 
+        echo -e "    ${YELLOW}⏳ Reintentando en 10s...${NC}"
+        sleep 10
+        source "$WORKDIR/.env" 2>/dev/null || true
+    done
+ 
+    echo ""
+else
+    echo -e "    ${YELLOW}⚠️  Validación de APIs omitida (modo offline)${NC}"
+    echo ""
+fi
+ 
 
-while true; do
-    ALPACA_OK=false
-    NEWSAPI_OK=false
-    HF_OK=false
-
-    # Alpaca Markets
-    ALPACA_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-        -H "APCA-API-KEY-ID: ${ALPACA_API_KEY}" \
-        -H "APCA-API-SECRET-KEY: ${ALPACA_SECRET_KEY}" \
-        "https://paper-api.alpaca.markets/v2/account")
-
-    if [ "${ALPACA_STATUS}" = "200" ]; then
-        echo -e "    ${GREEN}✅ Alpaca Markets OK${NC}"
-        ALPACA_OK=true
-    else
-        echo -e "    ${RED}❌ Alpaca Markets falló (HTTP ${ALPACA_STATUS}) — revisa ALPACA_API_KEY y ALPACA_SECRET_KEY en .env${NC}"
-    fi
-
-    # NewsAPI
-    NEWSAPI_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-        "https://newsapi.org/v2/top-headlines?country=us&apiKey=${NEWSAPI_KEY}&pageSize=1")
-
-    if [ "${NEWSAPI_STATUS}" = "200" ]; then
-        echo -e "    ${GREEN}✅ NewsAPI OK${NC}"
-        NEWSAPI_OK=true
-    else
-        echo -e "    ${RED}❌ NewsAPI falló (HTTP ${NEWSAPI_STATUS}) — revisa NEWSAPI_KEY en .env${NC}"
-    fi
-
-    # Hugging Face
-    HF_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-        -H "Authorization: Bearer ${HF_API_TOKEN}" \
-        "https://huggingface.co/api/models/ProsusAI/finbert")
-
-    if [ "${HF_STATUS}" = "200" ]; then
-        echo -e "    ${GREEN}✅ Hugging Face OK${NC}"
-        HF_OK=true
-    else
-        echo -e "    ${RED}❌ Hugging Face falló (HTTP ${HF_STATUS}) — revisa HF_API_TOKEN en .env${NC}"
-    fi
-
-    if [ "${ALPACA_OK}" = true ] && [ "${NEWSAPI_OK}" = true ] && [ "${HF_OK}" = true ]; then
-        break
-    fi
-
-    echo -e "    ${YELLOW}⏳ Reintentando en 10s... (edita .env y guarda para que el próximo intento use los nuevos valores)${NC}"
-    sleep 10
-    source .env 2>/dev/null || true
-done
-
-echo ""
-
-
-# --- 2. arrancar los esquemas de las bases de datos (PostgreSQL y MongoDB) + sus insert defaults ---
+# --- 2a. inicializar las bases de datos (PostgreSQL y MongoDB) + sus insert defaults ---
     # están en: 
         # db_data/duckdb_init.sql
         # db_data/mongodb_init.sh
@@ -100,6 +126,16 @@ else
 fi
  
 echo ""
+
+
+# --- 2b. mock data ---
+if [ "${USAR_MOCK}" = "true" ]; then
+    echo -e "${CYAN}>>> Cargando mock data...${NC}"
+    PYTHONPATH="$WORKDIR/src/backend" python3 "$WORKDIR/db_data/mock_data/pipeline_data.py" \
+        && echo -e "    ${GREEN}✅ Mock data OK (AAPL, TSLA)${NC}" \
+        || echo -e "    ${YELLOW}⚠️  Mock data: error al insertar${NC}"
+    echo ""
+fi
 
 
 # --- 3. crear topics de Redpanda ---
@@ -185,15 +221,15 @@ reset_all() {
     source /workspaces/movlog/.devcontainer/init_all.sh
 }
  
-services_health()    { bash "$HOME/tests/services_health_test.sh"; }
-databases_check()    { python3 "$HOME/tests/databases_test.py"; }
-seguimientos_check() { python3 "$HOME/tests/seguimientos_pipeline_test.py"; }
+services_health()    { bash "/workspaces/movlog/tests/services_health_test.sh"; }
+databases_check()    { python3 "/workspaces/movlog/tests/databases_test.py"; }
+seguimientos_check() { python3 "/workspaces/movlog/tests/seguimientos_pipeline_test.py"; }
  
 stress_check() {
     echo "⚠️  Esta prueba detendrá el sistema temporalmente."
     read -p "   ¿Continuar? [s/N] " confirm
     if [[ "$confirm" =~ ^[sS]$ ]]; then
-        python3 "$HOME/tests/stress_test.py"
+        python3 "/workspaces/movlog/tests/stress_test.py"
     else
         echo "Cancelado."
     fi
@@ -210,7 +246,7 @@ echo ""
 # --- 5. inicializar todo el pipeline de Movlog ---
     # inicializar API + schedules (están declarados en el arranque de app.py)
     # inicial UI del frontend con main_ui.py
-    # esperar a que ambos estén activos antes de mostrar el menú (check de endpoints /health y /docs)
+    # hacer la ingesta de /mock_data de AAPL y TSLA
     # mostrar enlace a la UI y API de Movlog
     # revisar logs en /tmp/movlog_fastapi.log y /tmp/movlog_streamlit.log si alguno tarda mucho en arrancar o da error
 echo -e "${CYAN}>>> Inicializando Movlog...${NC}"
@@ -268,8 +304,12 @@ echo ""
 echo "────────────────────────────────────────────────────────"
 echo ""
 echo -e "  ${GREEN}✔ Movlog arrancado correctamente${NC}"
-echo ""
 
+if [ "${USAR_MOCK}" = "true" ]; then
+    echo -e "  ${YELLOW}  Modo offline — datos mock de AAPL y TSLA${NC}"
+fi
+
+echo ""
 if [ -n "${CODESPACE_NAME}" ]; then
     echo "  UI disponible en:"
     echo -e "  ${CYAN}  https://${CODESPACE_NAME}-18501.app.github.dev${NC}"

@@ -10,7 +10,8 @@ bash .devcontainer/start.sh
 3. Cuando veas al final `✔ TODO OK ✔` el entorno está listo
 4. Configura tus API keys en `.env` siguiendo `/docs/api_key_guide.md`
 5. Ejecuta `start_movlog` para iniciar la aplicación
-6. Revisa que todo haya ido `✅ OK` y accede a la URL indicada por consola
+6. Elige si vas a usar datos simulados (mock data) o empezar de cero con el flujo normal de Movlog
+7. Revisa que todo haya ido `✅ OK` y accede a la URL indicada por consola
 
 ## Soluciones de errores
 

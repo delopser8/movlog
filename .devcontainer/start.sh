@@ -111,6 +111,8 @@ HF_API_TOKEN=tu_token_aqui
 # Langfuse
 LANGFUSE_PUBLIC_KEY=tu_key_aqui
 LANGFUSE_SECRET_KEY=tu_secret_aqui
+# modo offline con Mock Data (true/false)
+MOCK_MODE=false
 EOF
     echo -e "${GREEN}    archivo .env creado${NC}"
 fi

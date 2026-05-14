@@ -4,13 +4,19 @@
 
 
 from loguru import logger
-from services.ingesta.alpaca_client import buscar_assets
+from services.ingesta.alpaca_client import buscar_assets, cargar_velas_iniciales
+from services.ingesta.yfinance_client import cargar_detalles_activo
 from services.db.mongodb_client import (
     activos_elegidos_listar,
     activos_elegidos_añadir,
     activos_elegidos_eliminar,
 )
-
+from services.db.duckdb_client import (
+    get_activo_detalles,
+    get_velas,
+    eliminar_activo_detalles,
+)
+ 
 
 # --- Assets (carga del catálogo de símbolos) ---
 def ctrl_buscar_assets(query: str, limite: int = 10) -> list[dict]:
@@ -25,12 +31,40 @@ def ctrl_listar_seguimientos() -> list[dict]:
 
 def ctrl_añadir_seguimiento(ticker: str, nombre: str) -> dict:
     ok = activos_elegidos_añadir(ticker, nombre)
-    if ok:
-        return {"ok": True, "ticker": ticker}
-    return {"ok": False, "mensaje": f"{ticker} ya está en seguimiento"}
+    if not ok:
+        return {"ok": False, "mensaje": f"{ticker} ya está en seguimiento"}
+ 
+    # carga detalles desde yfinance y velas iniciales desde Alpaca en background
+    import threading
+    def _cargar():
+        cargar_detalles_activo(ticker)
+        cargar_velas_iniciales(ticker, "1Min")
+ 
+    threading.Thread(target=_cargar, daemon=True, name=f"carga-{ticker}").start()
+    logger.info(f"Carga inicial lanzada en background: {ticker}")
+ 
+    return {"ok": True, "ticker": ticker}
 
 def ctrl_eliminar_seguimiento(ticker: str) -> dict:
-    ok = activos_elegidos_eliminar(ticker)
-    if ok:
-        return {"ok": True, "ticker": ticker}
-    return {"ok": False, "mensaje": f"{ticker} no encontrado"}
+    ok_mongo = activos_elegidos_eliminar(ticker)
+    if not ok_mongo:
+        return {"ok": False, "mensaje": f"{ticker} no encontrado"}
+ 
+    # elimina de DuckDB (cascade: precios + detalles)
+    eliminar_activo_detalles(ticker)
+    return {"ok": True, "ticker": ticker}
+
+
+# --- Detalles ---
+def ctrl_get_detalles(ticker: str) -> dict | None:
+    return get_activo_detalles(ticker)
+ 
+ 
+# --- Velas ---
+def ctrl_get_velas(ticker: str, timeframe: str = "1Min", limite: int = 500) -> list[dict]:
+    df = get_velas(ticker, timeframe, limite)
+    if df.empty:
+        return []
+    # convertir timestamps a string para JSON
+    df["timestamp"] = df["timestamp"].astype(str)
+    return df.to_dict(orient="records")

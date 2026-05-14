@@ -9,8 +9,10 @@ from api.controllers.controllers import (
     ctrl_listar_seguimientos,
     ctrl_añadir_seguimiento,
     ctrl_eliminar_seguimiento,
+    ctrl_get_detalles,
+    ctrl_get_velas,
 )
-
+ 
 router = APIRouter()
 
 
@@ -21,6 +23,7 @@ def buscar_assets(q: str = Query(..., min_length=1), limite: int = 10):
     return ctrl_buscar_assets(q, limite)
 
 
+# ------------------------------ SEGUIMIENTOS ------------------------------
 # --- Seguimientos ---
 @router.get("/seguimientos")
 def listar_seguimientos():
@@ -46,3 +49,25 @@ def eliminar_seguimiento(ticker: str):
     if not resultado["ok"]:
         raise HTTPException(status_code=404, detail=resultado["mensaje"])
     return resultado
+
+
+# --- Detalles del activo ---
+@router.get("/activos/{ticker}/detalles")
+def get_detalles(ticker: str):
+    # devuelve los detalles completos de un activo desde DuckDB
+    resultado = ctrl_get_detalles(ticker)
+    if not resultado:
+        raise HTTPException(status_code=404, detail=f"{ticker} no encontrado en DuckDB")
+    return resultado
+ 
+ 
+# --- Velas OHLC ---
+@router.get("/activos/{ticker}/velas")
+def get_velas(
+    ticker: str,
+    timeframe: str = Query("1Min", description="1Min | 5Min | 1Day | 1Week | 1Month"),
+    limite: int = Query(500, description="Número máximo de velas a devolver"),
+):
+    # devuelve las últimas N velas OHLC de un activo
+    return ctrl_get_velas(ticker, timeframe, limite)
+# ------------------------------------------------------------------------------

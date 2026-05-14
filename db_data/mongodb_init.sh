@@ -10,15 +10,6 @@ mongosh "$MONGO_HOST/movlog" --quiet << 'EOF'
 
 // ++++ COLECCIONES ++++
 
-// --- ventana_temporal ---
-db.createCollection("ventana_temporal")
-db.ventana_temporal.createIndex({ tipo: 1 }, { unique: true })
-db.ventana_temporal.updateOne(
-    { tipo: "global" },
-    { $setOnInsert: { tipo: "global", valor_minutos: 5 } },
-    { upsert: true }
-)
-
 // --- activos_elegidos ---
 db.createCollection("activos_elegidos")
 db.activos_elegidos.createIndex({ ticker: 1 }, { unique: true })
