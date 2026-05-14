@@ -47,6 +47,17 @@ def _activo_vacio(ticker: str, nombre: str) -> dict:
     return {"simbolo": ticker, "nombre": nombre, "ticker": ticker}
 
 
+# --- CONSTANTES ---
+# cantidad de velas en proporción al timeframe
+LIMITE_POR_TIMEFRAME = {
+    "1Min":   500,
+    "5Min":   500,
+    "1Day":   365,
+    "1Week":  200,
+    "1Month": 60,
+}
+
+
 # --- Gráfico de velas (Plotly) ---
 def _grafico_velas(df: pd.DataFrame, simbolo: str) -> go.Figure:
     fig = go.Figure()
@@ -431,7 +442,8 @@ def render():
                             st.session_state.seg_timeframe = tf
                             st.rerun()
 
-                velas_raw = get_velas(ticker, timeframe=st.session_state.seg_timeframe, limite=500)
+                limite = LIMITE_POR_TIMEFRAME.get(st.session_state.seg_timeframe, 500)
+                velas_raw = get_velas(ticker, timeframe=st.session_state.seg_timeframe, limite=limite)
                 with st.container():
                     st.markdown('<div class="chart-wrap">', unsafe_allow_html=True)
                     if velas_raw:
@@ -608,7 +620,7 @@ def render():
                     <span style="color:{color_rel}">{_fmt_var(var_rel_card, pct=True)}</span>
                 </div>
                 <div class="activo-card-meta">Última act. {datetime.utcnow().strftime('%H:%M UTC')}</div>
-                <span class="badge-mercado-open">● Mercado abierto</span>
+                <!-- <span class="badge-mercado-open">● Mercado abierto</span> -->
             </div>
             """, unsafe_allow_html=True)
 

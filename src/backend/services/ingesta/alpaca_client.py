@@ -47,6 +47,13 @@ TIMEFRAME_MAP = {
     "1Month": TimeFrame(1,  TimeFrameUnit.Month),
 }
 
+HISTORICO_POR_TIMEFRAME = {
+    "1Min":   14,
+    "5Min":   60,
+    "1Day":   365,
+    "1Week":  1095,
+    "1Month": 1825,
+}
 
 # --- Clientes ---
 def _trading_client() -> TradingClient:
@@ -224,8 +231,9 @@ def cargar_velas_iniciales(ticker: str, timeframe_str: str = "1Min") -> int:
         logger.error(f"cargar_velas_iniciales: activo_id no encontrado para {ticker}")
         return 0
 
+    dias = HISTORICO_POR_TIMEFRAME.get(timeframe_str, 14)
     fin    = datetime.now(timezone.utc)
-    inicio = fin - timedelta(days=14)
+    inicio = fin - timedelta(days=dias)
 
     logger.info(f"Cargando velas iniciales {ticker} ({timeframe_str}): {inicio.date()} → {fin.date()}")
     velas = _fetch_bars(ticker, timeframe_str, inicio, fin)
