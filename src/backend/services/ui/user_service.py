@@ -1,5 +1,5 @@
 '''
-    servicio de llamadas HTTP del frontend al backend
+    este es el único servicio que gestiona las llamadas HTTP del Frontend con el Backend
 '''
 
 

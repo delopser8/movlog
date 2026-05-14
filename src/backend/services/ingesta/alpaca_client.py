@@ -84,7 +84,7 @@ def cargar_assets() -> bool:
             {
                 "ticker":   a.symbol,
                 "nombre":   a.name,
-                "exchange": a.exchange.value if a.exchange else "—",
+                "exchange": a.exchange.value if a.exchange else "--",
                 "clase":    a.asset_class.value,
             }
             for a in assets if a.tradable

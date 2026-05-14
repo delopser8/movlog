@@ -73,7 +73,7 @@ for SERVICE in "${SERVICES[@]}"; do
     fi
 
     if [[ "${HEALTH}" == "unhealthy" ]]; then
-      echo -e "\n${YELLOW}    ⚠️  ${SERVICE} está unhealthy — revisa: docker logs \$(docker ps -qf label=com.docker.compose.service=${SERVICE})${NC}"
+      echo -e "\n${YELLOW}    ⚠️  ${SERVICE} está unhealthy, revisa: docker logs \$(docker ps -qf label=com.docker.compose.service=${SERVICE})${NC}"
       break
     fi
 

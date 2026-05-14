@@ -50,7 +50,7 @@ if [ "${USAR_MOCK}" = "false" ]; then
             echo -e "    ${GREEN}✅ Alpaca Markets OK${NC}"
             ALPACA_OK=true
         else
-            echo -e "    ${RED}❌ Alpaca Markets falló (HTTP ${ALPACA_STATUS}) — revisa ALPACA_API_KEY y ALPACA_SECRET_KEY en .env${NC}"
+            echo -e "    ${RED}❌ Alpaca Markets falló (HTTP ${ALPACA_STATUS}), revisa ALPACA_API_KEY y ALPACA_SECRET_KEY en .env${NC}"
         fi
  
         # NewsAPI
@@ -61,7 +61,7 @@ if [ "${USAR_MOCK}" = "false" ]; then
             echo -e "    ${GREEN}✅ NewsAPI OK${NC}"
             NEWSAPI_OK=true
         else
-            echo -e "    ${RED}❌ NewsAPI falló (HTTP ${NEWSAPI_STATUS}) — revisa NEWSAPI_KEY en .env${NC}"
+            echo -e "    ${RED}❌ NewsAPI falló (HTTP ${NEWSAPI_STATUS}), revisa NEWSAPI_KEY en .env${NC}"
         fi
  
         # Hugging Face
@@ -73,7 +73,7 @@ if [ "${USAR_MOCK}" = "false" ]; then
             echo -e "    ${GREEN}✅ Hugging Face OK${NC}"
             HF_OK=true
         else
-            echo -e "    ${RED}❌ Hugging Face falló (HTTP ${HF_STATUS}) — revisa HF_API_TOKEN en .env${NC}"
+            echo -e "    ${RED}❌ Hugging Face falló (HTTP ${HF_STATUS}), revisa HF_API_TOKEN en .env${NC}"
         fi
  
         if [ "${ALPACA_OK}" = true ] && [ "${NEWSAPI_OK}" = true ] && [ "${HF_OK}" = true ]; then
@@ -112,7 +112,7 @@ con.close()
 " && echo -e "    ${GREEN}✅ DuckDB OK${NC}" \
   || echo -e "    ${YELLOW}⚠️  DuckDB: error al ejecutar duckdb_init.sql${NC}"
 else
-    echo -e "    ${YELLOW}⚠️  duckdb_init.sql vacío — saltando${NC}"
+    echo -e "    ${YELLOW}⚠️  duckdb_init.sql vacío, saltando${NC}"
 fi
 
 # MongoDB
@@ -122,7 +122,7 @@ if [ -f "$WORKDIR/db_data/mongodb_init.sh" ]; then
         && echo -e "    ${GREEN}✅ MongoDB OK${NC}" \
         || echo -e "    ${YELLOW}⚠️  MongoDB: error en mongodb_init.sh${NC}"
 else
-    echo -e "    ${YELLOW}⚠️  db_data/mongodb_init.sh no encontrado — saltando${NC}"
+    echo -e "    ${YELLOW}⚠️  db_data/mongodb_init.sh no encontrado, saltando${NC}"
 fi
  
 echo ""
@@ -163,7 +163,7 @@ cat >> "$BASHRC" << 'ALIASES'
  
 menu() {
     echo ""
-    echo "  Movlog — alias disponibles"
+    echo "  Movlog - alias disponibles"
     echo "  ─────────────────────────────────────────"
     echo "  start_movlog       → arranca el entorno completo"
     echo "  menu               → muestra este menú"
@@ -178,7 +178,7 @@ menu() {
  
 services_show() {
     echo ""
-    echo "  Movlog — servicios activos"
+    echo "  Movlog - servicios activos"
     echo "  ─────────────────────────────────────────"
     if [ -n "${CODESPACE_NAME}" ]; then
         echo "  Streamlit (UI)   → https://${CODESPACE_NAME}-18501.app.github.dev"
@@ -268,7 +268,7 @@ until curl -s http://localhost:8000/health | grep -q "ok" 2>/dev/null; do
     sleep 2
     ELAPSED=$((ELAPSED + 2))
     if [ $ELAPSED -ge 30 ]; then
-        echo -e "\n    ${YELLOW}⚠️  FastAPI tardó más de 30s — revisa /tmp/movlog_fastapi.log${NC}"
+        echo -e "\n    ${YELLOW}⚠️  FastAPI tardó más de 30s - revisa /tmp/movlog_fastapi.log${NC}"
         break
     fi
 done
@@ -292,7 +292,7 @@ until curl -s -o /dev/null -w "%{http_code}" http://localhost:8501 | grep -q "20
     sleep 2
     ELAPSED=$((ELAPSED + 2))
     if [ $ELAPSED -ge 30 ]; then
-        echo -e "\n    ${YELLOW}⚠️  Streamlit tardó más de 30s — revisa /tmp/movlog_streamlit.log${NC}"
+        echo -e "\n    ${YELLOW}⚠️  Streamlit tardó más de 30s - revisa /tmp/movlog_streamlit.log${NC}"
         break
     fi
 done
@@ -306,7 +306,7 @@ echo ""
 echo -e "  ${GREEN}✔ Movlog arrancado correctamente${NC}"
 
 if [ "${USAR_MOCK}" = "true" ]; then
-    echo -e "  ${YELLOW}  Modo offline — datos mock de AAPL y TSLA${NC}"
+    echo -e "  ${YELLOW}  Modo offline - datos mock de AAPL y TSLA${NC}"
 fi
 
 echo ""

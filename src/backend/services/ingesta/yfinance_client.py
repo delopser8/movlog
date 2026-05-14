@@ -102,9 +102,9 @@ def cargar_detalles_activo(ticker: str) -> dict | None:
         datos = {
             "ticker":   ticker,
             "nombre":   info.get("longName") or info.get("shortName") or ticker,
-            "sector":   info.get("sector")   or "—",
-            "industria":info.get("industry") or "—",
-            "url":      url or "—",
+            "sector":   info.get("sector")   or "--",
+            "industria":info.get("industry") or "--",
+            "url":      url or "--",
 
             # fundamentales
             "ratio_pe":      _safe_float(info.get("trailingPE")),

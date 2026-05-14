@@ -2,182 +2,88 @@
     UI de la sección de seguimientos
 '''
 
+
 import streamlit as st
 import plotly.graph_objects as go
 import pandas as pd
-import numpy as np
-from datetime import datetime, timedelta
-
+from datetime import datetime
+ 
 from backend.services.ui.user_service import (
     buscar_assets,
     listar_seguimientos,
     añadir_seguimiento,
     eliminar_seguimiento,
+    get_detalles,
+    get_velas,
 )
+from backend.services.preprocesamiento.analytics_service import formatear_detalles
 
 
-# --- MOCK DATA (luego cambiar por los resultados reales) ---
-ACTIVOS_SEGUIMIENTO = [
-    {
-        "simbolo": "BTC-USD",
-        "nombre": "Bitcoin",
-        "tipo": "Criptomoneda",
-        "ultimo": 70000.23,
-        "var_abs": -5.02,
-        "var_rel": -2.02,
-        "ultima_act": "01:59 GMT+2",
-        "mercado_abierto": True,
-        "sector": "—",
-        "industria": "—",
-        "url": "bitcoin.org",
-        "ticker": "BTC-USD",
-        "cierre_diario": 70005.25, "cierre_semanal": 68200.00, "cierre_mensual": 62100.00,
-        "apertura_diaria": 70100.00, "apertura_semanal": 68500.00, "apertura_mensual": 61800.00,
-        "maximo_diario": 71200.00, "maximo_semanal": 72000.00, "maximo_mensual": 73500.00,
-        "minimo_diario": 69500.00, "minimo_semanal": 67000.00, "minimo_mensual": 58000.00,
-        "ratio_pe": "—", "eps": "—", "market_cap": "1.38T", "dividend_yield": "—",
-        "esg_score": "—", "operacion_recomendada": "Compra", "target_price": 75000.00,
-        "fecha_dividendo": "—", "splits": "—",
-    },
-    {
-        "simbolo": "BRK.B",
-        "nombre": "Berkshire Hathaway Inc. Class B",
-        "tipo": "Finanzas",
-        "ultimo": 450.23,
-        "var_abs": -8.02,
-        "var_rel": -2.02,
-        "ultima_act": "01:59 GMT+2",
-        "mercado_abierto": False,
-        "sector": "Finanzas",
-        "industria": "Seguros patrimoniales y de accidentes",
-        "url": "berkshirehathaway.com",
-        "ticker": "BRK.B",
-        "cierre_diario": 458.25, "cierre_semanal": 455.00, "cierre_mensual": 440.00,
-        "apertura_diaria": 459.00, "apertura_semanal": 453.00, "apertura_mensual": 438.00,
-        "maximo_diario": 461.00, "maximo_semanal": 465.00, "maximo_mensual": 470.00,
-        "minimo_diario": 448.00, "minimo_semanal": 445.00, "minimo_mensual": 430.00,
-        "ratio_pe": "21.4", "eps": "21.07", "market_cap": "985.2B", "dividend_yield": "—",
-        "esg_score": "62 / 100", "operacion_recomendada": "Holdea", "target_price": 480.00,
-        "fecha_dividendo": "—", "splits": "—",
-    },
-]
-
-RESULTADOS_BUSQUEDA = ["BITCOIN", "SP500", "NASDAQ", "GOLD", "AAPL"]
-
-def _mock_velas(simbolo: str) -> pd.DataFrame:          # <-- GENERADOR DE DATOS DE PRUEBA PARA EL GRÁFICO DE VELAS (OHLCV)
-    '''Genera datos OHLCV de prueba para el gráfico de velas.'''
-    np.random.seed(hash(simbolo) % 9999)
-    n = 120
-    fechas = [datetime.today() - timedelta(days=n - i) for i in range(n)]
-    base = 70000 if "BTC" in simbolo else 455
-    precios = base + np.cumsum(np.random.randn(n) * (base * 0.012))
-    datos = []
-    for i, fecha in enumerate(fechas):
-        open_ = precios[i]
-        close = precios[i] + np.random.randn() * base * 0.008
-        high = max(open_, close) + abs(np.random.randn()) * base * 0.005
-        low = min(open_, close) - abs(np.random.randn()) * base * 0.005
-        vol = abs(np.random.randn()) * 1e6
-        datos.append({"fecha": fecha, "open": open_, "high": high, "low": low, "close": close, "vol": vol})
-    return pd.DataFrame(datos)
-
-
-# --- FALLBACK DE DATOS REALES (para que no pete la UI completa solo con los datos del catálogo de activos) ---
-def _activo_vacio(ticker: str, nombre: str) -> dict:
-    return {
-        "simbolo": ticker, "nombre": nombre, "tipo": "—",
-        "ultimo": 0.0, "var_abs": 0.0, "var_rel": 0.0,
-        "ultima_act": "—", "mercado_abierto": False,
-        "sector": "—", "industria": "—", "url": "—", "ticker": ticker,
-        "cierre_diario": 0, "cierre_semanal": 0, "cierre_mensual": 0,
-        "apertura_diaria": 0, "apertura_semanal": 0, "apertura_mensual": 0,
-        "maximo_diario": 0, "maximo_semanal": 0, "maximo_mensual": 0,
-        "minimo_diario": 0, "minimo_semanal": 0, "minimo_mensual": 0,
-        "ratio_pe": "—", "eps": "—", "market_cap": "—", "dividend_yield": "—",
-        "esg_score": "—", "operacion_recomendada": "—", "target_price": 0,
-        "fecha_dividendo": "—", "splits": "—",
-    }
 
 # --- HELPERS VISUALES ---
 # color número -> POSITIVO (verde) | NEGATIVO (rojo) | NEUTRO (gris)
-def _color_var(val: float) -> str:
-    if val > 0:
-        return "#22c55e"
-    if val < 0:
-        return "#ef4444"
+def _color_var(val) -> str:
+    try:
+        f = float(val)
+        if f > 0: return "#22c55e"
+        if f < 0: return "#ef4444"
+    except (TypeError, ValueError):
+        pass
     return "#6b7280"
 
-# formato número -> añade signo +/-, separador de 'miles', 2 decimales, opcionalmente añade % al final
-def _fmt_var(val: float, pct: bool = False) -> str: 
-    signo = "+" if val > 0 else ""
-    sufijo = "%" if pct else ""
-    return f"{signo}{val:,.2f}{sufijo}"
+# formato número -> +1,234.56 | -123.45 | +1.23% (pct=true) | -- (si no es número)
+def _fmt_var(val, pct: bool = False) -> str:
+    try:
+        f = float(val)
+        signo = "+" if f > 0 else ""
+        sufijo = "%" if pct else ""
+        return f"{signo}{f:,.2f}{sufijo}"
+    except (TypeError, ValueError):
+        return "--"
 
-# gráfico de velas (Plotly), con colores personalizados y diseño adaptado al tema oscuro
+# activo vacío para mostrar en la tabla de seguimientos mientras se carga el activo real desde mongoDB
+def _activo_vacio(ticker: str, nombre: str) -> dict: 
+    return {"simbolo": ticker, "nombre": nombre, "ticker": ticker}
+
+
+# --- Gráfico de velas (Plotly) ---
 def _grafico_velas(df: pd.DataFrame, simbolo: str) -> go.Figure:
     fig = go.Figure()
-
-    colores_subida = "#22c55e"
-    colores_bajada = "#ef4444"
-
+    up, dn = "#22c55e", "#ef4444"
     fig.add_trace(go.Candlestick(
-        x=df["fecha"],
-        open=df["open"],
-        high=df["high"],
-        low=df["low"],
-        close=df["close"],
-        name=simbolo,
-        increasing_line_color=colores_subida,
-        decreasing_line_color=colores_bajada,
-        increasing_fillcolor=colores_subida,
-        decreasing_fillcolor=colores_bajada,
+        x=df["timestamp"], open=df["apertura"], high=df["maximo"],
+        low=df["minimo"], close=df["cierre"], name=simbolo,
+        increasing_line_color=up, decreasing_line_color=dn,
+        increasing_fillcolor=up, decreasing_fillcolor=dn,
         line=dict(width=1),
     ))
-
     fig.add_trace(go.Bar(
-        x=df["fecha"],
-        y=df["vol"],
-        name="Volumen",
-        marker_color=[
-            colores_subida if c >= o else colores_bajada
-            for c, o in zip(df["close"], df["open"])
-        ],
-        opacity=0.35,
-        yaxis="y2",
+        x=df["timestamp"], y=df["volumen"], name="Volumen",
+        marker_color=[up if c >= o else dn for c, o in zip(df["cierre"], df["apertura"])],
+        opacity=0.35, yaxis="y2",
     ))
-
     fig.update_layout(
-        paper_bgcolor="#0d0f11",
-        plot_bgcolor="#0d0f11",
+        paper_bgcolor="#0d0f11", plot_bgcolor="#0d0f11",
         font=dict(family="IBM Plex Mono", color="#6b7280", size=11),
-        margin=dict(l=0, r=0, t=8, b=0),
-        height=320,
-        xaxis=dict(
-            rangeslider=dict(visible=False),
-            gridcolor="#1e2329",
-            showgrid=True,
-            zeroline=False,
-            tickfont=dict(size=10),
-        ),
-        yaxis=dict(
-            gridcolor="#1e2329",
-            showgrid=True,
-            zeroline=False,
-            tickfont=dict(size=10),
-            side="right",
-        ),
-        yaxis2=dict(
-            overlaying="y",
-            side="left",
-            showgrid=False,
-            showticklabels=False,
-        ),
-        legend=dict(
-            orientation="h",
-            x=0, y=1.02,
-            font=dict(size=10),
-        ),
+        margin=dict(l=0, r=0, t=8, b=0), height=320,
+        xaxis=dict(rangeslider=dict(visible=False), gridcolor="#1e2329", showgrid=True, zeroline=False, tickfont=dict(size=10)),
+        yaxis=dict(gridcolor="#1e2329", showgrid=True, zeroline=False, tickfont=dict(size=10), side="right"),
+        yaxis2=dict(overlaying="y", side="left", showgrid=False, showticklabels=False),
+        legend=dict(orientation="h", x=0, y=1.02, font=dict(size=10)),
         xaxis_rangeslider_visible=False,
+    )
+    return fig
+
+def _grafico_vacio(msg: str = "Sin datos de velas disponibles") -> go.Figure:
+    fig = go.Figure()
+    fig.update_layout(
+        paper_bgcolor="#0d0f11", plot_bgcolor="#0d0f11", height=320,
+        margin=dict(l=0, r=0, t=8, b=0),
+        xaxis=dict(visible=False), yaxis=dict(visible=False),
+        annotations=[dict(
+            text=msg, x=0.5, y=0.5, xref="paper", yref="paper",
+            showarrow=False, font=dict(color="#4b5563", size=13, family="IBM Plex Mono"),
+        )],
     )
     return fig
 
@@ -340,7 +246,7 @@ CSS = '''
 .seg-cell-sym { flex: 2; }
 .seg-cell-num { flex: 1.5; text-align: right; }
 
-/* Botones de fila — sel y del */
+/* Botones de fila (sel y del) */
 .st-emotion-cache-3pwa5w.e1rw0b1u1:has(.seg-row) + .st-emotion-cache-18kf3ut .stHorizontalBlock.st-emotion-cache-1permvm.e1rw0b1u3 {
     scale: 0.5;
 }
@@ -415,6 +321,23 @@ CSS = '''
 }
 .badge-mercado-open   { background: #052e16; color: #22c55e; font-size: 10px; padding: 2px 8px; border-radius: 20px; font-family: 'IBM Plex Mono', monospace; }
 .badge-mercado-closed { background: #4f4200; color: #dab600; font-size: 10px; padding: 2px 8px; border-radius: 20px; font-family: 'IBM Plex Mono', monospace; }
+
+/* Estado cargando */
+.cargando-msg {
+    color: #4b5563;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    padding: 1rem 0;
+}
+
+/* Badge sin recomendación */
+.badge- {
+    color: #6b7280;
+    background: #1a1f26;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+}
 </style>
 '''
 
@@ -422,37 +345,32 @@ CSS = '''
 def _ejecutar_busqueda(query: str):
     if query:
         resultados = buscar_assets(query, limite=8)
-        if resultados:
-            st.session_state.seg_resultados = resultados  # lista de dicts {ticker, nombre, ...}
-        else:
-            st.session_state.seg_resultados = [{"ticker": "Sin resultados", "nombre": ""}]
+        st.session_state.seg_resultados = resultados if resultados else [{"ticker": "Sin resultados", "nombre": ""}]
     else:
         st.session_state.seg_resultados = []
 
 def _on_busqueda_change():
-    query = st.session_state.seg_busqueda_input
-    _ejecutar_busqueda(query)
+    _ejecutar_busqueda(st.session_state.seg_busqueda_input)
 
 
 # --- RENDER PRINCIPAL ---
 def render():
     st.markdown(CSS, unsafe_allow_html=True)
 
-    # estado de sesión
     if "seg_tab" not in st.session_state:
         st.session_state.seg_tab = "general"
     if "seg_activo_idx" not in st.session_state:
         st.session_state.seg_activo_idx = 0
-    if "seg_activos" not in st.session_state: 
+    if "seg_activos" not in st.session_state:
         raw = listar_seguimientos()
         st.session_state.seg_activos = [
-            _activo_vacio(a["ticker"], a.get("nombre", a["ticker"])) for a in raw          # <---- provisional hasta que tenga el resto de datos del activo
+            _activo_vacio(a["ticker"], a.get("nombre", a["ticker"])) for a in raw
         ]
     if "seg_busqueda" not in st.session_state:
         st.session_state.seg_busqueda = ""
     if "seg_resultados" not in st.session_state:
         st.session_state.seg_resultados = []
-
+ 
     activos = st.session_state.seg_activos
     idx = min(st.session_state.seg_activo_idx, len(activos) - 1) if activos else 0
     activo = activos[idx] if activos else None
@@ -477,104 +395,83 @@ def render():
                          use_container_width=True):
                 st.session_state.seg_tab = "noticias"
                 st.rerun()
-
+ 
         st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
 
         # --- TAB GENERAL ---
         if st.session_state.seg_tab == "general":
-
+ 
             if not activo:
                 st.markdown(
                     "<div style='color:#4b5563;font-size:13px;padding:2rem 0;text-align:center'>"
                     "No hay activos en seguimiento.<br>Añade uno desde el panel derecho."
-                    "</div>",
-                    unsafe_allow_html=True,
+                    "</div>", unsafe_allow_html=True,
                 )
             else:
+                ticker = activo["ticker"]
+ 
                 # Gráfico de velas
+                velas_raw = get_velas(ticker, timeframe="1Min", limite=500)
                 with st.container():
                     st.markdown('<div class="chart-wrap">', unsafe_allow_html=True)
-                    df = _mock_velas(activo["simbolo"])
-                    fig = _grafico_velas(df, activo["simbolo"])
+                    if velas_raw:
+                        df = pd.DataFrame(velas_raw)
+                        df["timestamp"] = pd.to_datetime(df["timestamp"])
+                        df = df.sort_values("timestamp").reset_index(drop=True)
+                        fig = _grafico_velas(df, ticker)
+                    else:
+                        fig = _grafico_vacio("Cargando velas... (puede tardar unos segundos)")
                     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
                     st.markdown("</div>", unsafe_allow_html=True)
-
-                # Info del activo
-                st.markdown(
-                    f'<div class="activo-titulo">Sobre {activo["nombre"]}</div>',
-                    unsafe_allow_html=True,
-                )
-
-                rec = activo["operacion_recomendada"].lower()
-                badge_cls = f"badge-{rec}"
-                badge_html = f'<span class="{badge_cls}">{activo["operacion_recomendada"]}</span>'
-
-                # formateo de números seguro según si es número eltero-decimal / string  
-                def safe_fmt(val):
-                    if isinstance(val, (int, float)):
-                        return f"{val:,.2f}"
-                    return str(val)
-
-                grid_html = f'''
-                <div class="info-grid">
-                    <div class="info-cell">
-                        <div class="info-label">Ticker</div>
-                        <div class="info-value">{activo["ticker"]}</div>
+ 
+                # Detalles
+                raw = get_detalles(ticker)
+                if raw:
+                    d = formatear_detalles(raw)
+                    rec = d["operacion_recomendada"]
+                    badge_html = f'<span class="badge-{rec}">{rec.capitalize()}</span>'
+                    url = d["url"]
+                    url_html = f'<a href="https://{url}" target="_blank">{url} ↗</a>' if url != "--" else "--"
+ 
+                    st.markdown(f'<div class="activo-titulo">Sobre {d["nombre"]}</div>', unsafe_allow_html=True)
+                    st.markdown(f'''
+                    <div class="info-grid">
+                        <div class="info-cell"><div class="info-label">Ticker</div><div class="info-value">{d["ticker"]}</div></div>
+                        <div class="info-cell"><div class="info-label">Sitio web</div><div class="info-value">{url_html}</div></div>
+                        <div class="info-cell"><div class="info-label">Sector</div><div class="info-value">{d["sector"]}</div></div>
+                        <div class="info-cell"><div class="info-label">Industria</div><div class="info-value">{d["industria"]}</div></div>
+                        <div class="info-cell"><div class="info-label">Cierre ajust. diario</div><div class="info-value">{d["cierre_diario"]}</div></div>
+                        <div class="info-cell"><div class="info-label">Cierre ajust. semanal</div><div class="info-value">{d["cierre_semanal"]}</div></div>
+                        <div class="info-cell"><div class="info-label">Cierre ajust. mensual</div><div class="info-value">{d["cierre_mensual"]}</div></div>
+                        <div class="info-cell"><div class="info-label">Apertura diaria</div><div class="info-value">{d["apertura_diaria"]}</div></div>
+                        <div class="info-cell"><div class="info-label">Apertura semanal</div><div class="info-value">{d["apertura_semanal"]}</div></div>
+                        <div class="info-cell"><div class="info-label">Apertura mensual</div><div class="info-value">{d["apertura_mensual"]}</div></div>
+                        <div class="info-cell"><div class="info-label">Máximo diario</div><div class="info-value">{d["maximo_diario"]}</div></div>
+                        <div class="info-cell"><div class="info-label">Máximo semanal</div><div class="info-value">{d["maximo_semanal"]}</div></div>
+                        <div class="info-cell"><div class="info-label">Máximo mensual</div><div class="info-value">{d["maximo_mensual"]}</div></div>
+                        <div class="info-cell"><div class="info-label">Mínimo diario</div><div class="info-value">{d["minimo_diario"]}</div></div>
+                        <div class="info-cell"><div class="info-label">Mínimo semanal</div><div class="info-value">{d["minimo_semanal"]}</div></div>
+                        <div class="info-cell"><div class="info-label">Mínimo mensual</div><div class="info-value">{d["minimo_mensual"]}</div></div>
+                        <div class="info-cell"><div class="info-label">Ratio P/E</div><div class="info-value">{d["ratio_pe"]}</div></div>
+                        <div class="info-cell"><div class="info-label">EPS</div><div class="info-value">{d["eps"]}</div></div>
+                        <div class="info-cell"><div class="info-label">Market Cap</div><div class="info-value">{d["market_cap"]}</div></div>
+                        <div class="info-cell"><div class="info-label">Dividend Yield</div><div class="info-value">{d["dividend_yield"]}</div></div>
+                        <div class="info-cell"><div class="info-label">ESG Score</div><div class="info-value">{d["esg_score"]}</div></div>
+                        <div class="info-cell"><div class="info-label">Recomendación</div><div class="info-value">{badge_html}</div></div>
+                        <div class="info-cell"><div class="info-label">Precio objetivo</div><div class="info-value">{d["target_price"]}</div></div>
                     </div>
-                    <div class="info-cell">
-                        <div class="info-label">Sitio web</div>
-                        <div class="info-value"><a href="https://{activo['url']}" target="_blank">{activo['url']} ↗</a></div>
-                    </div>
-                    <div class="info-cell">
-                        <div class="info-label">Sector</div>
-                        <div class="info-value">{activo["sector"]}</div>
-                    </div>
-                    <div class="info-cell">
-                        <div class="info-label">Industria</div>
-                        <div class="info-value">{activo["industria"]}</div>
-                    </div>
-                    <div class="info-cell">
-                        <div class="info-label">Cierre ajust. diario</div>
-                        <div class="info-value">{safe_fmt(activo["cierre_diario"])}</div>
-                    </div>
-                    <div class="info-cell">
-                        <div class="info-label">Cierre ajust. semanal</div>
-                        <div class="info-value">{safe_fmt(activo["cierre_semanal"])}</div>
-                    </div>
-                    <div class="info-cell">
-                        <div class="info-label">Cierre ajust. mensual</div>
-                        <div class="info-value">{safe_fmt(activo["cierre_mensual"])}</div>
-                    </div>
-                    <div class="info-cell">
-                        <div class="info-label">Apertura diaria</div>
-                        <div class="info-value">{safe_fmt(activo["apertura_diaria"])}</div>
-                    </div>
-                    <div class="info-cell">
-                        <div class="info-label">Ratio P/E</div>
-                        <div class="info-value">{activo["ratio_pe"]}</div>
-                    </div>
-                    <div class="info-cell">
-                        <div class="info-label">Market Cap</div>
-                        <div class="info-value">{activo["market_cap"]}</div>
-                    </div>
-                    <div class="info-cell">
-                        <div class="info-label">Recomendación</div>
-                        <div class="info-value">{badge_html}</div>
-                    </div>
-                    <div class="info-cell">
-                        <div class="info-label">Precio objetivo</div>
-                        <div class="info-value">{safe_fmt(activo["target_price"])}</div>
-                    </div>
-                </div>
-                '''
-                st.markdown(grid_html, unsafe_allow_html=True)
-
+                    ''', unsafe_allow_html=True)
+                else:
+                    st.markdown(
+                        "<div class='cargando-msg'>Cargando detalles... (puede tardar unos segundos la primera vez)</div>",
+                        unsafe_allow_html=True,
+                    )
+        
         # --- TAB NOTICIAS ---
         else:
             st.markdown(
                 "<div style='color:#4b5563;font-size:13px;padding:2rem 0;text-align:center'>"
-                "Sección de noticias — próximamente."
-                "</div>",
+                "Sección de noticias, próximamente</div>",
                 unsafe_allow_html=True,
             )
 
@@ -596,76 +493,100 @@ def render():
                 <div class="seg-cell seg-cell-num">Último</div>
                 <div class="seg-cell seg-cell-num">Var. Abs.</div>
                 <div class="seg-cell seg-cell-num">Var. Rel.</div>
-                <div class="seg-cell seg-cell-x"></div>
             </div>
             ''', unsafe_allow_html=True)
 
+            # Filas de activos
             for i, a in enumerate(activos):
                 sel_style = "seg-row-selected" if i == idx else ""
-                color_abs = _color_var(a["var_abs"])
-                color_rel = _color_var(a["var_rel"])
-
-                st.markdown(f'''
+                ultimo_precio = var_abs_str = var_rel_str = "--"
+                color_abs = color_rel = "#6b7280"
+ 
+                velas = get_velas(a["ticker"], timeframe="1Min", limite=2)
+                if velas and len(velas) >= 2:
+                    ultimo = velas[-1]["cierre"]
+                    anterior = velas[-2]["cierre"]
+                    var_abs = ultimo - anterior
+                    var_rel = (var_abs / anterior * 100) if anterior else 0
+                    ultimo_precio = f"{ultimo:,.2f}"
+                    var_abs_str = _fmt_var(var_abs)
+                    var_rel_str = _fmt_var(var_rel, pct=True)
+                    color_abs = _color_var(var_abs)
+                    color_rel = _color_var(var_rel)
+                elif velas and len(velas) == 1:
+                    ultimo_precio = f"{velas[-1]['cierre']:,.2f}"
+ 
+                st.markdown(f"""
                 <div class="seg-row {sel_style}">
                     <div class="seg-cell seg-cell-sym" style="color:rgb(184 184 184);font-weight:500">{a["simbolo"]}</div>
-                    <div class="seg-cell seg-cell-num">{a["ultimo"]:,.2f}</div>
-                    <div class="seg-cell seg-cell-num" style="color:{color_abs}">{_fmt_var(a["var_abs"])}</div>
-                    <div class="seg-cell seg-cell-num" style="color:{color_rel}">{_fmt_var(a["var_rel"], pct=True)}</div>
+                    <div class="seg-cell seg-cell-num">{ultimo_precio}</div>
+                    <div class="seg-cell seg-cell-num" style="color:{color_abs}">{var_abs_str}</div>
+                    <div class="seg-cell seg-cell-num" style="color:{color_rel}">{var_rel_str}</div>
                 </div>
-                ''', unsafe_allow_html=True)
-
+                """, unsafe_allow_html=True)
+ 
                 csel, cx = st.columns([2, 1])
                 with csel:
                     if i != idx:
-                        if st.button("seleccionar", key=f"sel_{i}", use_container_width=True,
-                                     type="secondary"):
+                        if st.button("seleccionar", key=f"sel_{i}", use_container_width=True, type="secondary"):
                             st.session_state.seg_activo_idx = i
                             st.rerun()
                 with cx:
                     if st.button("eliminar", key=f"del_{i}", use_container_width=True):
                         eliminar_seguimiento(a["ticker"])
                         st.session_state.seg_activos = [
-                            _activo_vacio(a["ticker"], a.get("nombre", a["ticker"])) 
-                            for a in listar_seguimientos()
-                        ]  # recarga desde mongo
+                            _activo_vacio(x["ticker"], x.get("nombre", x["ticker"]))
+                            for x in listar_seguimientos()
+                        ]
                         st.session_state.seg_activo_idx = max(0, idx - 1)
                         st.rerun()
         else:
             st.markdown(
-                "<div style='color:#4b5563;font-size:12px;font-family:IBM Plex Mono,monospace;"
-                "padding:12px 0'>Sin activos en seguimiento.</div>",
+                "<div style='color:#4b5563;font-size:12px;font-family:IBM Plex Mono,monospace;padding:12px 0'>"
+                "Sin activos en seguimiento.</div>",
                 unsafe_allow_html=True,
             )
 
         st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
 
-        # Card activo seleccionado (fondo del panel)
+        # Card activo seleccionado
         if activo:
             st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
-            color_abs = _color_var(activo["var_abs"])
-            color_rel = _color_var(activo["var_rel"])
-            mercado_badge = (
-                '<span class="badge-mercado-open">● Mercado abierto</span>'
-                if activo["mercado_abierto"]
-                else '<span class="badge-mercado-closed">● Mercado cerrado</span>'
-            )
-
-            card_html = f'''
+ 
+            velas_card = get_velas(activo["ticker"], timeframe="1Min", limite=2)
+            precio_str = "--"
+            var_abs_card = var_rel_card = None
+ 
+            if velas_card and len(velas_card) >= 2:
+                ultimo = velas_card[-1]["cierre"]
+                anterior = velas_card[-2]["cierre"]
+                var_abs_card = ultimo - anterior
+                var_rel_card = (var_abs_card / anterior * 100) if anterior else 0
+                precio_str = f"{ultimo:,.2f}"
+            elif velas_card and len(velas_card) == 1:
+                precio_str = f"{velas_card[-1]['cierre']:,.2f}"
+ 
+            det = get_detalles(activo["ticker"])
+            tipo = det.get("sector", "--") if det else "--"
+            nombre = det.get("nombre", activo["nombre"]) if det else activo["nombre"]
+            color_abs = _color_var(var_abs_card)
+            color_rel = _color_var(var_rel_card)
+ 
+            st.markdown(f"""
             <div class="activo-card">
-                <div class="activo-card-simbolo">{activo["simbolo"]}</div>
-                <div class="activo-card-nombre">{activo["nombre"]}</div>
-                <div class="activo-card-tipo">{activo["tipo"]}</div>
-                <div class="activo-card-precio">{activo["ultimo"]:,.2f} <span style="font-size:13px;color:#6b7280">USD</span></div>
+                <div class="activo-card-simbolo">{activo["ticker"]}</div>
+                <div class="activo-card-nombre">{nombre}</div>
+                <div class="activo-card-tipo">{tipo}</div>
+                <div class="activo-card-precio">{precio_str} <span style="font-size:13px;color:#6b7280">USD</span></div>
                 <div class="activo-card-vars">
-                    <span style="color:{color_abs}">{_fmt_var(activo["var_abs"])}</span>
+                    <span style="color:{color_abs}">{_fmt_var(var_abs_card)}</span>
                     &nbsp;
-                    <span style="color:{color_rel}">{_fmt_var(activo["var_rel"], pct=True)}</span>
+                    <span style="color:{color_rel}">{_fmt_var(var_rel_card, pct=True)}</span>
                 </div>
-                <div class="activo-card-meta">Última act. {activo["ultima_act"]}</div>
-                {mercado_badge}
+                <div class="activo-card-meta">Última act. {datetime.utcnow().strftime('%H:%M UTC')}</div>
+                <span class="badge-mercado-open">● Mercado abierto</span>
             </div>
-            '''
-            st.markdown(card_html, unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
 
         #--- <hr> ---
         st.markdown('<hr class="panel-sep">', unsafe_allow_html=True)
@@ -674,17 +595,13 @@ def render():
         buscar_col, btn_col = st.columns([5, 1])
         with buscar_col:
             query = st.text_input(
-                "buscar",
-                placeholder="Buscar símbolo...",
-                label_visibility="collapsed",
-                key="seg_busqueda_input",
+                "buscar", placeholder="Buscar símbolo...",
+                label_visibility="collapsed", key="seg_busqueda_input",
                 on_change=_on_busqueda_change,
             )
         with btn_col:
-            buscar = st.button("🔍", key="btn_buscar", use_container_width=True)
-
-        if buscar:
-            _ejecutar_busqueda(query)
+            if st.button("🔍", key="btn_buscar", use_container_width=True):
+                _ejecutar_busqueda(query)
 
         # Resultados de búsqueda
         if st.session_state.seg_resultados:
@@ -695,14 +612,14 @@ def render():
                         unsafe_allow_html=True,
                     )
                 else:
-                    label = f"{r['ticker']} — {r['nombre']}" if r.get('nombre') else r['ticker']
+                    label = f"{r['ticker']} - {r['nombre']}" if r.get("nombre") else r["ticker"]
                     if st.button(label, key=f"add_{r['ticker']}", use_container_width=True):
                         ok = añadir_seguimiento(r["ticker"], r.get("nombre", r["ticker"]))
                         if ok:
                             st.session_state.seg_activos = [
-                                _activo_vacio(a["ticker"], a.get("nombre", a["ticker"])) 
-                                for a in listar_seguimientos()
-                            ]  # recarga desde mongo
+                                _activo_vacio(x["ticker"], x.get("nombre", x["ticker"]))
+                                for x in listar_seguimientos()
+                            ]
                             st.session_state.seg_resultados = []
                             st.session_state.seg_activo_idx = len(st.session_state.seg_activos) - 1
                         st.rerun()
