@@ -4,8 +4,6 @@
     - búsqueda de símbolos sobre el catálogo de assets (alpaca_assets.json)
     - carga inicial de velas históricas (2 semanas, 1Min)
     - polling de velas en tiempo real (REST, sin WebSocket)
-
-    NOTA: Alpaca free tier usa IEX (no es 100% preciso con las velas)
 '''
 
 
@@ -71,7 +69,7 @@ def _data_client() -> StockHistoricalDataClient:
 
 # --- Assets (catálogo) ---
 def cargar_assets() -> bool:
-    # descarga todos los assets negociables y los guarda en disco
+    # descarga el catálogo de activos US Equity (en IEX) negociables con datos
     try:
         client = _trading_client()
         request = GetAssetsRequest(
@@ -82,27 +80,30 @@ def cargar_assets() -> bool:
 
         datos = [
             {
-                "ticker":   a.symbol,
-                "nombre":   a.name,
-                "exchange": a.exchange.value if a.exchange else "--",
-                "clase":    a.asset_class.value,
+                "ticker":       a.symbol,
+                "nombre":       a.name,
+                "exchange":     a.exchange.value if a.exchange else "--",
+                "clase":        a.asset_class.value,
+                "fractionable": a.fractionable,
             }
-            for a in assets if a.tradable
+            for a in assets
+            if a.tradable and a.fractionable
         ]
 
         ASSETS_PATH.parent.mkdir(parents=True, exist_ok=True)
         with open(ASSETS_PATH, "w") as f:
             json.dump({
-                "actualizado": datetime.utcnow().isoformat(),
-                "total": len(datos),
-                "assets": datos,
-            }, f)
+                "actualizado":  datetime.utcnow().isoformat(),
+                "total":        len(datos),
+                "feed_fuente":  "Alpaca Market Data Free (IEX)",
+                "assets":       datos,
+            }, f, indent=4)
 
-        logger.info(f"Assets Alpaca cargados: {len(datos)} símbolos")
+        logger.info(f"Catálogo IEX actualizado: {len(datos)} activos")
         return True
 
     except Exception as e:
-        logger.error(f"Error cargando assets Alpaca: {e}")
+        logger.error(f"Error cargando catálogo Alpaca: {e}")
         return False
 
 def assets_disponibles() -> list[dict]:
