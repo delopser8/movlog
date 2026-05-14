@@ -47,6 +47,7 @@ def formatear_detalles(raw: dict) -> dict:
         "sector":    raw.get("sector", "--"),
         "industria": raw.get("industria", "--"),
         "url":       raw.get("url", "--"),
+        "clase":     raw.get("clase", "us_equity"),
 
         "cierre_diario":    fmt_float(raw.get("cierre_ajustado_diario")),
         "cierre_semanal":   fmt_float(raw.get("cierre_ajustado_semanal")),
