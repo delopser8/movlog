@@ -67,7 +67,7 @@ if [ "${USAR_MOCK}" = "false" ]; then
         # Hugging Face
         HF_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
             -H "Authorization: Bearer ${HF_API_TOKEN}" \
-            "https://huggingface.co/api/models/ProsusAI/finbert")
+            "https://huggingface.co/api/whoami-v2")
  
         if [ "${HF_STATUS}" = "200" ]; then
             echo -e "    ${GREEN}✅ Hugging Face OK${NC}"
