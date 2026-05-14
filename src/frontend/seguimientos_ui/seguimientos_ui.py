@@ -450,6 +450,7 @@ def render():
                         <div class="info-cell"><div class="info-label">Sitio web</div><div class="info-value">{url_html}</div></div>
                         <div class="info-cell"><div class="info-label">Sector</div><div class="info-value">{d["sector"]}</div></div>
                         <div class="info-cell"><div class="info-label">Industria</div><div class="info-value">{d["industria"]}</div></div>
+                        <div class="info-cell"><div class="info-label">Clase</div><div class="info-value">{d["clase"]}</div></div>
                         <div class="info-cell"><div class="info-label">Cierre ajust. diario</div><div class="info-value">{d["cierre_diario"]}</div></div>
                         <div class="info-cell"><div class="info-label">Cierre ajust. semanal</div><div class="info-value">{d["cierre_semanal"]}</div></div>
                         <div class="info-cell"><div class="info-label">Cierre ajust. mensual</div><div class="info-value">{d["cierre_mensual"]}</div></div>
