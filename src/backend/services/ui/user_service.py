@@ -6,6 +6,7 @@
 import os
 import httpx
 from loguru import logger
+from urllib.parse import quote
 
 FASTAPI_URL = os.getenv("FASTAPI_URL", "http://localhost:8000")
 
@@ -60,8 +61,10 @@ def eliminar_seguimiento(ticker: str) -> bool:
 
 # --- Detalles y velas ---
 def get_detalles(ticker: str) -> dict | None:
-    return _get(f"/activos/{ticker}/detalles")
+    ticker_encoded = quote(ticker, safe="")
+    return _get(f"/activos/{ticker_encoded}/detalles")
 
 def get_velas(ticker: str, timeframe: str = "1Min", limite: int = 500) -> list[dict]:
-    resultado = _get(f"/activos/{ticker}/velas", {"timeframe": timeframe, "limite": limite})
+    ticker_encoded = quote(ticker, safe="")
+    resultado = _get(f"/activos/{ticker_encoded}/velas", {"timeframe": timeframe, "limite": limite})
     return resultado if isinstance(resultado, list) else []

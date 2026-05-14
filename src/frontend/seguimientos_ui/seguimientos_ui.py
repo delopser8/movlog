@@ -138,7 +138,7 @@ CSS = '''
     font-family: 'IBM Plex Sans', sans-serif;
     font-size: 14px;
     font-weight: 500;
-    color: #e8eaed;
+    color: #666666;
     margin-bottom: 1rem;
 }
 .info-grid {
@@ -431,6 +431,9 @@ def render():
                     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
                     st.markdown("</div>", unsafe_allow_html=True)
  
+                #--- <hr> ---
+                st.markdown('<hr class="panel-sep">', unsafe_allow_html=True)
+                
                 # Detalles
                 raw = get_detalles(ticker)
                 if raw:

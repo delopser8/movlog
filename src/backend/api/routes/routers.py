@@ -52,7 +52,7 @@ def eliminar_seguimiento(ticker: str):
 
 
 # --- Detalles del activo ---
-@router.get("/activos/{ticker}/detalles")
+@router.get("/activos/{ticker:path}/detalles")
 def get_detalles(ticker: str):
     # devuelve los detalles completos de un activo desde DuckDB
     resultado = ctrl_get_detalles(ticker)
@@ -62,7 +62,7 @@ def get_detalles(ticker: str):
  
  
 # --- Velas OHLC ---
-@router.get("/activos/{ticker}/velas")
+@router.get("/activos/{ticker:path}/velas")
 def get_velas(
     ticker: str,
     timeframe: str = Query("1Min", description="1Min | 5Min | 1Day | 1Week | 1Month"),
