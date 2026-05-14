@@ -623,3 +623,11 @@ def render():
                             st.session_state.seg_resultados = []
                             st.session_state.seg_activo_idx = len(st.session_state.seg_activos) - 1
                         st.rerun()
+
+    # --- Funciones auxiliares ---
+    if activos:
+        @st.fragment(run_every="20s")
+        def _refresco_automatico():
+            st.empty()
+
+        _refresco_automatico()
