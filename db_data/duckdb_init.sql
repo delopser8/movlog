@@ -52,3 +52,5 @@ CREATE TABLE IF NOT EXISTS activos_precios (
 
     PRIMARY KEY (activo_id, timestamp, timeframe)
 );
+
+ALTER TABLE activos_detalles ADD COLUMN IF NOT EXISTS clase VARCHAR DEFAULT 'us_equity';

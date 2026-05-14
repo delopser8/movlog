@@ -52,10 +52,11 @@ def upsert_activo_detalles(datos: dict) -> int:
                         minimo_diario = ?, minimo_semanal = ?, minimo_mensual = ?,
                         ratio_pe = ?, eps = ?, market_cap = ?, dividend_yield = ?, esg_score = ?,
                         operacion_recomendada = ?, target_price = ?,
-                        actualizado_en = CURRENT_TIMESTAMP
+                        actualizado_en = CURRENT_TIMESTAMP,
+                        clase = ?
                     WHERE ticker = ?
                 """, [
-                    datos.get("nombre"), datos.get("sector"), datos.get("industria"), datos.get("url"),
+                    datos.get("nombre"), datos.get("sector"), datos.get("industria"), datos.get("url"), datos.get("clase", "us_equity"),
                     datos.get("cierre_ajustado_diario"), datos.get("cierre_ajustado_semanal"), datos.get("cierre_ajustado_mensual"),
                     datos.get("apertura_diaria"), datos.get("apertura_semanal"), datos.get("apertura_mensual"),
                     datos.get("maximo_diario"), datos.get("maximo_semanal"), datos.get("maximo_mensual"),
@@ -68,19 +69,19 @@ def upsert_activo_detalles(datos: dict) -> int:
                 logger.info(f"activos_detalles actualizado: {datos['ticker']}")
             else:
                 activo_id = get_siguiente_activo_id()
-                con.execute("""
+                con.execute('''
                     INSERT INTO activos_detalles (
-                        activo_id, ticker, nombre, sector, industria, url,
+                        activo_id, ticker, nombre, sector, industria, url, clase,
                         cierre_ajustado_diario, cierre_ajustado_semanal, cierre_ajustado_mensual,
                         apertura_diaria, apertura_semanal, apertura_mensual,
                         maximo_diario, maximo_semanal, maximo_mensual,
                         minimo_diario, minimo_semanal, minimo_mensual,
                         ratio_pe, eps, market_cap, dividend_yield, esg_score,
                         operacion_recomendada, target_price
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, [
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ''', [
                     activo_id, datos["ticker"], datos.get("nombre"), datos.get("sector"),
-                    datos.get("industria"), datos.get("url"),
+                    datos.get("industria"), datos.get("url"), datos.get("clase", "us_equity"),
                     datos.get("cierre_ajustado_diario"), datos.get("cierre_ajustado_semanal"), datos.get("cierre_ajustado_mensual"),
                     datos.get("apertura_diaria"), datos.get("apertura_semanal"), datos.get("apertura_mensual"),
                     datos.get("maximo_diario"), datos.get("maximo_semanal"), datos.get("maximo_mensual"),
