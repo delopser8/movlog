@@ -59,7 +59,7 @@
     "11434": { "label": "Ollama API", "onAutoForward": "ignore" },
     "19000": { "label": "Portainer", "onAutoForward": "ignore" },
     "27017": { "label": "MongoDB", "onAutoForward": "ignore"},
-    "18000": { "label": "FastAPI", "onAutoForward": "notify" },
+    "18000": { "label": "FastAPI", "onAutoForward": "ignore" },
     "18501": { "label": "Streamlit", "onAutoForward": "notify" }
   }
 }
