@@ -5,7 +5,7 @@
     - carga inicial de velas históricas (2 semanas, 1Min)
     - polling de velas en tiempo real (REST, sin WebSocket)
 
-    NOTA: Alpaca no tiene datos de criptomonedas, solo acciones US. Para cripto se usa yfinance.
+    NOTA: Alpaca free tier usa IEX (no es 100% preciso con las velas)
 '''
 
 
@@ -145,6 +145,7 @@ def _fetch_bars(ticker: str, timeframe_str: str, inicio: datetime, fin: datetime
         timeframe=tf,
         start=inicio,
         end=fin,
+        feed="iex",
     )
     bars = client.get_stock_bars(request)
     data = bars.data.get(ticker, [])

@@ -8,6 +8,7 @@
 import threading
 import time
 from datetime import datetime
+import re
 
 import schedule
 import yfinance as yf
@@ -97,7 +98,8 @@ def cargar_detalles_activo(ticker: str) -> dict | None:
 
         # URL limpia
         website = info.get("website", "") or ""
-        url = website.replace("https://", "").replace("http://", "").rstrip("/")
+        url = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', website) # RegEx por si viene en formato Markdown
+        url = url.replace("https://", "").replace("http://", "").rstrip("/")
 
         datos = {
             "ticker":   ticker,

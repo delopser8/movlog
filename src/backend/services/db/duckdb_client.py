@@ -6,6 +6,7 @@
 import threading
 from pathlib import Path
 from datetime import datetime
+import math
 
 import duckdb
 import pandas as pd
@@ -99,7 +100,15 @@ def get_activo_detalles(ticker: str) -> dict | None:
         ).fetchdf()
         if row.empty:
             return None
-        return row.iloc[0].to_dict()
+        d = row.iloc[0].to_dict()
+        for k, v in d.items():
+            if hasattr(v, 'isoformat'):   
+                d[k] = v.isoformat()
+            elif hasattr(v, 'item'):   
+                d[k] = v.item()
+            if isinstance(d[k], float) and math.isnan(d[k]):  
+                d[k] = None
+        return d
 
 def get_activo_id(ticker: str) -> int | None:
     with _conn() as con:
