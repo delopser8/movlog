@@ -84,8 +84,10 @@ def _fetch_historico(ticker_yf: str) -> dict:
     return datos
 
 def _normalizar_ticker_yf(ticker: str) -> str:
-    # convierte ticker Alpaca (BRK.B) a formato yfinance (BRK-B)
-    return ticker.replace(".", "-")
+    # convierte ticker Alpaca a formato yfinance
+        # (BRK.B → BRK-B)
+        # (BTC/USD → BTC-USD)
+    return ticker.replace(".", "-").replace("/", "-")
 
 def cargar_detalles_activo(ticker: str) -> dict | None:
     # carga los detalles completos de un activo desde yfinance y los persiste en DuckDB
@@ -108,6 +110,7 @@ def cargar_detalles_activo(ticker: str) -> dict | None:
 
         datos = {
             "ticker":   ticker,
+            "clase":    "crypto" if "/" in ticker else "us_equity",
             "nombre":   info.get("longName") or info.get("shortName") or ticker,
             "sector":   info.get("sector")   or "--",
             "industria":info.get("industry") or "--",

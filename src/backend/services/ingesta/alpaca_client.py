@@ -20,8 +20,8 @@ from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_excep
 from alpaca.trading.client import TradingClient
 from alpaca.trading.requests import GetAssetsRequest
 from alpaca.trading.enums import AssetClass, AssetStatus
-from alpaca.data.historical import StockHistoricalDataClient
-from alpaca.data.requests import StockBarsRequest
+from alpaca.data.historical import StockHistoricalDataClient, CryptoHistoricalDataClient
+from alpaca.data.requests import StockBarsRequest, CryptoBarsRequest
 from alpaca.data.timeframe import TimeFrame, TimeFrameUnit
 
 from services.db.duckdb_client import (
@@ -58,7 +58,7 @@ def _trading_client() -> TradingClient:
         paper=True,
     )
 
-def _data_client() -> StockHistoricalDataClient:
+def _stock_client() -> StockHistoricalDataClient:
     from dotenv import load_dotenv
     load_dotenv()
     return StockHistoricalDataClient(
@@ -66,40 +66,76 @@ def _data_client() -> StockHistoricalDataClient:
         os.getenv("ALPACA_SECRET_KEY", ""),
     )
 
+def _crypto_client() -> CryptoHistoricalDataClient:
+    from dotenv import load_dotenv
+    load_dotenv()
+    return CryptoHistoricalDataClient(
+        os.getenv("ALPACA_API_KEY", ""),
+        os.getenv("ALPACA_SECRET_KEY", ""),
+    )
+
+def _es_crypto(ticker: str) -> bool:
+    # detecta si un ticker es crypto por la barra (BTC/USD) o consultando el catálogo
+    if "/" in ticker:
+        return True
+    for a in assets_disponibles():
+        if a["ticker"] == ticker:
+            return a.get("clase") == "crypto"
+    return False
+
 
 # --- Assets (catálogo) ---
 def cargar_assets() -> bool:
-    # descarga el catálogo de activos US Equity (en IEX) negociables con datos
+    # descarga el catálogo completo: US Equity (IEX, fractionable) + Crypto (tradable)
     try:
         client = _trading_client()
-        request = GetAssetsRequest(
+
+        # US Equity
+        eq_request = GetAssetsRequest(
             status=AssetStatus.ACTIVE,
             asset_class=AssetClass.US_EQUITY,
         )
-        assets = client.get_all_assets(request)
+        equity_assets = client.get_all_assets(eq_request)
 
-        datos = [
-            {
-                "ticker":       a.symbol,
-                "nombre":       a.name,
-                "exchange":     a.exchange.value if a.exchange else "--",
-                "clase":        a.asset_class.value,
-                "fractionable": a.fractionable,
-            }
-            for a in assets
-            if a.tradable and a.fractionable
-        ]
+        # Crypto
+        cr_request = GetAssetsRequest(
+            status=AssetStatus.ACTIVE,
+            asset_class=AssetClass.CRYPTO,
+        )
+        crypto_assets = client.get_all_assets(cr_request)
+
+        datos = []
+
+        for a in equity_assets:
+            if a.tradable and a.fractionable:
+                datos.append({
+                    "ticker":       a.symbol,
+                    "nombre":       a.name,
+                    "exchange":     a.exchange.value if a.exchange else "--",
+                    "clase":        "us_equity",
+                    "fractionable": a.fractionable,
+                })
+
+        for a in crypto_assets:
+            if a.tradable:
+                datos.append({
+                    "ticker":       a.symbol,
+                    "nombre":       a.name,
+                    "exchange":     a.exchange.value if a.exchange else "--",
+                    "clase":        "crypto",
+                    "fractionable": False,
+                })
 
         ASSETS_PATH.parent.mkdir(parents=True, exist_ok=True)
         with open(ASSETS_PATH, "w") as f:
             json.dump({
                 "actualizado":  datetime.utcnow().isoformat(),
                 "total":        len(datos),
-                "feed_fuente":  "Alpaca Market Data Free (IEX)",
+                "feed_fuente":  "Alpaca Market Data Free (IEX + Crypto)",
                 "assets":       datos,
             }, f, indent=4)
 
-        logger.info(f"Catálogo IEX actualizado: {len(datos)} activos")
+        logger.info(f"Catálogo actualizado: {len(datos)} activos (equity + crypto)")
         return True
 
     except Exception as e:
@@ -120,7 +156,8 @@ def assets_disponibles() -> list[dict]:
 def buscar_assets(query: str, limite: int = 10) -> list[dict]:
     q = query.upper()
     assets = assets_disponibles()
-    exactos         = [a for a in assets if a["ticker"].startswith(q)]
+    # para crypto (BTC/USD) también busca sin la barra (BTC)
+    exactos         = [a for a in assets if a["ticker"].startswith(q) or a["ticker"].replace("/", "").startswith(q)]
     contiene_ticker = [a for a in assets if q in a["ticker"] and not a["ticker"].startswith(q)]
     solo_nombre     = [a for a in assets if q not in a["ticker"] and q in a["nombre"].upper()]
     return (exactos + contiene_ticker + solo_nombre)[:limite]
@@ -135,34 +172,50 @@ def buscar_assets(query: str, limite: int = 10) -> list[dict]:
 )
 def _fetch_bars(ticker: str, timeframe_str: str, inicio: datetime, fin: datetime) -> list[dict]:
     # descarga velas OHLC de Alpaca REST para un rango de fechas elegido
+    # usa StockHistoricalDataClient (feed IEX) para equity y CryptoHistoricalDataClient para crypto
     tf = TIMEFRAME_MAP.get(timeframe_str)
     if not tf:
         logger.error(f"Timeframe desconocido: {timeframe_str}")
         return []
 
-    client = _data_client()
-    request = StockBarsRequest(
-        symbol_or_symbols=ticker,
-        timeframe=tf,
-        start=inicio,
-        end=fin,
-        feed="iex",
-    )
-    bars = client.get_stock_bars(request)
-    data = bars.data.get(ticker, [])
+    try:
+        if _es_crypto(ticker):
+            client = _crypto_client()
+            request = CryptoBarsRequest(
+                symbol_or_symbols=ticker,
+                timeframe=tf,
+                start=inicio,
+                end=fin,
+            )
+            bars = client.get_crypto_bars(request)
+        else:
+            client = _stock_client()
+            request = StockBarsRequest(
+                symbol_or_symbols=ticker,
+                timeframe=tf,
+                start=inicio,
+                end=fin,
+                feed="iex",
+            )
+            bars = client.get_stock_bars(request)
 
-    return [
-        {
-            "timestamp": bar.timestamp.replace(tzinfo=None),  # sin tz para DuckDB
-            "timeframe": timeframe_str,
-            "apertura":  float(bar.open),
-            "maximo":    float(bar.high),
-            "minimo":    float(bar.low),
-            "cierre":    float(bar.close),
-            "volumen":   int(bar.volume),
-        }
-        for bar in data
-    ]
+        data = bars.data.get(ticker, [])
+        return [
+            {
+                "timestamp": bar.timestamp.replace(tzinfo=None),  # sin tz para DuckDB
+                "timeframe": timeframe_str,
+                "apertura":  float(bar.open),
+                "maximo":    float(bar.high),
+                "minimo":    float(bar.low),
+                "cierre":    float(bar.close),
+                "volumen":   int(bar.volume),
+            }
+            for bar in data
+        ]
+
+    except Exception as e:
+        logger.warning(f"Error fetch_bars {ticker}: {e}")
+        return []
 
 def cargar_velas_iniciales(ticker: str, timeframe_str: str = "1Min") -> int:
     # carga las últimas 2 semanas de velas al añadir un activo al seguimiento (devuelve el número de velas insertadas)
@@ -178,7 +231,7 @@ def cargar_velas_iniciales(ticker: str, timeframe_str: str = "1Min") -> int:
     velas = _fetch_bars(ticker, timeframe_str, inicio, fin)
 
     if not velas:
-        logger.warning(f"Sin velas para {ticker} (puede ser fin de semana o after-hours)")
+        logger.warning(f"Sin velas para {ticker} (puede ser fin de semana, after-hours o sin cobertura)")
         return 0
 
     insertadas = insertar_velas(activo_id, velas)
