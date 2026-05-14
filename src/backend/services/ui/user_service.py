@@ -55,7 +55,8 @@ def añadir_seguimiento(ticker: str, nombre: str) -> bool:
     return bool(resultado and resultado.get("ok"))
 
 def eliminar_seguimiento(ticker: str) -> bool:
-    resultado = _delete(f"/seguimientos/{ticker}")
+    ticker_encoded = quote(ticker, safe="")
+    resultado = _delete(f"/seguimientos/{ticker_encoded}")
     return bool(resultado and resultado.get("ok"))
 
 

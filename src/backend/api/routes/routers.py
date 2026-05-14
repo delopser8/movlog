@@ -42,7 +42,7 @@ def añadir_seguimiento(body: SeguimientoIn):
         raise HTTPException(status_code=409, detail=resultado["mensaje"])
     return resultado
 
-@router.delete("/seguimientos/{ticker}")
+@router.delete("/seguimientos/{ticker:path}")
 def eliminar_seguimiento(ticker: str):
     # elimina un activo del seguimiento
     resultado = ctrl_eliminar_seguimiento(ticker)
