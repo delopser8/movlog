@@ -1,7 +1,7 @@
 # ENTORNO
 .env
 
-# DEPENDENCIAS 
+# DEPENDENCIAS
 __pycache__/
 *.py[cod]
 
@@ -10,3 +10,5 @@ __pycache__/
 
 # DB
 db_data/movlog.duckdb
+db_data/alpaca_assets.json
+db_data/db_historicos/
