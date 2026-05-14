@@ -628,6 +628,6 @@ def render():
     if activos:
         @st.fragment(run_every="20s")
         def _refresco_automatico():
-            st.rerun()
+            st.empty()
 
         _refresco_automatico()
