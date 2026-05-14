@@ -7,7 +7,8 @@ import streamlit as st
 import plotly.graph_objects as go
 import pandas as pd
 from datetime import datetime
- 
+from streamlit_autorefresh import st_autorefresh
+
 from backend.services.ui.user_service import (
     buscar_assets,
     listar_seguimientos,
@@ -342,12 +343,6 @@ CSS = '''
 '''
 
 
-# --- FUNCIONES AUXILIARES ---
-@st.fragment(run_every="20s")
-def _refresco_automatico():
-    st.empty()
-
-
 # --- FUNCIONES de BÚSQUEDA ---
 def _ejecutar_busqueda(query: str):
     if query:
@@ -362,6 +357,11 @@ def _on_busqueda_change():
 
 # --- RENDER PRINCIPAL ---
 def render():
+
+    # --- Auto-refresh de UI (cada 20s) ---
+    if st.session_state.get("seg_activos"):
+        st_autorefresh(interval=20000, key="seg_autorefresh")
+
     st.markdown(CSS, unsafe_allow_html=True)
 
     if "seg_tab" not in st.session_state:
@@ -630,6 +630,3 @@ def render():
                             st.session_state.seg_resultados = []
                             st.session_state.seg_activo_idx = len(st.session_state.seg_activos) - 1
                         st.rerun()
-
-    if activos:
-            _refresco_automatico()

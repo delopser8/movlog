@@ -50,9 +50,9 @@ def _recomendar(info: dict) -> str:
 def _fetch_info(ticker: str) -> dict:
     return yf.Ticker(ticker).info
 
-def _fetch_historico(ticker: str) -> dict:
+def _fetch_historico(ticker_yf: str) -> dict:
     # obtiene cierres ajustados, aperturas, máximos y mínimos por periodo
-    t = yf.Ticker(ticker)
+    t = yf.Ticker(ticker_yf)
     datos = {}
 
     try:
@@ -79,22 +79,27 @@ def _fetch_historico(ticker: str) -> dict:
             datos["minimo_mensual"]          = _safe_float(hist_m["Low"].iloc[-1])
 
     except Exception as e:
-        logger.warning(f"yfinance histórico fallido para {ticker}: {e}")
+        logger.warning(f"yfinance histórico fallido para {ticker_yf}: {e}")
 
     return datos
+
+def _normalizar_ticker_yf(ticker: str) -> str:
+    # convierte ticker Alpaca (BRK.B) a formato yfinance (BRK-B)
+    return ticker.replace(".", "-")
 
 def cargar_detalles_activo(ticker: str) -> dict | None:
     # carga los detalles completos de un activo desde yfinance y los persiste en DuckDB
     # devuelve el dict de detalles o None si falla
     try:
-        logger.info(f"Cargando detalles yfinance: {ticker}")
-        info = _fetch_info(ticker)
+        ticker_yf = _normalizar_ticker_yf(ticker)
+        logger.info(f"Cargando detalles yfinance: {ticker} (yf: {ticker_yf})")
+        info = _fetch_info(ticker_yf)
 
-        if not info or info.get("trailingPegRatio") is None and not info.get("shortName"):
+        if not info or not (info.get("shortName") or info.get("longName") or info.get("symbol")):
             logger.warning(f"yfinance no devolvió datos válidos para {ticker}")
             return None
 
-        historico = _fetch_historico(ticker)
+        historico = _fetch_historico(ticker_yf)
 
         # URL limpia
         website = info.get("website", "") or ""
