@@ -63,8 +63,15 @@ def ctrl_get_detalles(ticker: str) -> dict | None:
 # --- Velas ---
 def ctrl_get_velas(ticker: str, timeframe: str = "1Min", limite: int = 500) -> list[dict]:
     df = get_velas(ticker, timeframe, limite)
+    if df.empty and timeframe != "1Min":
+        # carga bajo demanda para timeframes distintos de 1Min
+        import threading
+        threading.Thread(
+            target=cargar_velas_iniciales,
+            args=(ticker, timeframe),
+            daemon=True
+        ).start()
     if df.empty:
         return []
-    # convertir timestamps a string para JSON
     df["timestamp"] = df["timestamp"].astype(str)
     return df.to_dict(orient="records")

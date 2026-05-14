@@ -377,6 +377,8 @@ def render():
         st.session_state.seg_busqueda = ""
     if "seg_resultados" not in st.session_state:
         st.session_state.seg_resultados = []
+    if "seg_timeframe" not in st.session_state:
+        st.session_state.seg_timeframe = "1Min"
  
     activos = st.session_state.seg_activos
     idx = min(st.session_state.seg_activo_idx, len(activos) - 1) if activos else 0
@@ -418,7 +420,18 @@ def render():
                 ticker = activo["ticker"]
  
                 # Gráfico de velas
-                velas_raw = get_velas(ticker, timeframe="1Min", limite=500)
+                tf_opciones = ["1Min", "5Min", "1Day", "1Week", "1Month"]
+                tf_labels   = {"1Min": "1m", "5Min": "5m", "1Day": "1D", "1Week": "1W", "1Month": "1M"}
+
+                cols_tf = st.columns(len(tf_opciones))
+                for col, tf in zip(cols_tf, tf_opciones):
+                    with col:
+                        activo_btn = "primary" if st.session_state.seg_timeframe == tf else "secondary"
+                        if st.button(tf_labels[tf], key=f"tf_{tf}", type=activo_btn, use_container_width=True):
+                            st.session_state.seg_timeframe = tf
+                            st.rerun()
+
+                velas_raw = get_velas(ticker, timeframe=st.session_state.seg_timeframe, limite=500)
                 with st.container():
                     st.markdown('<div class="chart-wrap">', unsafe_allow_html=True)
                     if velas_raw:
