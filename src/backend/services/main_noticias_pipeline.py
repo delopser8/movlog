@@ -118,14 +118,39 @@ def procesar_ticker(ticker: str) -> bool:
 
 
 # --- Loop de detección continua ---
+def _procesar_noticias_nuevas(ticker: str):
+    # procesa el sentimiento de noticias nuevas sin fluctuación
+    activo_id = get_activo_id(ticker)
+    if not activo_id:
+        return
+
+    # noticias recientes sin sentimiento aún
+    noticias = get_noticias_recientes(activo_id, minutos=10)
+    sin_sentimiento = [n for n in noticias if n.get("score") is None]
+
+    for n in sin_sentimiento:
+        body = n.get("body") or n.get("titulo") or ""
+        if not body:
+            continue
+        texto_en = traducir_si_necesario(body)
+        sentimiento = analizar_sentimiento(texto_en, ticker)
+        insertar_sentimiento({
+            "noticia_id":  n["noticia_id"],
+            "activo_id":   activo_id,
+            "score":       sentimiento["score"],
+            "tipo":        sentimiento["tipo"],
+            "explicacion": None,
+            "var_pct":     None,
+        })
+
 def _detection_loop(get_tickers_fn, intervalo: int = 15):
-    # comprueba fluctuaciones en todos los activos en seguimiento
-    # cada `intervalo` segundos (en sincronía con el polling de velas de Alpaca)
-    logger.info(f"Loop de detección de fluctuaciones iniciado (intervalo: {intervalo}s)")
+    # cada `intervalo` segundos procesa sentimiento de noticias nuevas
+    # y detecta fluctuaciones fuertes para lanzar la explicación con Qwen
     while True:
         for ticker in get_tickers_fn():
             try:
-                procesar_ticker(ticker)
+                _procesar_noticias_nuevas(ticker)  # sentimiento continuo
+                procesar_ticker(ticker)  # fluctuación + Qwen
             except Exception as e:
                 logger.warning(f"Pipeline noticias error {ticker}: {e}")
         time.sleep(intervalo)
@@ -150,3 +175,4 @@ def iniciar_pipeline_noticias(get_tickers_fn):
     )
     hilo.start()
     logger.info("Pipeline de noticias iniciado (NewsAPI + RSS + detección fluctuaciones)")
+
