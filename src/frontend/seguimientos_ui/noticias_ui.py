@@ -304,7 +304,7 @@ def _card_noticia(n: dict, key_prefix: str = ""):
         {link_html}
         """
 
-    st.markdown(f"""
+    st.markdown(f'''
     <div class="noticia-card">
         <div class="noticia-card-header">
             <div class="noticia-titulo">{n["titulo"]}</div>
@@ -313,14 +313,14 @@ def _card_noticia(n: dict, key_prefix: str = ""):
         <div class="noticia-meta">
             <span class="noticia-score-dot" style="background:{color_sc}"></span>
             <span>{n["origen"]}</span>
-            <span>·</span>
+            <span>&nbsp;·&nbsp;</span>
             <span>{_fmt_fecha(n["fecha_noticia"])}</span>
-            <span>·</span>
+            <span>&nbsp;·&nbsp;</span>
             <span>score {n["score"]:+.2f}</span>
         </div>
         {explicacion_html}
     </div>
-    """, unsafe_allow_html=True)
+    ''', unsafe_allow_html=True)
 
     label = "▲ Ver menos" if expandida else "▼ Ver más"
     if st.button(label, key=f"{key_prefix}_{n['noticia_id']}", use_container_width=False):
@@ -360,7 +360,7 @@ def render_noticias(ticker: str):
 
     st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
 
-    # dos columnas: fluctuaciones explicadas | noticias recientes
+    # --- COLUMNAS: fluctuaciones explicadas | noticias recientes ---
     col_fluct, col_recientes = st.columns([1, 1], gap="large")
 
     with col_fluct:

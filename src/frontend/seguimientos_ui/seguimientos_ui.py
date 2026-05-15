@@ -625,7 +625,6 @@ def render():
                     <span style="color:{color_rel}">{_fmt_var(var_rel_card, pct=True)}</span>
                 </div>
                 <div class="activo-card-meta">Última act. {datetime.utcnow().strftime('%H:%M UTC')}</div>
-                <!-- <span class="badge-mercado-open">● Mercado abierto</span> -->
             </div>
             """, unsafe_allow_html=True)
 
