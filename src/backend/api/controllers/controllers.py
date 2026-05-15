@@ -3,6 +3,7 @@
 '''
 
 
+import threading
 from loguru import logger
 from services.ingesta.alpaca_client import buscar_assets, cargar_velas_iniciales
 from services.ingesta.yfinance_client import cargar_detalles_activo
@@ -15,6 +16,7 @@ from services.db.duckdb_client import (
     get_activo_detalles,
     get_velas,
     eliminar_activo_detalles,
+    get_noticias_por_activo,
 )
  
 
@@ -75,3 +77,17 @@ def ctrl_get_velas(ticker: str, timeframe: str = "1Min", limite: int = 500) -> l
         return []
     df["timestamp"] = df["timestamp"].astype(str)
     return df.to_dict(orient="records")
+
+
+# --- Noticias ---
+def ctrl_get_noticias(ticker: str, limite: int = 20) -> list[dict]:
+    # devuelve todas las noticias con sentimiento para un activo
+    return get_noticias_por_activo(ticker, limite)
+ 
+def ctrl_get_fluctuaciones(ticker: str, limite: int = 10) -> list[dict]:
+    # devuelve solo las noticias con fluctuación fuerte explicada por IA
+    noticias = get_noticias_por_activo(ticker, limite * 3)
+    return [
+        n for n in noticias
+        if n.get("var_pct") is not None and n.get("explicacion")
+    ][:limite]

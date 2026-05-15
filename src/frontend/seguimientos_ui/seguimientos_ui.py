@@ -557,14 +557,14 @@ def render():
                 elif velas and len(velas) == 1:
                     ultimo_precio = f"{velas[-1]['cierre']:,.2f}"
  
-                st.markdown(f"""
+                st.markdown(f'''
                 <div class="seg-row {sel_style}">
                     <div class="seg-cell seg-cell-sym" style="color:rgb(184 184 184);font-weight:500">{a["simbolo"]}</div>
                     <div class="seg-cell seg-cell-num">{ultimo_precio}</div>
                     <div class="seg-cell seg-cell-num" style="color:{color_abs}">{var_abs_str}</div>
                     <div class="seg-cell seg-cell-num" style="color:{color_rel}">{var_rel_str}</div>
                 </div>
-                """, unsafe_allow_html=True)
+                ''', unsafe_allow_html=True)
  
                 csel, cx = st.columns([2, 1])
                 with csel:
@@ -581,8 +581,6 @@ def render():
                         ]
                         st.session_state.seg_activo_idx = max(0, idx - 1)
                         st.rerun()
-
-                # st.markdown('<hr style="border:none;border-top:1px solid rgb(208 208 208);margin:1px 0;">', unsafe_allow_html=True)
         else:
             st.markdown(
                 "<div style='color:#4b5563;font-size:12px;font-family:IBM Plex Mono,monospace;padding:12px 0'>"
@@ -615,7 +613,7 @@ def render():
             color_abs = _color_var(var_abs_card)
             color_rel = _color_var(var_rel_card)
  
-            st.markdown(f"""
+            st.markdown(f'''
             <div class="activo-card">
                 <div class="activo-card-simbolo">{activo["ticker"]}</div>
                 <div class="activo-card-nombre">{nombre}</div>
@@ -628,7 +626,7 @@ def render():
                 </div>
                 <div class="activo-card-meta">Última act. {datetime.utcnow().strftime('%H:%M UTC')}</div>
             </div>
-            """, unsafe_allow_html=True)
+            ''', unsafe_allow_html=True)
 
         #--- <hr> ---
         st.markdown('<hr class="panel-sep">', unsafe_allow_html=True)

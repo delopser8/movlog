@@ -7,6 +7,7 @@ import threading
 from pathlib import Path
 from datetime import datetime
 import math
+from datetime import timedelta
 
 import duckdb
 import pandas as pd
@@ -43,7 +44,7 @@ def upsert_activo_detalles(datos: dict) -> int:
 
             if row:
                 activo_id = row[0]
-                con.execute("""
+                con.execute('''
                     UPDATE activos_detalles SET
                         nombre = ?, sector = ?, industria = ?, url = ?,
                         cierre_ajustado_diario = ?, cierre_ajustado_semanal = ?, cierre_ajustado_mensual = ?,
@@ -55,7 +56,7 @@ def upsert_activo_detalles(datos: dict) -> int:
                         actualizado_en = CURRENT_TIMESTAMP,
                         clase = ?
                     WHERE ticker = ?
-                """, [
+                ''', [
                     datos.get("nombre"), datos.get("sector"), datos.get("industria"), datos.get("url"), datos.get("clase", "us_equity"),
                     datos.get("cierre_ajustado_diario"), datos.get("cierre_ajustado_semanal"), datos.get("cierre_ajustado_mensual"),
                     datos.get("apertura_diaria"), datos.get("apertura_semanal"), datos.get("apertura_mensual"),
@@ -141,26 +142,26 @@ def insertar_velas(activo_id: int, velas: list[dict]) -> int:
     with _write_lock:
         with _conn() as con:
             # INSERT OR IGNORE: INSERT con ON CONFLICT DO NOTHING
-            con.execute("""
+            con.execute('''
                 INSERT INTO activos_precios (activo_id, timestamp, timeframe, apertura, maximo, minimo, cierre, volumen)
                 SELECT activo_id, timestamp, timeframe, apertura, maximo, minimo, cierre, volumen
                 FROM df
                 ON CONFLICT (activo_id, timestamp, timeframe) DO NOTHING
-            """)
+            ''')
             logger.debug(f"Velas insertadas: activo_id={activo_id}, n={len(velas)}")
             return len(velas)
 
 def get_velas(ticker: str, timeframe: str = "1Min", limite: int = 500) -> pd.DataFrame:
     # devuelve las últimas N velas de un activo para el timeframe dado
     with _conn() as con:
-        df = con.execute("""
+        df = con.execute('''
             SELECT ap.timestamp, ap.apertura, ap.maximo, ap.minimo, ap.cierre, ap.volumen
             FROM activos_precios ap
             JOIN activos_detalles ad ON ap.activo_id = ad.activo_id
             WHERE ad.ticker = ? AND ap.timeframe = ?
             ORDER BY ap.timestamp DESC
             LIMIT ?
-        """, [ticker, timeframe, limite]).fetchdf()
+        ''', [ticker, timeframe, limite]).fetchdf()
 
     if df.empty:
         return df
@@ -170,14 +171,14 @@ def get_velas(ticker: str, timeframe: str = "1Min", limite: int = 500) -> pd.Dat
 def get_ultima_vela(ticker: str, timeframe: str = "1Min") -> dict | None:
     # devuelve la vela más reciente de un activo
     with _conn() as con:
-        row = con.execute("""
+        row = con.execute('''
             SELECT ap.timestamp, ap.apertura, ap.maximo, ap.minimo, ap.cierre, ap.volumen
             FROM activos_precios ap
             JOIN activos_detalles ad ON ap.activo_id = ad.activo_id
             WHERE ad.ticker = ? AND ap.timeframe = ?
             ORDER BY ap.timestamp DESC
             LIMIT 1
-        """, [ticker, timeframe]).fetchone()
+        ''', [ticker, timeframe]).fetchone()
 
     if not row:
         return None
@@ -214,3 +215,90 @@ def leer_parquet(ticker: str, timeframe: str = "1Min") -> pd.DataFrame:
     with _conn() as con:
         df = con.execute(f"SELECT * FROM read_parquet('{ruta}/{timeframe}_*.parquet')").fetchdf()
     return df.sort_values("timestamp").reset_index(drop=True)
+
+# --- noticias ---
+def insertar_noticia(noticia: dict) -> bool:
+    # inserta una noticia en noticias_historial
+    # ignora duplicados por noticia_id
+    # devuelve True si se insertó, False si ya existía
+    with _write_lock:
+        with _conn() as con:
+            existente = con.execute(
+                "SELECT noticia_id FROM noticias_historial WHERE noticia_id = ?",
+                [noticia["noticia_id"]]
+            ).fetchone()
+            if existente:
+                return False
+            con.execute('''
+                INSERT INTO noticias_historial (noticia_id, titulo, url, origen, body, fecha_noticia)
+                VALUES (?, ?, ?, ?, ?, ?)
+            ''', [
+                noticia["noticia_id"],
+                noticia["titulo"],
+                noticia.get("url", ""),
+                noticia.get("origen", ""),
+                noticia.get("body", ""),
+                noticia["fecha_noticia"],
+            ])
+            return True
+
+def get_noticias_recientes(activo_id: int, minutos: int = 30) -> list[dict]:
+    # devuelve las noticias de los últimos X minutos vinculadas a un activo
+    # (join con noticias_sentimientos si existe, sino solo historial)
+    desde = datetime.utcnow() - timedelta(minutes=minutos)
+    with _conn() as con:
+        df = con.execute('''
+            SELECT
+                nh.noticia_id, nh.titulo, nh.url, nh.origen, nh.body, nh.fecha_noticia,
+                ns.score, ns.tipo, ns.explicacion, ns.var_pct
+            FROM noticias_historial nh
+            LEFT JOIN noticias_sentimientos ns
+                ON nh.noticia_id = ns.noticia_id AND ns.activo_id = ?
+            WHERE nh.fecha_noticia >= ?
+            ORDER BY nh.fecha_noticia DESC
+        ''', [activo_id, desde]).fetchdf()
+    if df.empty:
+        return []
+    df["fecha_noticia"] = df["fecha_noticia"].astype(str)
+    return df.to_dict(orient="records")
+
+def get_noticias_por_activo(ticker: str, limite: int = 20) -> list[dict]:
+    # devuelve las últimas noticias con sentimiento para un ticker
+    with _conn() as con:
+        df = con.execute('''
+            SELECT
+                nh.noticia_id, nh.titulo, nh.url, nh.origen, nh.body, nh.fecha_noticia,
+                ns.score, ns.tipo, ns.explicacion, ns.var_pct
+            FROM noticias_historial nh
+            JOIN noticias_sentimientos ns ON nh.noticia_id = ns.noticia_id
+            JOIN activos_detalles ad ON ns.activo_id = ad.activo_id
+            WHERE ad.ticker = ?
+            ORDER BY nh.fecha_noticia DESC
+            LIMIT ?
+        ''', [ticker, limite]).fetchdf()
+    if df.empty:
+        return []
+    df["fecha_noticia"] = df["fecha_noticia"].astype(str)
+    return df.to_dict(orient="records")
+
+def insertar_sentimiento(sentimiento: dict) -> bool:
+    # inserta o actualiza el sentimiento de una noticia para un activo
+    with _write_lock:
+        with _conn() as con:
+            con.execute('''
+                INSERT INTO noticias_sentimientos (noticia_id, activo_id, score, tipo, explicacion, var_pct)
+                VALUES (?, ?, ?, ?, ?, ?)
+                ON CONFLICT (noticia_id, activo_id) DO UPDATE SET
+                    score = excluded.score,
+                    tipo = excluded.tipo,
+                    explicacion = excluded.explicacion,
+                    var_pct = excluded.var_pct
+            ''', [
+                sentimiento["noticia_id"],
+                sentimiento["activo_id"],
+                sentimiento.get("score"),
+                sentimiento.get("tipo"),
+                sentimiento.get("explicacion"),
+                sentimiento.get("var_pct"),
+            ])
+            return True

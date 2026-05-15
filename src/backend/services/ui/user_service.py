@@ -69,3 +69,13 @@ def get_velas(ticker: str, timeframe: str = "1Min", limite: int = 500) -> list[d
     ticker_encoded = quote(ticker, safe="")
     resultado = _get(f"/activos/{ticker_encoded}/velas", {"timeframe": timeframe, "limite": limite})
     return resultado if isinstance(resultado, list) else []
+
+
+# --- Noticias ---
+def get_noticias(ticker: str, limite: int = 20) -> list[dict]:
+    resultado = _get(f"/activos/{quote(ticker, safe='')}/noticias", {"limite": limite})
+    return resultado if isinstance(resultado, list) else []
+
+def get_fluctuaciones(ticker: str, limite: int = 10) -> list[dict]:
+    resultado = _get(f"/activos/{quote(ticker, safe='')}/fluctuaciones", {"limite": limite})
+    return resultado if isinstance(resultado, list) else []

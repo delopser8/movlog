@@ -299,6 +299,31 @@ done
 echo -e " ${GREEN}✅ UI lista${NC}"
 
 
+# --- 5b. chequeo de Langfuse ---
+echo -e "${CYAN}>>> Validando Langfuse...${NC}"
+
+while true; do
+    if [ "${LANGFUSE_PUBLIC_KEY}" = "tu_key_aqui" ] || [ -z "${LANGFUSE_PUBLIC_KEY}" ] || \
+       [ "${LANGFUSE_SECRET_KEY}" = "tu_key_aqui" ] || [ -z "${LANGFUSE_SECRET_KEY}" ]; then
+        echo -e "    ${RED}❌ Langfuse sin configurar — abre la UI de Langfuse y crea las keys:${NC}"
+        if [ -n "${CODESPACE_NAME}" ]; then
+            echo -e "    ${CYAN}  https://${CODESPACE_NAME}-13000.app.github.dev${NC}"
+        else
+            echo -e "    ${CYAN}  http://localhost:13000${NC}"
+        fi
+        echo -e "    ${YELLOW}  Consulta docs/api_key_guide.md para más detalles.${NC}"
+        echo -e "    ${YELLOW}⏳ Reintentando en 10s... (edita .env y guarda)${NC}"
+        sleep 10
+        source "$WORKDIR/.env" 2>/dev/null || true
+    else
+        echo -e "    ${GREEN}✅ Langfuse OK${NC}"
+        break
+    fi
+done
+
+echo ""
+
+
 # --- 6. mostrar enlace a la UI y API de Movlog ---
 echo ""
 echo "────────────────────────────────────────────────────────"

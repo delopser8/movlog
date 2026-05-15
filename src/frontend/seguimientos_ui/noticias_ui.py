@@ -4,82 +4,14 @@
     - listas de noticias (fluctuaciones explicadas y noticias recientes)
 '''
 
+
 import streamlit as st
 import plotly.graph_objects as go
 import pandas as pd
 from datetime import datetime, timedelta
 
 from backend.services.ui.user_service import get_velas
-
-
-# --- MOCK DATA (reemplazar con datos reales cuando el pipeline de noticias esté listo) ---
-MOCK_NOTICIAS = [
-    {
-        "noticia_id": "a1b2c3",
-        "titulo": "Fed mantiene tipos pero señala posibles recortes en Q3",
-        "url": "https://bloomberg.com/fed-rates-2026",
-        "origen": "NewsAPI / Bloomberg",
-        "body": "La Reserva Federal mantuvo los tipos de interés sin cambios pero abrió la puerta a recortes en el tercer trimestre, lo que impulsó al mercado de renta variable con fuerza.",
-        "fecha_noticia": datetime.utcnow() - timedelta(hours=3),
-        "score": 0.82,
-        "tipo": "positivo",
-        "var_pct": 3.2,
-        "explicacion": "La señal dovish de la Fed redujo el riesgo percibido en renta variable. Los inversores interpretaron el comunicado como un catalizador de subida para activos de riesgo, especialmente tecnología.",
-        "es_fluctuacion": True,
-    },
-    {
-        "noticia_id": "d4e5f6",
-        "titulo": "Resultados trimestrales superan expectativas en un 12%",
-        "url": "https://wsj.com/earnings-q1-2026",
-        "origen": "NewsAPI / Wall Street Journal",
-        "body": "Los resultados del primer trimestre han superado las estimaciones de los analistas en un 12%, impulsados por el crecimiento en servicios en la nube y márgenes récord.",
-        "fecha_noticia": datetime.utcnow() - timedelta(hours=8),
-        "score": 0.91,
-        "tipo": "positivo",
-        "var_pct": 5.1,
-        "explicacion": "Los resultados por encima de consenso generaron un gap al alza en la apertura. El mercado descontó rápidamente la mejora de guidance para el resto del año fiscal.",
-        "es_fluctuacion": True,
-    },
-    {
-        "noticia_id": "g7h8i9",
-        "titulo": "Reguladores europeos abren investigación antimonopolio",
-        "url": "https://ft.com/antitrust-eu-2026",
-        "origen": "Yahoo Finance RSS",
-        "body": "La Comisión Europea ha abierto una investigación formal por posibles prácticas anticompetitivas en el mercado de servicios digitales.",
-        "fecha_noticia": datetime.utcnow() - timedelta(hours=12),
-        "score": -0.74,
-        "tipo": "negativo",
-        "var_pct": -1.8,
-        "explicacion": "La incertidumbre regulatoria en Europa generó presión vendedora. Los inversores temen multas y cambios estructurales en el modelo de negocio.",
-        "es_fluctuacion": True,
-    },
-    {
-        "noticia_id": "j1k2l3",
-        "titulo": "Análisis: perspectivas del sector tecnológico para 2026",
-        "url": "https://forbes.com/tech-outlook-2026",
-        "origen": "NewsAPI / Forbes",
-        "body": "Los analistas prevén un año de consolidación para el sector tecnológico, con foco en rentabilidad frente al crecimiento.",
-        "fecha_noticia": datetime.utcnow() - timedelta(hours=18),
-        "score": 0.05,
-        "tipo": "neutral",
-        "var_pct": None,
-        "explicacion": None,
-        "es_fluctuacion": False,
-    },
-    {
-        "noticia_id": "m4n5o6",
-        "titulo": "Volúmenes de trading al alza en sesión asiática",
-        "url": "https://reuters.com/asia-trading-2026",
-        "origen": "Yahoo Finance RSS",
-        "body": "Los mercados asiáticos registraron volúmenes superiores a la media en la sesión nocturna, con foco en semiconductores y energía.",
-        "fecha_noticia": datetime.utcnow() - timedelta(hours=22),
-        "score": 0.12,
-        "tipo": "neutral",
-        "var_pct": None,
-        "explicacion": None,
-        "es_fluctuacion": False,
-    },
-]
+from backend.services.ui.user_service import get_velas, get_noticias, get_fluctuaciones
 
 
 # --- HELPERS ---
@@ -277,8 +209,41 @@ def _card_noticia(n: dict, key_prefix: str = ""):
 def render_noticias(ticker: str):
     st.markdown(CSS_NOTICIAS, unsafe_allow_html=True)
 
-    noticias_fluct     = [n for n in MOCK_NOTICIAS if n["es_fluctuacion"]]
-    noticias_recientes = [n for n in MOCK_NOTICIAS if not n["es_fluctuacion"]]
+    # datos desde FastAPI
+    fluctuaciones      = get_fluctuaciones(ticker, limite=10)
+    noticias_recientes = get_noticias(ticker, limite=20)
+
+    # filtrar noticias recientes que no sean fluctuaciones explicadas
+    ids_fluct = {n["noticia_id"] for n in fluctuaciones}
+    noticias_recientes = [n for n in noticias_recientes if n["noticia_id"] not in ids_fluct]
+
+    def _normalizar(n: dict, es_fluctuacion: bool) -> dict:
+        from datetime import datetime
+        fecha = n.get("fecha_noticia")
+        if isinstance(fecha, str):
+            try:
+                fecha = datetime.fromisoformat(fecha)
+            except Exception:
+                fecha = datetime.utcnow()
+        return {
+            "noticia_id":    n.get("noticia_id", ""),
+            "titulo":        n.get("titulo", ""),
+            "url":           n.get("url", ""),
+            "origen":        n.get("origen", ""),
+            "body":          n.get("body", ""),
+            "fecha_noticia": fecha,
+            "score":         n.get("score") or 0.0,
+            "tipo":          n.get("tipo") or "neutral",
+            "var_pct":       n.get("var_pct"),
+            "explicacion":   n.get("explicacion"),
+            "es_fluctuacion": es_fluctuacion,
+        }
+
+    fluct_norm    = [_normalizar(n, True)  for n in fluctuaciones]
+    recientes_norm = [_normalizar(n, False) for n in noticias_recientes]
+
+    noticias_fluct    = fluct_norm
+    noticias_recientes = recientes_norm
 
     st.markdown(
         '<div class="tf-info-badge">Gráfico en <span class="tf-label">5Min</span>'
@@ -303,7 +268,7 @@ def render_noticias(ticker: str):
 
     st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
 
-    # --- COLUMNAS: (noticias exlpicadas / noticias recientes) ---
+    # --- COLUMNAS: (noticias de fluctuaciones explicadas / noticias recientes) ---
     col_fluct, col_recientes = st.columns([1, 1], gap="large")
 
     with col_fluct:

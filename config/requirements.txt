@@ -24,9 +24,7 @@ alpaca-py>=0.26.0                # Alpaca Markets SDK
 
 # Ingesta de noticias
 newsapi-python>=0.2.7            # NewsAPI SDK
-beautifulsoup4>=4.12.3
-lxml>=5.2.2                      # parser rápido de BeautifulSoup
-feedparser>=6.0.11               # parsing de Yahoo Finance RSS
+feedparser>=6.0.11               # parsing de Yahoo Finance RSS (XML)
 
 # IA inferencia local
 ollama>=0.2.0                   # Ollama (Qwen) se controla por API REST

@@ -2,6 +2,7 @@
     endpoints de la API con llamadas a sus funciones handler
 '''
 
+
 from fastapi import APIRouter, Query, HTTPException
 from pydantic import BaseModel
 from api.controllers.controllers import (
@@ -11,6 +12,8 @@ from api.controllers.controllers import (
     ctrl_eliminar_seguimiento,
     ctrl_get_detalles,
     ctrl_get_velas,
+    ctrl_get_noticias,
+    ctrl_get_fluctuaciones,
 )
  
 router = APIRouter()
@@ -23,7 +26,6 @@ def buscar_assets(q: str = Query(..., min_length=1), limite: int = 10):
     return ctrl_buscar_assets(q, limite)
 
 
-# ------------------------------ SEGUIMIENTOS ------------------------------
 # --- Seguimientos ---
 @router.get("/seguimientos")
 def listar_seguimientos():
@@ -70,4 +72,22 @@ def get_velas(
 ):
     # devuelve las últimas N velas OHLC de un activo
     return ctrl_get_velas(ticker, timeframe, limite)
-# ------------------------------------------------------------------------------
+
+
+# --- Noticias ---
+@router.get("/activos/{ticker:path}/noticias")
+def get_noticias(
+    ticker: str,
+    limite: int = Query(20, description="Número máximo de noticias"),
+):
+    # devuelve las noticias con sentimiento analizado para un activo
+    return ctrl_get_noticias(ticker, limite)
+
+@router.get("/activos/{ticker:path}/fluctuaciones")
+def get_fluctuaciones(
+    ticker: str,
+    limite: int = Query(10, description="Número máximo de fluctuaciones explicadas"),
+):
+    # devuelve las fluctuaciones fuertes explicadas por IA para un activo
+    return ctrl_get_fluctuaciones(ticker, limite)
+

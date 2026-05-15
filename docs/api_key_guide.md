@@ -23,6 +23,13 @@ Indicaciones para rellenar HF_API_TOKEN:
 2. Accede a tu [configuración de tokens](https://huggingface.co/settings/tokens/new?ownUserPermissions=inference.serverless.write&tokenType=fineGrained)
 3. Crea un token de tipo "read" con el nombre que quieras
 
+Indicaciones para rellenar LANGFUSE_PUBLIC_KEY y LANGFUSE_SECRET_KEY:
+(corre localmente en el Codespace así que no se necesita cuenta externa)
+1. Abre la UI de Langfuse: `https://{CODESPACE_NAME}-13000.app.github.dev`
+2. Crea una cuenta (solo la primera vez, es local)
+3. Crea un proyecto llamado `movlog`
+4. Ve a Settings → API Keys → Create new API key
+
 
 >>>Una vez tengas el archivo .env correctamente configurado, ejecuta por consola el siguiente comando:
 >>>**start_movlog**
