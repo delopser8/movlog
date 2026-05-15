@@ -19,6 +19,7 @@ from backend.services.ui.user_service import (
 )
 from backend.services.preprocesamiento.analytics_service import formatear_detalles
 
+from seguimientos_ui.noticias_ui import render_noticias
 
 
 # --- HELPERS VISUALES ---
@@ -505,11 +506,7 @@ def render():
         
         # --- TAB NOTICIAS ---
         else:
-            st.markdown(
-                "<div style='color:#4b5563;font-size:13px;padding:2rem 0;text-align:center'>"
-                "Sección de noticias, próximamente</div>",
-                unsafe_allow_html=True,
-            )
+            render_noticias(ticker if activo else "")
 
     # +++ BLOQUE DERECHO +++
     with col_der:

@@ -54,3 +54,24 @@ CREATE TABLE IF NOT EXISTS activos_precios (
 );
 
 ALTER TABLE activos_detalles ADD COLUMN IF NOT EXISTS clase VARCHAR DEFAULT 'us_equity';
+
+-- noticias_historial
+CREATE TABLE IF NOT EXISTS noticias_historial (
+    noticia_id    VARCHAR PRIMARY KEY,
+    titulo        VARCHAR NOT NULL,
+    url           VARCHAR,
+    origen        VARCHAR,
+    body          VARCHAR,
+    fecha_noticia TIMESTAMP NOT NULL
+);
+
+-- noticias_sentimientos
+CREATE TABLE IF NOT EXISTS noticias_sentimientos (
+    noticia_id    VARCHAR NOT NULL REFERENCES noticias_historial(noticia_id),
+    activo_id     INTEGER NOT NULL REFERENCES activos_detalles(activo_id),
+    score         DOUBLE,
+    tipo          VARCHAR,
+    explicacion   VARCHAR,
+    var_pct       DOUBLE,
+    PRIMARY KEY (noticia_id, activo_id)
+);
