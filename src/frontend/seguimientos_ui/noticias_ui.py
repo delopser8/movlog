@@ -129,7 +129,7 @@ CSS_NOTICIAS = '''
     white-space: nowrap; flex-shrink: 0;
 }
 .noticia-meta {
-    font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #4b5563;
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #8f96a5;
 }
 .ndot {
     width: 7px; height: 7px; border-radius: 50%;
