@@ -96,10 +96,10 @@ def fetch_y_guardar(ticker: str) -> int:
         "ICP/USD":  "Internet Computer crypto",
         "APT/USD":  "Aptos crypto",
     }
-    query = query_map.get(ticker, ticker)
+    termino = query_map.get(ticker, ticker.split(".")[0].split("/")[0])
 
     desde = datetime.utcnow() - timedelta(seconds=POLLING_INTERVAL + 60)
-    noticias = _fetch_noticias(query, desde)
+    noticias = _fetch_noticias(termino, desde)
 
     if not noticias:
         return 0
