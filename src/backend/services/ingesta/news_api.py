@@ -73,9 +73,33 @@ def _fetch_noticias(query: str, desde: datetime) -> list[dict]:
 
 def fetch_y_guardar(ticker: str) -> int:
     # descarga noticias del último intervalo de polling para un ticker y las guarda en DuckDB
-        # (return número de noticias insertadas)
+    # para crypto usa el nombre descriptivo en vez del ticker (NewsAPI no indexa bien BTC/USD)
+    query_map = {
+        "BTC/USD":  "Bitcoin",
+        "ETH/USD":  "Ethereum",
+        "SOL/USD":  "Solana",
+        "DOGE/USD": "Dogecoin",
+        "ADA/USD":  "Cardano",
+        "XRP/USD":  "Ripple XRP",
+        "LTC/USD":  "Litecoin",
+        "DOT/USD":  "Polkadot",
+        "LINK/USD": "Chainlink",
+        "AVAX/USD": "Avalanche crypto",
+        "MATIC/USD":"Polygon MATIC",
+        "UNI/USD":  "Uniswap",
+        "ATOM/USD": "Cosmos crypto",
+        "FIL/USD":  "Filecoin",
+        "ALGO/USD": "Algorand",
+        "XLM/USD":  "Stellar Lumens",
+        "VET/USD":  "VeChain",
+        "HBAR/USD": "Hedera Hashgraph",
+        "ICP/USD":  "Internet Computer crypto",
+        "APT/USD":  "Aptos crypto",
+    }
+    query = query_map.get(ticker, ticker)
+
     desde = datetime.utcnow() - timedelta(seconds=POLLING_INTERVAL + 60)
-    noticias = _fetch_noticias(ticker, desde)
+    noticias = _fetch_noticias(query, desde)
 
     if not noticias:
         return 0
