@@ -304,7 +304,7 @@ def _card_noticia(n: dict, key_prefix: str = ""):
         {link_html}
         """
 
-    st.markdown(f'''
+    st.markdown(f"""
     <div class="noticia-card">
         <div class="noticia-card-header">
             <div class="noticia-titulo">{n["titulo"]}</div>
@@ -318,14 +318,22 @@ def _card_noticia(n: dict, key_prefix: str = ""):
             <span>&nbsp;·&nbsp;</span>
             <span>score {n["score"]:+.2f}</span>
         </div>
-        {explicacion_html}
     </div>
-    ''', unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 
     label = "▲ Ver menos" if expandida else "▼ Ver más"
     if st.button(label, key=f"{key_prefix}_{n['noticia_id']}", use_container_width=False):
         st.session_state[estado_key] = not st.session_state[estado_key]
         st.rerun()
+
+    if expandida:
+        link_html = f'<a href="{n["url"]}" target="_blank" class="noticia-link">↗ Ver artículo original</a>' if n.get("url") else ""
+        st.markdown(f"""
+        <div class="noticia-card" style="border-top:none;border-radius:0 0 8px 8px;margin-top:-8px">
+            <div class="noticia-explicacion">{n["explicacion"] or n["body"]}</div>
+            {link_html}
+        </div>
+        """, unsafe_allow_html=True)
 
 
 # --- RENDER PRINCIPAL ---
