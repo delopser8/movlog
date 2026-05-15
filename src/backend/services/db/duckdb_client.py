@@ -292,6 +292,7 @@ def get_noticias_por_activo(ticker: str, limite: int = 20) -> list[dict]:
     if df.empty:
         return []
     df["fecha_noticia"] = df["fecha_noticia"].astype(str)
+    df = df.where(df.notna(), None)
     return df.to_dict(orient="records")
 
 def insertar_sentimiento(sentimiento: dict) -> bool:
