@@ -5,6 +5,8 @@
 >>> - ALPACA_SECRET_KEY
 >>> - NEWSAPI_KEY
 >>> - HF_API_TOKEN
+>>> - LANGFUSE_PUBLIC_KEY
+>>> - LANGFUSE_SECRET_KEY
 
 Indicaciones para rellenar ALPACA_API_KEY y ALPACA_SECRET_KEY:
 1. Accede a https://alpaca.markets/
