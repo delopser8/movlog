@@ -305,7 +305,7 @@ echo -e "${CYAN}>>> Validando Langfuse...${NC}"
 while true; do
     if [ "${LANGFUSE_PUBLIC_KEY}" = "tu_key_aqui" ] || [ -z "${LANGFUSE_PUBLIC_KEY}" ] || \
        [ "${LANGFUSE_SECRET_KEY}" = "tu_key_aqui" ] || [ -z "${LANGFUSE_SECRET_KEY}" ]; then
-        echo -e "    ${RED}❌ Langfuse sin configurar — abre la UI de Langfuse y crea las keys:${NC}"
+        echo -e "    ${RED}❌ Langfuse sin configurar, abre la UI de Langfuse y crea las keys:${NC}"
         if [ -n "${CODESPACE_NAME}" ]; then
             echo -e "    ${CYAN}  https://${CODESPACE_NAME}-13000.app.github.dev${NC}"
         else

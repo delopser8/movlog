@@ -30,8 +30,9 @@ Indicaciones para rellenar LANGFUSE_PUBLIC_KEY y LANGFUSE_SECRET_KEY:
 **[no hacer estos pasos hasta el final de `start_movlog`]**
 (corre localmente en el Codespace así que no se necesita cuenta externa)
 1. Abre la UI de Langfuse: `https://{CODESPACE_NAME}-13000.app.github.dev`
-2. Crea una cuenta (solo la primera vez, es local)
-3. Crea un proyecto llamado `movlog`
+2. Crea una cuenta (son únicas de cada sesión de Codespace)
+3. Crea una organización llamada `movlog`
+3. Entra en la sección de "Projects" y crea un proyecto llamado `movlog`
 4. Ve a Settings → API Keys → Create new API key
 
 

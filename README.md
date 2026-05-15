@@ -20,3 +20,5 @@ bash .devcontainer/start.sh
 - **Fallos puntuales o servicios caídos:** Ejecuta `reset_all` para reiniciar todos los servicios sin tocar los datos. Si el problema persiste, borra el Codespace y crea uno nuevo.
 
 - **API /docs (Swagger) no carga:** Comprueba que la URL termine en `/docs`.
+
+- **La UI de Langfuse me da problemas** Comprueba que la URL sea correcta (`https://{CODESPACE_NAME}-13000.app.github.dev`).
