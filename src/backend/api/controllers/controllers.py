@@ -91,3 +91,19 @@ def ctrl_get_fluctuaciones(ticker: str, limite: int = 10) -> list[dict]:
         n for n in noticias
         if n.get("var_pct") is not None and n.get("explicacion")
     ][:limite]
+
+def ctrl_añadir_seguimiento(ticker: str, nombre: str) -> dict:
+    ok = activos_elegidos_añadir(ticker, nombre)
+    if not ok:
+        return {"ok": False, "mensaje": f"{ticker} ya está en seguimiento"}
+
+    def _cargar():
+        cargar_detalles_activo(ticker)
+        cargar_velas_iniciales(ticker, "1Min")
+        # carga inicial de noticias 24h + backfill de fluctuaciones
+        from services.main_noticias_pipeline import backfill_activo
+        backfill_activo(ticker)
+
+    # lanza la carga inicial en background
+    threading.Thread(target=_cargar, daemon=True, name=f"carga-{ticker}").start()
+    return {"ok": True, "ticker": ticker}

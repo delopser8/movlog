@@ -11,6 +11,7 @@ import threading
 import time
 from loguru import logger
 import pandas as pd
+from datetime import timedelta
 
 from services.db.duckdb_client import (
     get_activo_id,
@@ -24,6 +25,9 @@ from services.ai_models.sentiment import analizar_sentimiento
 from services.ai_models.explicabilidad import generar_explicacion
 from services.ingesta.news_api import iniciar_polling as iniciar_newsapi
 from services.ingesta.rss_scraper import iniciar_polling as iniciar_rss
+from services.ingesta.news_api import _fetch_noticias, _get_client
+from services.db.duckdb_client import insertar_noticia
+from services.db.duckdb_client import get_activo_detalles
 
 
 # --- Umbral de fluctuación proporcional ---
@@ -155,6 +159,91 @@ def _detection_loop(get_tickers_fn, intervalo: int = 15):
                 logger.warning(f"Pipeline noticias error {ticker}: {e}")
         time.sleep(intervalo)
 
+# --- Backfill inicial de noticias ---
+def backfill_activo(ticker: str):
+    '''
+        al añadir un activo nuevo:
+        1. Carga noticias de las últimas 24h desde NewsAPI
+        2. Analiza velas de 5Min de las últimas 24h buscando fluctuaciones
+        3. Para cada fluctuación, procesa noticias del periodo con FinBERT + Qwen
+    '''
+
+    logger.info(f"Backfill iniciado: {ticker}")
+
+    # 1. carga noticias 24h
+    detalles = get_activo_detalles(ticker)
+    nombre = detalles.get("nombre", "") if detalles else ""
+    query = nombre.split()[0] if nombre else ticker.split(".")[0].split("/")[0]
+
+    desde_24h = datetime.utcnow() - timedelta(hours=24)
+    noticias = _fetch_noticias(query, desde_24h)
+    for n in noticias:
+        insertar_noticia(n)
+    logger.info(f"Backfill: {len(noticias)} noticias cargadas para {ticker}")
+
+    # 2. analiza velas 5Min de las últimas 24h buscando fluctuaciones
+    activo_id = get_activo_id(ticker)
+    if not activo_id:
+        return
+
+    df = get_velas(ticker, timeframe="5Min", limite=288)  # 24h * 12 velas/h
+    if isinstance(df, list):
+        df = pd.DataFrame(df)
+    if df.empty or len(df) < 2:
+        logger.info(f"Backfill: sin velas 5Min para {ticker}")
+        return
+
+    df["timestamp"] = pd.to_datetime(df["timestamp"])
+    umbral = _get_umbral()
+
+    for i in range(1, len(df)):
+        anterior = df.iloc[i-1]["cierre"]
+        actual   = df.iloc[i]["cierre"]
+        if anterior == 0:
+            continue
+        var_pct = ((actual - anterior) / anterior) * 100
+
+        if abs(var_pct) < umbral:
+            continue
+
+        # fluctuación detectada — busca noticias del periodo
+        ts_fluctuacion = df.iloc[i]["timestamp"]
+        noticias_periodo = [
+            n for n in noticias
+            if abs((datetime.fromisoformat(str(n["fecha_noticia"])) - ts_fluctuacion.to_pydatetime()).total_seconds()) < 1800
+        ]
+
+        if not noticias_periodo:
+            continue
+
+        logger.info(f"Backfill fluctuación {ticker}: {var_pct:+.2f}% en {ts_fluctuacion}")
+
+        for n in noticias_periodo:
+            texto_en    = traducir_si_necesario(n.get("body") or n.get("titulo") or "")
+            sentimiento = analizar_sentimiento(texto_en, ticker)
+            insertar_sentimiento({
+                "noticia_id":  n["noticia_id"],
+                "activo_id":   activo_id,
+                "score":       sentimiento["score"],
+                "tipo":        sentimiento["tipo"],
+                "explicacion": None,
+                "var_pct":     var_pct,
+            })
+
+        # Qwen para la fluctuación
+        explicacion = generar_explicacion(ticker, var_pct, noticias_periodo)
+        if explicacion and noticias_periodo:
+            principal = max(noticias_periodo, key=lambda x: abs(x.get("score") or 0))
+            insertar_sentimiento({
+                "noticia_id":  principal["noticia_id"],
+                "activo_id":   activo_id,
+                "score":       principal.get("score") or 0,
+                "tipo":        principal.get("tipo") or "neutral",
+                "explicacion": explicacion,
+                "var_pct":     var_pct,
+            })
+
+    logger.info(f"Backfill completado: {ticker}")
 
 # --- Arranque completo en nuevo hilo daemon ---
 def iniciar_pipeline_noticias(get_tickers_fn):
