@@ -8,6 +8,7 @@ from pathlib import Path
 from datetime import datetime
 import math
 from datetime import timedelta
+import math
 
 import duckdb
 import pandas as pd
@@ -292,8 +293,13 @@ def get_noticias_por_activo(ticker: str, limite: int = 20) -> list[dict]:
     if df.empty:
         return []
     df["fecha_noticia"] = df["fecha_noticia"].astype(str)
-    df = df.where(df.notna(), None)
-    return df.to_dict(orient="records")
+    
+    records = df.to_dict(orient="records")
+    for r in records:
+        for k, v in r.items():
+            if isinstance(v, float) and (math.isnan(v) or math.isinf(v)):
+                r[k] = None
+    return records
 
 def insertar_sentimiento(sentimiento: dict) -> bool:
     # inserta o actualiza el sentimiento de una noticia para un activo
