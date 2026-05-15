@@ -18,7 +18,7 @@ from services.ai_models.observabilidad import trazar_explicacion
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://ollama:11434")
 MODEL       = "qwen3.5:0.8b"
 
-PROMPT_TEMPLATE = """You are a financial analyst. A stock has just experienced a significant price movement.
+PROMPT_TEMPLATE = '''You are a financial analyst. A stock has just experienced a significant price movement.
 
 Stock: {ticker}
 Price change: {var_pct:+.2f}% in the last 5 minutes
@@ -28,7 +28,7 @@ Recent news that may have caused this movement:
 
 Write a concise explanation in Spanish, maximum 100 words, of why this price movement likely occurred based on the news above.
 Focus on the causal relationship between the news and the price movement.
-Be direct and analytical. Do not repeat the news verbatim."""
+Be direct and analytical. Do not repeat the news verbatim.'''
 
 
 @retry(

@@ -263,19 +263,32 @@ def get_noticias_recientes(activo_id: int, minutos: int = 30) -> list[dict]:
     return df.to_dict(orient="records")
 
 def get_noticias_por_activo(ticker: str, limite: int = 20) -> list[dict]:
-    # devuelve las últimas noticias con sentimiento para un ticker
+    # devuelve las últimas noticias para un ticker buscando por nombre en el historial
+    # incluye sentimiento si existe, si no los campos van como None
     with _conn() as con:
+        row = con.execute(
+            "SELECT nombre FROM activos_detalles WHERE ticker = ?", [ticker]
+        ).fetchone()
+        nombre = row[0] if row else None
+        termino1 = nombre.split()[0].lower() if nombre else ticker.split(".")[0].split("/")[0].lower()
+        termino2 = ticker.split(".")[0].split("/")[0].lower()
+
         df = con.execute('''
             SELECT
                 nh.noticia_id, nh.titulo, nh.url, nh.origen, nh.body, nh.fecha_noticia,
                 ns.score, ns.tipo, ns.explicacion, ns.var_pct
             FROM noticias_historial nh
-            JOIN noticias_sentimientos ns ON nh.noticia_id = ns.noticia_id
-            JOIN activos_detalles ad ON ns.activo_id = ad.activo_id
-            WHERE ad.ticker = ?
+            LEFT JOIN noticias_sentimientos ns ON nh.noticia_id = ns.noticia_id
+            WHERE LOWER(nh.titulo) LIKE ? OR LOWER(nh.body) LIKE ?
+               OR LOWER(nh.titulo) LIKE ? OR LOWER(nh.body) LIKE ?
             ORDER BY nh.fecha_noticia DESC
             LIMIT ?
-        ''', [ticker, limite]).fetchdf()
+        ''', [
+            f"%{termino1}%", f"%{termino1}%",
+            f"%{termino2}%", f"%{termino2}%",
+            limite,
+        ]).fetchdf()
+
     if df.empty:
         return []
     df["fecha_noticia"] = df["fecha_noticia"].astype(str)
