@@ -48,7 +48,6 @@ def _fetch_noticias(query: str, desde: datetime) -> list[dict]:
     try:
         resp = client.get_everything(
             q=query,
-            from_param=desde.strftime("%Y-%m-%dT%H:%M:%S"),
             language="en",
             sort_by="publishedAt",
             page_size=20,

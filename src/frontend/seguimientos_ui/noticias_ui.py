@@ -246,7 +246,7 @@ def render_noticias(ticker: str):
     noticias_recientes = recientes_norm
 
     st.markdown(
-        '<div class="tf-info-badge">Gráfico en <span class="tf-label">5Min</span>'
+        '<div class="tf-info-badge">Gráfico en formato de velas de<span class="tf-label">5Min</span>'
         ' <span title="El timeframe de 5 minutos ofrece el mejor balance entre granularidad'
         ' y legibilidad para correlacionar noticias con movimientos de precio.">'
         'ℹ️</span></div>',
