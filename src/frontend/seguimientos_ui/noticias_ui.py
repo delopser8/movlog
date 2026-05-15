@@ -208,9 +208,8 @@ CSS_NOTICIAS = '''
     color: #9ca3af; line-height: 1.5;
 }
 .noticia-sep {
-    border: none;
-    border-top: 1px solid #1a1f26;
-    margin: 2px 0;
+    border-top: 1px solid rgba(49, 51, 63, 0.2) !important; 
+    margin: 5px 0 !important;
 }
 .noticia-link {
     font-family: 'IBM Plex Mono', monospace; font-size: 10px;

@@ -582,7 +582,7 @@ def render():
                         st.session_state.seg_activo_idx = max(0, idx - 1)
                         st.rerun()
 
-                st.markdown('<hr style="border:none;border-top:1px solid #1a1f26;margin:1px 0;">', unsafe_allow_html=True)
+                st.markdown('<hr style="border:none;border-top:1px solid rgb(208 208 208);margin:1px 0;">', unsafe_allow_html=True)
         else:
             st.markdown(
                 "<div style='color:#4b5563;font-size:12px;font-family:IBM Plex Mono,monospace;padding:12px 0'>"
