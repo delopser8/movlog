@@ -512,7 +512,7 @@ def render():
             else:
                 st.markdown(
                     "<div style='color:#4b5563;font-size:13px;padding:2rem 0;text-align:center'>"
-                    "No hay activos en seguimiento.</div>",
+                    "No hay activos en seguimiento.<br>Añade uno desde el panel derecho.</div>",
                     unsafe_allow_html=True,
                 )
 
