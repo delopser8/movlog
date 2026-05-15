@@ -17,7 +17,7 @@ from services.ai_models.observabilidad import trazar_sentimiento
 
 
 MODEL_ID = "ProsusAI/finbert"
-API_URL  = f"https://api-inference.huggingface.co/models/{MODEL_ID}"
+API_URL  = "https://router.huggingface.co/hf-inference/models/ProsusAI/finbert"
 
 LABEL_MAP = {
     "positive": ("positivo",  1.0),
