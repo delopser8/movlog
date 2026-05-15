@@ -210,7 +210,7 @@ CSS_NOTICIAS = '''
 .noticia-sep {
     border: none;
     border-top: 1px solid #1a1f26;
-    margin: 4px 0 8px;
+    margin: 2px 0;
 }
 .noticia-link {
     font-family: 'IBM Plex Mono', monospace; font-size: 10px;
