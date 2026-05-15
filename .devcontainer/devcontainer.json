@@ -53,6 +53,8 @@
     19092, 18080, 27017, 13000, 11434, 19000, 18501, 18000
   ],
   "portsAttributes": {
+    "8000": { "onAutoForward": "ignore" },
+    "8501": { "onAutoForward": "ignore" },
     "19092": { "label": "Redpanda Kafka", "onAutoForward": "ignore" },
     "18080": { "label": "Redpanda Console", "onAutoForward": "ignore" },
     "13000": { "label": "Langfuse", "onAutoForward": "ignore" },

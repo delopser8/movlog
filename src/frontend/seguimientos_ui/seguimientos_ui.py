@@ -506,7 +506,15 @@ def render():
         
         # --- TAB NOTICIAS ---
         else:
-            render_noticias(ticker if activo else "")
+            if activo:
+                from seguimientos_ui.noticias_ui import render_noticias
+                render_noticias(activo["ticker"])
+            else:
+                st.markdown(
+                    "<div style='color:#4b5563;font-size:13px;padding:2rem 0;text-align:center'>"
+                    "No hay activos en seguimiento.</div>",
+                    unsafe_allow_html=True,
+                )
 
     # +++ BLOQUE DERECHO +++
     with col_der:

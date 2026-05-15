@@ -281,14 +281,28 @@ CSS_NOTICIAS = """
 
 
 # --- CARD DE NOTICIA ---
-def _card_noticia(n: dict, expandida: bool = False, key_prefix: str = ""):
+def _card_noticia(n: dict, key_prefix: str = ""):
     color_var = _color_var(n["var_pct"] or 0)
     color_sc  = _color_score(n["score"])
+    estado_key = f"noticia_expandida_{n['noticia_id']}"
+    
+    if estado_key not in st.session_state:
+        st.session_state[estado_key] = False
 
     badge_var_html = ""
     if n["var_pct"] is not None:
         bg = "#052e16" if n["var_pct"] > 0 else "#1f0707"
         badge_var_html = f'<span class="noticia-badge-var" style="color:{color_var};background:{bg}">{_fmt_var(n["var_pct"])}</span>'
+
+    expandida = st.session_state[estado_key]
+    
+    explicacion_html = ""
+    if expandida:
+        link_html = f'<a href="{n["url"]}" target="_blank" class="noticia-link">↗ Ver artículo original</a>' if n.get("url") else ""
+        explicacion_html = f"""
+        <div class="noticia-explicacion">{n["explicacion"] or n["body"]}</div>
+        {link_html}
+        """
 
     st.markdown(f"""
     <div class="noticia-card">
@@ -304,27 +318,14 @@ def _card_noticia(n: dict, expandida: bool = False, key_prefix: str = ""):
             <span>·</span>
             <span>score {n["score"]:+.2f}</span>
         </div>
+        {explicacion_html}
     </div>
     """, unsafe_allow_html=True)
 
-    # botón ver más / ver menos
-    key = f"{key_prefix}_{n['noticia_id']}"
-    estado_key = f"noticia_expandida_{n['noticia_id']}"
-    if estado_key not in st.session_state:
-        st.session_state[estado_key] = False
-
-    label = "▲ Ver menos" if st.session_state[estado_key] else "▼ Ver más"
-    if st.button(label, key=key, use_container_width=False):
+    label = "▲ Ver menos" if expandida else "▼ Ver más"
+    if st.button(label, key=f"{key_prefix}_{n['noticia_id']}", use_container_width=False):
         st.session_state[estado_key] = not st.session_state[estado_key]
         st.rerun()
-
-    if st.session_state[estado_key]:
-        st.markdown(f"""
-        <div class="noticia-card" style="margin-top:-4px;border-top:none;border-radius:0 0 8px 8px">
-            <div class="noticia-explicacion">{n["explicacion"] or n["body"]}</div>
-            {"" if not n["url"] else f'<a href="{n["url"]}" target="_blank" class="noticia-link">↗ Ver artículo original</a>'}
-        </div>
-        """, unsafe_allow_html=True)
 
 
 # --- RENDER PRINCIPAL ---
