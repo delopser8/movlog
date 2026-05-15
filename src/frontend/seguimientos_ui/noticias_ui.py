@@ -158,7 +158,7 @@ def _grafico_vacio_lineas(msg: str) -> go.Figure:
 
 
 # --- CSS ---
-CSS_NOTICIAS = """
+CSS_NOTICIAS = '''
 <style>
 .tf-info-badge {
     display: inline-flex; align-items: center; gap: 6px;
@@ -207,13 +207,18 @@ CSS_NOTICIAS = """
     font-family: 'IBM Plex Sans', sans-serif; font-size: 12px;
     color: #9ca3af; line-height: 1.5;
 }
+.noticia-sep {
+    border: none;
+    border-top: 1px solid #1a1f26;
+    margin: 4px 0 8px;
+}
 .noticia-link {
     font-family: 'IBM Plex Mono', monospace; font-size: 10px;
     color: #3b82f6; text-decoration: none; margin-top: 8px; display: inline-block;
 }
 .noticia-link:hover { text-decoration: underline; }
 </style>
-"""
+'''
 
 
 # --- CARD ---
@@ -233,7 +238,6 @@ def _card_noticia(n: dict, key_prefix: str = ""):
         bg = "#052e16" if n["var_pct"] > 0 else "#1f0707"
         badge = f'<span class="noticia-badge" style="color:{cv};background:{bg}">{_fmt_var(n["var_pct"])}</span>'
 
-    # toda la card en una sola cadena sin f-string anidado problemático
     html = (
         '<div class="noticia-card">'
         '<div class="noticia-header">'
@@ -265,6 +269,9 @@ def _card_noticia(n: dict, key_prefix: str = ""):
     if st.button(label, key=f"{key_prefix}_{n['noticia_id']}"):
         st.session_state[estado_key] = not expandida
         st.rerun()
+    
+    # -- <hr> --
+    st.markdown('<hr class="noticia-sep">', unsafe_allow_html=True)
 
 
 # --- RENDER ---
