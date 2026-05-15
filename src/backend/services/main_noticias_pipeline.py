@@ -11,7 +11,7 @@ import threading
 import time
 from loguru import logger
 import pandas as pd
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from services.db.duckdb_client import (
     get_activo_id,
