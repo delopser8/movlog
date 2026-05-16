@@ -51,12 +51,23 @@ def _grafico_lineas(df: pd.DataFrame, simbolo: str, noticias_fluct: list) -> go.
     for n in noticias_fluct:
         if df.empty:
             continue
-        idx = (df["timestamp"] - n["fecha_noticia"]).abs().idxmin()
-        row = df.iloc[idx]
+        fecha_noticia = pd.Timestamp(n["fecha_noticia"])
+        ventana = df[
+            (df["timestamp"] >= fecha_noticia - pd.Timedelta(hours=2)) &
+            (df["timestamp"] <= fecha_noticia + pd.Timedelta(hours=2))
+        ].copy()
+        if ventana.empty:
+            continue
+        ventana["var"] = ventana["cierre"].pct_change().abs()
+        idx = ventana["var"].idxmax()
+        row = df.loc[idx]
         color_m = _color_var(n["var_pct"] or 0)
+
         fig.add_trace(go.Scatter(
-            x=[row["timestamp"]], y=[row["cierre"]],
-            mode="markers", name="",
+            x=[row["timestamp"]],
+            y=[row["cierre"]],
+            mode="markers",
+            name="",
             marker=dict(color=color_m, size=10, symbol="circle",
                         line=dict(color="#0d0f11", width=1.5)),
             hovertemplate=(
