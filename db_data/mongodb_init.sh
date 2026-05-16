@@ -22,7 +22,7 @@ db.alertas.insertMany([
         alerta_id: "fluctuacion_brusca",
         nombre: "Fluctuación brusca",
         descripcion: "Variación relativa superior al umbral en la ventana temporal activa",
-        umbral: [0.85, 10],
+        umbral: [0.50, 10],
         tipo: "warning",
         estado: "ON"
     },
