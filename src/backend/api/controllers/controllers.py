@@ -100,6 +100,7 @@ def ctrl_añadir_seguimiento(ticker: str, nombre: str) -> dict:
     def _cargar():
         cargar_detalles_activo(ticker)
         cargar_velas_iniciales(ticker, "1Min")
+        cargar_velas_iniciales(ticker, "5Min")
         # carga inicial de noticias 24h + backfill de fluctuaciones
         from services.main_noticias_pipeline import backfill_activo
         backfill_activo(ticker)
