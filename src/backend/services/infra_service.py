@@ -45,10 +45,10 @@ def get_infra_stats() -> dict:
         stats["host"] = {"error": str(e)}
 
     # --- Servicios ---
+    # (redpanda está quitado)
     servicios_config = [
         {"nombre": "FastAPI",   "container": None,                  "url_ui": None,    "url_interna": "http://localhost:8000/health"},
         {"nombre": "MongoDB",   "container": "movlog_mongodb",      "url_ui": None},
-        {"nombre": "Redpanda",  "container": "movlog_redpanda",     "url_ui": "18080"},
         {"nombre": "Langfuse",  "container": "movlog_langfuse",     "url_ui": "13000"},
         {"nombre": "Ollama",    "container": "movlog_ollama",       "url_ui": "11434"},
         {"nombre": "Portainer", "container": "movlog_portainer",    "url_ui": "19000"},
