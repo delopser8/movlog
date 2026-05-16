@@ -58,7 +58,7 @@ def upsert_activo_detalles(datos: dict) -> int:
                         clase = ?
                     WHERE ticker = ?
                 ''', [
-                    datos.get("nombre"), datos.get("sector"), datos.get("industria"), datos.get("url"), datos.get("clase", "us_equity"),
+                    datos.get("nombre"), datos.get("sector"), datos.get("industria"), datos.get("url"),
                     datos.get("cierre_ajustado_diario"), datos.get("cierre_ajustado_semanal"), datos.get("cierre_ajustado_mensual"),
                     datos.get("apertura_diaria"), datos.get("apertura_semanal"), datos.get("apertura_mensual"),
                     datos.get("maximo_diario"), datos.get("maximo_semanal"), datos.get("maximo_mensual"),
@@ -66,6 +66,7 @@ def upsert_activo_detalles(datos: dict) -> int:
                     datos.get("ratio_pe"), datos.get("eps"), datos.get("market_cap"),
                     datos.get("dividend_yield"), datos.get("esg_score"),
                     datos.get("operacion_recomendada"), datos.get("target_price"),
+                    datos.get("clase", "us_equity"),  
                     datos["ticker"]
                 ])
                 logger.info(f"activos_detalles actualizado: {datos['ticker']}")
