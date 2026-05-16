@@ -299,7 +299,7 @@ done
 echo -e " ${GREEN}✅ UI lista${NC}"
 
 
-# --- 5b. chequeo de Langfuse ---
+# --- 5b. chequeo de Langfuse + reset FastAPI ---
 echo -e "${CYAN}>>> Validando Langfuse...${NC}"
 
 while true; do
@@ -322,6 +322,17 @@ while true; do
 done
 
 echo ""
+
+ELAPSED=0
+until curl -s http://localhost:8000/health | grep -q "ok" 2>/dev/null; do
+    echo -n "."
+    sleep 2
+    ELAPSED=$((ELAPSED + 2))
+    if [ $ELAPSED -ge 30 ]; then
+        echo -e "\n    ${YELLOW}⚠️  FastAPI tardó más de 30s - revisa /tmp/movlog_fastapi.log${NC}"
+        break
+    fi
+done
 
 
 # --- 6. mostrar enlace a la UI y API de Movlog ---
