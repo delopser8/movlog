@@ -51,7 +51,6 @@ def get_infra_stats() -> dict:
         {"nombre": "MongoDB",   "container": "movlog_mongodb",      "url_ui": None},
         {"nombre": "Langfuse",  "container": "movlog_langfuse",     "url_ui": "13000"},
         {"nombre": "Ollama",    "container": "movlog_ollama",       "url_ui": "11434"},
-        {"nombre": "Portainer", "container": "movlog_portainer",    "url_ui": "19000"},
     ]
     stats["servicios"] = []
     for s in servicios_config:
