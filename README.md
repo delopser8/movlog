@@ -9,7 +9,7 @@ bash .devcontainer/start.sh
 ```
 3. Espera hasta que veas un mensaje que indique `✔ TODO OK ✔`
 4. Ejecuta `start_movlog` y ve configurando las API Key del `.env` en el orden que se van pidiendo (indicaciones para conseguirlas en `/docs/api_key_guide.md`)
-5. Revisa que todo haya ido `✅ OK` y accede a la URL indicada por consola
+5. Revisa que todo haya ido `✅ OK` y accede a la URL de la UI indicada por consola
 
 ## Soluciones de errores
 

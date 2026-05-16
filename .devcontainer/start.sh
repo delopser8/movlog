@@ -139,10 +139,10 @@ EOF
 source "$BASHRC" 2>/dev/null || true
 
 echo "-------------------------------------------------------------------------------------"
-echo ""
 echo "    +-----------------------+"
 echo "    |     ✔ TODO OK ✔      |"
 echo "    +-----------------------+"
+echo ""
 echo -e "${YELLOW}Ejecuta el siguiente comando:${NC}"
 echo ""
 echo -e "${YELLOW}  start_movlog  ${NC}"
