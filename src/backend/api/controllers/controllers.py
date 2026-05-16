@@ -9,6 +9,7 @@ from services.ingesta.alpaca_client import buscar_assets, cargar_velas_iniciales
 from services.ingesta.yfinance_client import cargar_detalles_activo
 from services.infra_service import get_infra_stats as _get_infra_stats
 from services.main_noticias_pipeline import backfill_activo
+from services.db.mongodb_client import alertas_listar
 from services.db.mongodb_client import (
     activos_elegidos_listar,
     activos_elegidos_añadir,
@@ -98,3 +99,8 @@ def ctrl_get_fluctuaciones(ticker: str, limite: int = 10) -> list[dict]:
 # --- Infraestructura (sección) ---
 def ctrl_get_infra_stats() -> dict:
     return _get_infra_stats()
+
+
+# --- alertas ---
+def ctrl_get_alertas() -> list[dict]:
+    return alertas_listar()

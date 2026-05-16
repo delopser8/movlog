@@ -15,6 +15,7 @@ from api.controllers.controllers import (
     ctrl_get_noticias,
     ctrl_get_fluctuaciones,
     ctrl_get_infra_stats,
+    ctrl_get_alertas,
 )
  
 router = APIRouter()
@@ -99,3 +100,7 @@ def get_infra_stats():
     return ctrl_get_infra_stats()
 
 
+# --- alertas ---
+@router.get("/alertas")
+def get_alertas():
+    return ctrl_get_alertas()

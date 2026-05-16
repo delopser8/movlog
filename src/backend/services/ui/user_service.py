@@ -85,3 +85,9 @@ def get_fluctuaciones(ticker: str, limite: int = 10) -> list[dict]:
 def get_infra_stats() -> dict:
     return _get("/infra/stats") or {}
 
+
+# --- alertas ---
+def get_alertas() -> list[dict]:
+    resultado = _get("/alertas")
+    return resultado if isinstance(resultado, list) else []
+

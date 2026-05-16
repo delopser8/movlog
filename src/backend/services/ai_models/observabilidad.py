@@ -6,6 +6,8 @@
 
 import os
 from loguru import logger
+from langfuse import Langfuse
+from dotenv import load_dotenv  
 
 _client = None
 
@@ -15,8 +17,6 @@ def _get_client():
     if _client is not None:
         return _client
     try:
-        from langfuse import Langfuse
-        from dotenv import load_dotenv
         load_dotenv()
         _client = Langfuse(
             public_key=os.getenv("LANGFUSE_PUBLIC_KEY", ""),
