@@ -14,6 +14,7 @@ from api.controllers.controllers import (
     ctrl_get_velas,
     ctrl_get_noticias,
     ctrl_get_fluctuaciones,
+    ctrl_get_infra_stats,
 )
  
 router = APIRouter()
@@ -90,4 +91,11 @@ def get_fluctuaciones(
 ):
     # devuelve las fluctuaciones fuertes explicadas por IA para un activo
     return ctrl_get_fluctuaciones(ticker, limite)
+
+
+# --- Infraestructura (sección) ---
+@router.get("/infra/stats")
+def get_infra_stats():
+    return ctrl_get_infra_stats()
+
 

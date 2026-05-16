@@ -7,6 +7,8 @@ import threading
 from loguru import logger
 from services.ingesta.alpaca_client import buscar_assets, cargar_velas_iniciales
 from services.ingesta.yfinance_client import cargar_detalles_activo
+from services.infra_service import get_infra_stats as _get_infra_stats
+from services.main_noticias_pipeline import backfill_activo
 from services.db.mongodb_client import (
     activos_elegidos_listar,
     activos_elegidos_añadir,
@@ -31,22 +33,6 @@ def ctrl_buscar_assets(query: str, limite: int = 10) -> list[dict]:
 def ctrl_listar_seguimientos() -> list[dict]:
     return activos_elegidos_listar()
 
-def ctrl_añadir_seguimiento(ticker: str, nombre: str) -> dict:
-    ok = activos_elegidos_añadir(ticker, nombre)
-    if not ok:
-        return {"ok": False, "mensaje": f"{ticker} ya está en seguimiento"}
- 
-    # carga detalles desde yfinance y velas iniciales desde Alpaca en background
-    import threading
-    def _cargar():
-        cargar_detalles_activo(ticker)
-        cargar_velas_iniciales(ticker, "1Min")
- 
-    threading.Thread(target=_cargar, daemon=True, name=f"carga-{ticker}").start()
-    logger.info(f"Carga inicial lanzada en background: {ticker}")
- 
-    return {"ok": True, "ticker": ticker}
-
 def ctrl_eliminar_seguimiento(ticker: str) -> dict:
     ok_mongo = activos_elegidos_eliminar(ticker)
     if not ok_mongo:
@@ -54,6 +40,22 @@ def ctrl_eliminar_seguimiento(ticker: str) -> dict:
  
     # elimina de DuckDB (cascade: precios + detalles)
     eliminar_activo_detalles(ticker)
+    return {"ok": True, "ticker": ticker}
+
+def ctrl_añadir_seguimiento(ticker: str, nombre: str) -> dict:
+    ok = activos_elegidos_añadir(ticker, nombre)
+    if not ok:
+        return {"ok": False, "mensaje": f"{ticker} ya está en seguimiento"}
+
+    def _cargar():
+        cargar_detalles_activo(ticker)
+        cargar_velas_iniciales(ticker, "1Min")
+        cargar_velas_iniciales(ticker, "5Min")
+        # carga inicial de noticias 24h + backfill de fluctuaciones
+        backfill_activo(ticker)
+
+    # lanza la carga inicial en background
+    threading.Thread(target=_cargar, daemon=True, name=f"carga-{ticker}").start()
     return {"ok": True, "ticker": ticker}
 
 
@@ -92,19 +94,7 @@ def ctrl_get_fluctuaciones(ticker: str, limite: int = 10) -> list[dict]:
         if n.get("var_pct") is not None and n.get("explicacion")
     ][:limite]
 
-def ctrl_añadir_seguimiento(ticker: str, nombre: str) -> dict:
-    ok = activos_elegidos_añadir(ticker, nombre)
-    if not ok:
-        return {"ok": False, "mensaje": f"{ticker} ya está en seguimiento"}
 
-    def _cargar():
-        cargar_detalles_activo(ticker)
-        cargar_velas_iniciales(ticker, "1Min")
-        cargar_velas_iniciales(ticker, "5Min")
-        # carga inicial de noticias 24h + backfill de fluctuaciones
-        from services.main_noticias_pipeline import backfill_activo
-        backfill_activo(ticker)
-
-    # lanza la carga inicial en background
-    threading.Thread(target=_cargar, daemon=True, name=f"carga-{ticker}").start()
-    return {"ok": True, "ticker": ticker}
+# --- Infraestructura (sección) ---
+def ctrl_get_infra_stats() -> dict:
+    return _get_infra_stats()

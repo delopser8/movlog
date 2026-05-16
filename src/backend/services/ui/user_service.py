@@ -79,3 +79,9 @@ def get_noticias(ticker: str, limite: int = 20) -> list[dict]:
 def get_fluctuaciones(ticker: str, limite: int = 10) -> list[dict]:
     resultado = _get(f"/activos/{quote(ticker, safe='')}/fluctuaciones", {"limite": limite})
     return resultado if isinstance(resultado, list) else []
+
+
+# --- Infraestructura (sección) ---
+def get_infra_stats() -> dict:
+    return _get("/infra/stats") or {}
+

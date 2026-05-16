@@ -15,6 +15,8 @@ bash .devcontainer/start.sh
 
 ## Soluciones de errores
 
+- **`start_movlog` da problemas:** Escribe `source ~/.bashrc && start_movlog` en el terminal y vuelve a probar `start_movlog`.
+
 - **Entorno roto tras `start_movlog`:** Borra el Codespace actual y crea uno nuevo.
 
 - **Fallos puntuales o servicios caídos:** Ejecuta `reset_all` para reiniciar todos los servicios sin tocar los datos. Si el problema persiste, borra el Codespace y crea uno nuevo.
