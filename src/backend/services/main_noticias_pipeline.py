@@ -200,6 +200,7 @@ def backfill_activo(ticker: str):
         return
 
     df["timestamp"] = pd.to_datetime(df["timestamp"])
+    df = df.sort_values("timestamp").reset_index(drop=True)  
     umbral = _get_umbral()
 
     for i in range(1, len(df)):
