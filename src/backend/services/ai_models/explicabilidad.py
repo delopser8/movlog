@@ -18,17 +18,12 @@ from services.ai_models.observabilidad import trazar_explicacion
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://ollama:11434")
 MODEL       = "qwen3.5:0.8b"
 
-PROMPT_TEMPLATE = '''You are a financial analyst. A stock has just experienced a significant price movement.
+PROMPT_TEMPLATE = '''Financial analyst. Stock: {ticker}. Price change: {var_pct:+.2f}% in 5 minutes.
 
-Stock: {ticker}
-Price change: {var_pct:+.2f}% in the last 5 minutes
-
-Recent news that may have caused this movement:
+News:
 {noticias_texto}
 
-Write a concise explanation in Spanish, maximum 100 words, of why this price movement likely occurred based on the news above.
-Focus on the causal relationship between the news and the price movement.
-Be direct and analytical. Do not repeat the news verbatim.'''
+Explain in Spanish why this happened (max 80 words):'''
 
 
 @retry(
@@ -42,7 +37,7 @@ def _llamar_ollama(prompt: str) -> str | None:
         resp = httpx.post(
             f"{OLLAMA_HOST}/api/generate",
             json={"model": MODEL, "prompt": prompt, "stream": False},
-            timeout=120, 
+            timeout=300, 
         )
         resp.raise_for_status()
         return resp.json().get("response", "").strip()
