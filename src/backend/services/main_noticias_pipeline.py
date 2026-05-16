@@ -38,7 +38,7 @@ def _get_umbral() -> float:
     try:
         for a in alertas_listar():
             if a["alerta_id"] == "fluctuacion_brusca" and a["estado"] == "ON":
-                umbral = a.get("umbral", [3, 10])
+                umbral = a.get("umbral", [0.85, 10])
                 return float(umbral[0]) if isinstance(umbral, list) else float(umbral)
     except Exception:
         pass
