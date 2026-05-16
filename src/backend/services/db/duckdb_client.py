@@ -261,7 +261,13 @@ def get_noticias_recientes(activo_id: int, minutos: int = 30) -> list[dict]:
     if df.empty:
         return []
     df["fecha_noticia"] = df["fecha_noticia"].astype(str)
-    return df.to_dict(orient="records")
+    import math
+    records = df.to_dict(orient="records")
+    for r in records:
+        for k, v in r.items():
+            if isinstance(v, float) and math.isnan(v):
+                r[k] = None
+    return records
 
 def get_noticias_por_activo(ticker: str, limite: int = 20) -> list[dict]:
     # devuelve las últimas noticias para un ticker buscando por nombre en el historial
