@@ -311,8 +311,8 @@ def insertar_sentimiento(sentimiento: dict) -> bool:
                 ON CONFLICT (noticia_id, activo_id) DO UPDATE SET
                     score = excluded.score,
                     tipo = excluded.tipo,
-                    explicacion = excluded.explicacion,
-                    var_pct = excluded.var_pct
+                    explicacion = CASE WHEN excluded.explicacion IS NOT NULL THEN excluded.explicacion ELSE noticias_sentimientos.explicacion END,
+                    var_pct = CASE WHEN excluded.var_pct IS NOT NULL THEN excluded.var_pct ELSE noticias_sentimientos.var_pct END
             ''', [
                 sentimiento["noticia_id"],
                 sentimiento["activo_id"],
