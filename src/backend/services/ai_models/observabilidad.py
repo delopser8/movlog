@@ -7,8 +7,7 @@
 import os
 from loguru import logger
 from langfuse import Langfuse
-from dotenv import load_dotenv  
-import time
+from dotenv import load_dotenv
 
 _client = None
 
@@ -46,7 +45,6 @@ def _registrar(modelo: str, tipo: str, input_texto: str, output, latencia_ms: fl
             metadata={"latencia_ms": round(latencia_ms, 2)},
         )
         client.flush()
-        time.sleep(1)
     except Exception as e:
         logger.warning(f"Langfuse registro fallido: {e}")
 
