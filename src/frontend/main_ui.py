@@ -224,5 +224,5 @@ elif seccion == "modelos":
     render_modelos()
 elif seccion == "alertas":
     render_alertas()
-elif seccion == "configuracion":
-    render_configuracion()
+# elif seccion == "configuracion":
+#     render_configuracion()
