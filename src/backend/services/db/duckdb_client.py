@@ -260,7 +260,7 @@ def get_noticias_recientes(activo_id: int, minutos: int = 30) -> list[dict]:
         ''', [activo_id, desde]).fetchdf()
     if df.empty:
         return []
-    df = df.drop_duplicates(subset=["noticia_id"])  # ← añadir esto
+    df = df.drop_duplicates(subset=["noticia_id"])  
     df["fecha_noticia"] = df["fecha_noticia"].astype(str)
     import math
     records = df.to_dict(orient="records")
