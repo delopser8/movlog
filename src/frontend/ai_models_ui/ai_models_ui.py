@@ -19,7 +19,7 @@ CSS = '''
 .modelos-section-title {
     font-family: 'IBM Plex Mono', monospace;
     font-size: 11px;
-    color: #4b5563;
+    color: #rgb(139 146 157);
     text-transform: uppercase;
     letter-spacing: 0.06em;
     margin-bottom: 8px;
@@ -51,7 +51,7 @@ CSS = '''
 }
 .modelos-stat-label {
     font-size: 10px;
-    color: #4b5563;
+    color: #rgb(139 146 157);
     margin-top: 2px;
     text-align: center;
 }
@@ -122,7 +122,7 @@ def render():
     seguimientos = listar_seguimientos()
     tickers = [s["ticker"] for s in seguimientos]
     if not tickers:
-        st.markdown('<div style="color:#4b5563;font-family:IBM Plex Mono,monospace;font-size:12px">No hay activos en seguimiento.</div>', unsafe_allow_html=True)
+        st.markdown('<div style="color:#rgb(139 146 157);font-family:IBM Plex Mono,monospace;font-size:12px">No hay activos en seguimiento.</div>', unsafe_allow_html=True)
         return
 
     ticker = st.selectbox("Activo", tickers, label_visibility="collapsed")
@@ -158,23 +158,23 @@ def render():
             fig_donut = _grafico_donut(positivos, neutrales, negativos)
             st.plotly_chart(fig_donut, use_container_width=True, config={"displayModeBar": False})
         else:
-            st.markdown('<div style="color:#4b5563;font-size:12px;font-family:IBM Plex Mono,monospace">Sin datos de sentimiento aún.</div>', unsafe_allow_html=True)
+            st.markdown('<div style="color:#rgb(139 146 157);font-size:12px;font-family:IBM Plex Mono,monospace">Sin datos de sentimiento aún.</div>', unsafe_allow_html=True)
 
     with col_der:
         st.markdown('<div class="modelos-section-title">Modelos activos</div>', unsafe_allow_html=True)
         st.markdown('''
         <div class="modelos-card">
             <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #1a1f26;font-family:IBM Plex Mono,monospace;font-size:12px">
-                <span style="color:#4b5563;font-size:11px">Sentimiento</span><span style="color:#e8eaed">ProsusAI/FinBERT</span>
+                <span style="color:#rgb(139 146 157);font-size:11px">Sentimiento</span><span style="color:#e8eaed">ProsusAI/FinBERT</span>
             </div>
             <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #1a1f26;font-family:IBM Plex Mono,monospace;font-size:12px">
-                <span style="color:#4b5563;font-size:11px">Traducción</span><span style="color:#e8eaed">Qwen3.5 · 0.8b · Ollama</span>
+                <span style="color:#rgb(139 146 157);font-size:11px">Traducción</span><span style="color:#e8eaed">Qwen3.5 · 0.8b · Ollama</span>
             </div>
             <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #1a1f26;font-family:IBM Plex Mono,monospace;font-size:12px">
-                <span style="color:#4b5563;font-size:11px">Explicabilidad</span><span style="color:#e8eaed">Qwen3.5 · 0.8b · Ollama</span>
+                <span style="color:#rgb(139 146 157);font-size:11px">Explicabilidad</span><span style="color:#e8eaed">Qwen3.5 · 0.8b · Ollama</span>
             </div>
             <div style="display:flex;justify-content:space-between;padding:5px 0;font-family:IBM Plex Mono,monospace;font-size:12px">
-                <span style="color:#4b5563;font-size:11px">Observabilidad</span><span style="color:#e8eaed">Langfuse OSS v2</span>
+                <span style="color:#rgb(139 146 157);font-size:11px">Observabilidad</span><span style="color:#e8eaed">Langfuse OSS v2</span>
             </div>
         </div>
         ''', unsafe_allow_html=True)
@@ -210,4 +210,4 @@ def render():
             }
         )
     else:
-        st.markdown('<div style="color:#4b5563;font-size:12px;font-family:IBM Plex Mono,monospace">Sin inferencias recientes.</div>', unsafe_allow_html=True)
+        st.markdown('<div style="color:#rgb(139 146 157);font-size:12px;font-family:IBM Plex Mono,monospace">Sin inferencias recientes.</div>', unsafe_allow_html=True)
