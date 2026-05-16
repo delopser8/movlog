@@ -163,25 +163,25 @@ def _detection_loop(get_tickers_fn, intervalo: int = 15):
 def backfill_activo(ticker: str):
     '''
         al añadir un activo nuevo:
-        1. Carga noticias de las últimas 24h desde NewsAPI
-        2. Analiza velas de 5Min de las últimas 24h buscando fluctuaciones
+        1. Carga noticias de las últimas 48h desde NewsAPI
+        2. Analiza velas de 5Min de las últimas 48h buscando fluctuaciones
         3. Para cada fluctuación, procesa noticias del periodo con FinBERT + Qwen
     '''
 
     logger.info(f"Backfill iniciado: {ticker}")
 
-    # 1. carga noticias 24h
+    # 1. carga noticias 48h
     detalles = get_activo_detalles(ticker)
     nombre = detalles.get("nombre", "") if detalles else ""
     query = nombre.split()[0] if nombre else ticker.split(".")[0].split("/")[0]
 
-    desde_24h = datetime.utcnow() - timedelta(hours=24)
-    noticias = _fetch_noticias(query, desde_24h)
+    desde_48h = datetime.utcnow() - timedelta(hours=48)
+    noticias = _fetch_noticias(query, desde_48h)
     for n in noticias:
         insertar_noticia(n)
     logger.info(f"Backfill: {len(noticias)} noticias cargadas para {ticker}")
 
-    # 2. analiza velas 5Min de las últimas 24h buscando fluctuaciones
+    # 2. analiza velas 5Min de las últimas 48h buscando fluctuaciones
     activo_id = get_activo_id(ticker)
     if not activo_id:
         return
@@ -210,7 +210,7 @@ def backfill_activo(ticker: str):
         ts_fluctuacion = df.iloc[i]["timestamp"]
         noticias_periodo = [
             n for n in noticias
-            if abs((datetime.fromisoformat(str(n["fecha_noticia"])) - ts_fluctuacion.to_pydatetime()).total_seconds()) < 1800
+            if abs((datetime.fromisoformat(str(n["fecha_noticia"])) - ts_fluctuacion.to_pydatetime()).total_seconds()) < 7200  # 2 horas
         ]
 
         if not noticias_periodo:
