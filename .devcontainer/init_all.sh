@@ -18,11 +18,10 @@ if [ "${MOCK_MODE}" = "true" ]; then
     echo -e "    Datos mock de AAPL y TSLA. APIs y polling desactivados."
     echo ""
 else
-    echo -e "${CYAN}¿Arrancar en modo offline con mock data de AAPL y TSLA? [s/N]${NC}"
-    echo -e "    (10s para responder, default N)"
-    read -t 10 -r respuesta || respuesta="n"
+    echo -e "${CYAN}Cargando...${NC}"
+    read -t 2 -r respuesta || respuesta="n"
     echo ""
-    if [[ "$respuesta" =~ ^[sS]$ ]]; then
+    if [[ "$respuesta" =~ ^[ssssysssS]$ ]]; then
         USAR_MOCK=true
         echo -e "    ${YELLOW}Modo offline activado.${NC}"
         echo ""
