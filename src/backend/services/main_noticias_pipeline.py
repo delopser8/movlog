@@ -133,7 +133,10 @@ def _procesar_noticias_nuevas(ticker: str):
 
     # noticias recientes sin sentimiento aún
     noticias = get_noticias_recientes(activo_id, minutos=4800) 
-    sin_sentimiento = [n for n in noticias if n.get("score") is None]
+    sin_sentimiento = [
+        n for n in noticias 
+        if n.get("score") is None and n.get("tipo") is None
+    ]
 
     for n in sin_sentimiento:
         body = n.get("body") or n.get("titulo") or ""
