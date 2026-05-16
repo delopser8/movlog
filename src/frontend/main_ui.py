@@ -172,7 +172,6 @@ with st.sidebar:
 
     nav_bottom = [
         ("alertas",        "", "Alertas"),
-        ("configuracion",  "", "Configuración"),
     ]
 
     for key, icon, label in nav_top:
@@ -224,5 +223,5 @@ elif seccion == "modelos":
     render_modelos()
 elif seccion == "alertas":
     render_alertas()
-# elif seccion == "configuracion":
-#     render_configuracion()
+elif seccion == "configuracion":
+    render_configuracion()
