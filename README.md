@@ -3,7 +3,7 @@
 ## Inicio rápido
 
 1. Abre el Codespace y espera ~8 minutos a que se construya el entorno
-2. Cuando estés en el terminal limpio de /workspaces/movlog(main) ejecuta:
+2. Cuando estés en el terminal limpio de `/workspaces/movlog(main)` ejecuta:
 ```bash
 bash .devcontainer/start.sh
 ```
