@@ -15,9 +15,12 @@ from datetime import datetime, timedelta
 
 from services.db.duckdb_client import (
     get_activo_id,
+    get_activo_detalles,
     get_velas,
     get_noticias_recientes,
+    get_noticias_por_activo,  
     insertar_sentimiento,
+    insertar_noticia,
 )
 from services.db.mongodb_client import alertas_listar
 from services.ai_models.translation import traducir_si_necesario
