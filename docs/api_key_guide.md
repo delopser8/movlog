@@ -27,7 +27,7 @@ Indicaciones para rellenar HF_API_TOKEN:
 
 
 Indicaciones para rellenar LANGFUSE_PUBLIC_KEY y LANGFUSE_SECRET_KEY:
-**[no hacer estos pasos hasta el final de `start_movlog`]**
+**[no hacer estos pasos hasta el final de la ejecución del comando `start_movlog`]**
 (corre localmente en el Codespace así que no se necesita cuenta externa)
 1. Abre la UI de Langfuse: `https://{CODESPACE_NAME}-13000.app.github.dev`
 2. Crea una cuenta (son únicas de cada sesión de Codespace)

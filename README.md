@@ -3,15 +3,13 @@
 ## Inicio rápido
 
 1. Abre el Codespace y espera ~8 minutos a que se construya el entorno
-2. Abre el terminal y ejecuta:
+2. Cuando estés en el terminal limpio de /workspaces/movlog(main) ejecuta:
 ```bash
 bash .devcontainer/start.sh
 ```
-3. Cuando veas al final `✔ TODO OK ✔` el entorno está listo
-4. Configura tus API keys en `.env` siguiendo `/docs/api_key_guide.md`
-5. Ejecuta `start_movlog` para iniciar la aplicación
-6. Elige si vas a usar datos simulados (mock data) o empezar de cero con el flujo normal de Movlog
-7. Revisa que todo haya ido `✅ OK` y accede a la URL indicada por consola
+3. Espera hasta que veas un mensaje que indique `✔ TODO OK ✔`
+4. Ejecuta `start_movlog` y ve configurando las API Key del `.env` en el orden que se van pidiendo (indicaciones para conseguirlas en `/docs/api_key_guide.md`)
+5. Revisa que todo haya ido `✅ OK` y accede a la URL indicada por consola
 
 ## Soluciones de errores
 
