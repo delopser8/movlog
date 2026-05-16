@@ -7,4 +7,4 @@ import streamlit as st
 
 def render():
     st.markdown("## Configuración")
-    st.caption("Aquí irá el panel de configuración general de Movlog.")
+    st.caption("Actualmente Movlog no cuenta con funcionalidades en el panel de Configuración.")

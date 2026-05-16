@@ -217,7 +217,7 @@ def backfill_activo(ticker: str):
         ts_fluctuacion = df.iloc[i]["timestamp"]
         noticias_periodo = [
             n for n in noticias_duck
-            if abs((pd.Timestamp(n["fecha_noticia"]).to_pydatetime().replace(tzinfo=None) - ts_fluctuacion.to_pydatetime().replace(tzinfo=None)).total_seconds()) < 14400
+            if abs((pd.Timestamp(n["fecha_noticia"]).to_pydatetime().replace(tzinfo=None) - ts_fluctuacion.to_pydatetime().replace(tzinfo=None)).total_seconds()) < 21600  
         ]
 
         if not noticias_periodo:
