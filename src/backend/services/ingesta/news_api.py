@@ -50,7 +50,7 @@ def _fetch_noticias(query: str, desde: datetime) -> list[dict]:
             q=query,
             language="en",
             sort_by="publishedAt",
-            page_size=20,
+            page_size=35,
         )
         articulos = resp.get("articles", [])
         return [
