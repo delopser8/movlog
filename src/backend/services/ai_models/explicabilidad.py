@@ -42,7 +42,7 @@ def _llamar_ollama(prompt: str) -> str | None:
         resp = httpx.post(
             f"{OLLAMA_HOST}/api/generate",
             json={"model": MODEL, "prompt": prompt, "stream": False},
-            timeout=60,
+            timeout=120, 
         )
         resp.raise_for_status()
         return resp.json().get("response", "").strip()
