@@ -10,12 +10,15 @@
 '''
 
 import streamlit as st
+import psutil
 
+from backend.services.ui.user_service import get_alertas
 from seguimientos_ui.seguimientos_ui import render as render_seguimientos
 from infraestructura_ui.infraestructura_ui import render as render_infraestructura
 from ai_models_ui.ai_models_ui import render as render_modelos
 from alertas_ui.alertas_ui import render as render_alertas
 from configuracion_ui.configuracion_ui import render as render_configuracion
+from streamlit_autorefresh import st_autorefresh
 
 
 # --- configuración de página ---
@@ -186,6 +189,28 @@ with st.sidebar:
         if clicked:
             st.session_state.seccion_activa = key
             st.rerun()
+
+
+# --- check de alertas globales ---
+st_autorefresh(interval=30000, key="global_alerts_refresh")
+
+try:
+    alertas = get_alertas()
+    ram_pct = psutil.virtual_memory().percent
+    for a in alertas:
+        if a.get("estado") != "ON":
+            continue
+        alerta_id = a.get("alerta_id", "")
+        umbral = a.get("umbral")
+        if alerta_id == "ram_critica":
+            val = float(umbral[0] if isinstance(umbral, list) else umbral or 95)
+            if ram_pct >= val:
+                st.error(f"🔴 RAM crítica: {ram_pct:.1f}%")
+        elif alerta_id == "ram_alta" and isinstance(umbral, list):
+            if ram_pct >= umbral[0]:
+                st.warning(f"⚠️ RAM alta: {ram_pct:.1f}% (umbral: {umbral[0]}%)")
+except Exception:
+    pass
 
 
 # --- renderizado de sección activa ---
