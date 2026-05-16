@@ -138,16 +138,16 @@ if [ "${USAR_MOCK}" = "true" ]; then
 fi
 
 
-# --- 3. crear topics de Redpanda ---
-echo -e "${CYAN}>>> Creando topics de Redpanda...${NC}"
+# # --- 3. crear topics de Redpanda ---
+# echo -e "${CYAN}>>> Creando topics de Redpanda...${NC}"
  
-TOPICS=("activos.precios" "activos.detalles" "noticias.raw" "noticias.sentimientos" "ia.metricas")
-for TOPIC in "${TOPICS[@]}"; do
-    docker exec movlog_redpanda rpk topic create "${TOPIC}" --partitions 3 --replicas 1 2>/dev/null || true
-    echo -e "    ${GREEN}✅ ${TOPIC}${NC}"
-done
+# TOPICS=("activos.precios" "activos.detalles" "noticias.raw" "noticias.sentimientos" "ia.metricas")
+# for TOPIC in "${TOPICS[@]}"; do
+#     docker exec movlog_redpanda rpk topic create "${TOPIC}" --partitions 3 --replicas 1 2>/dev/null || true
+#     echo -e "    ${GREEN}✅ ${TOPIC}${NC}"
+# done
  
-echo ""
+# echo ""
 
 
 # --- 4. crear los alias de scripts ---
@@ -187,7 +187,7 @@ services_show() {
         echo "  Langfuse         → http://localhost:13000"
         echo "  Ollama API       → http://localhost:11434"
     fi
-    echo "  MongoDB          → Panel lateral de VS Code (Database Client)"
+    echo "  MongoDB y DuckDB          → Panel lateral de VS Code (Database Client) (más info en /docs/db.md)"
     echo ""
 }
 

@@ -10,13 +10,9 @@ fastapi>=0.111.0
 uvicorn[standard]>=0.30.0
 httpx>=0.27.0           
 
-# Pipeline
-faststream[kafka]>=0.5.0         # consumer/producer sobre Redpanda
-
 # Bases de datos
 duckdb>=0.10.3
 pymongo>=4.7.0
-motor>=3.4.0                     # queries async a MongoDB
 
 # Ingesta de activos
 yfinance>=0.2.40                 # yfinance SDK
@@ -25,9 +21,6 @@ alpaca-py>=0.26.0                # Alpaca Markets SDK
 # Ingesta de noticias
 newsapi-python>=0.2.7            # NewsAPI SDK
 feedparser>=6.0.11               # parsing de Yahoo Finance RSS (XML)
-
-# IA inferencia local
-ollama>=0.2.0                   # Ollama (Qwen) se controla por API REST
 
 # Observabilidad de LLMs
 langfuse>=2.28.0,<3.0.0
@@ -42,15 +35,9 @@ pydantic-settings>=2.3.0         # gestión de .env con pydantic
 
 # Monitorización del host y Docker
 psutil>=5.9.8
-docker>=7.1.0                    # Docker Python SDK
 
 # Utilidades generales
 python-dotenv>=1.0.1             
 loguru>=0.7.2                    # logging estructurado (APIs externas)
 tenacity>=8.3.0                  # reintentos con backoff
 schedule>=1.2.2                  # polling periódico (ejecutar funciones cada X minutos)
-
-# Testing
-pytest>=8.2.0
-pytest-asyncio>=0.23.7
-pytest-cov>=5.0.0
