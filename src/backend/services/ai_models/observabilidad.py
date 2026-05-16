@@ -33,16 +33,18 @@ def _registrar(modelo: str, tipo: str, input_texto: str, output, latencia_ms: fl
     if not client:
         return
     try:
-        metadata = {"latencia_ms": round(latencia_ms, 2), "modelo": modelo}
-        if ticker:
-            metadata["ticker"] = ticker
-        client.generation(
+        trace = client.trace(
             name=f"movlog-{tipo}",
+            metadata={"ticker": ticker} if ticker else {},
+        )
+        trace.generation(
+            name=modelo,
             model=modelo,
             input=input_texto[:1000],
             output=str(output)[:1000],
-            metadata=metadata,
+            metadata={"latencia_ms": round(latencia_ms, 2)},
         )
+        client.flush()
     except Exception as e:
         logger.warning(f"Langfuse registro fallido: {e}")
 
