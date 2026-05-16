@@ -10,7 +10,6 @@ import plotly.graph_objects as go
 import pandas as pd
 from datetime import datetime, timedelta
 
-from backend.services.ui.user_service import get_velas
 from backend.services.ui.user_service import get_velas, get_noticias, get_fluctuaciones
 
 
