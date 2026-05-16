@@ -59,6 +59,9 @@ def _grafico_lineas(df: pd.DataFrame, simbolo: str, noticias_fluct: list) -> go.
         if ventana.empty:
             continue
         ventana["var"] = ventana["cierre"].pct_change().abs()
+        ventana = ventana.dropna(subset=["var"])
+        if ventana.empty:
+            continue
         idx = ventana["var"].idxmax()
         row = df.loc[idx]
         color_m = _color_var(n["var_pct"] or 0)
