@@ -34,7 +34,7 @@ def get_infra_stats() -> dict:
     # --- Servicios ---
     servicios = [
         {"nombre": "FastAPI",   "url_interna": "http://localhost:8000/health",           "url_ui": None},
-        {"nombre": "MongoDB",   "url_interna": "http://localhost:27017",                 "url_ui": None},
+        {"nombre": "MongoDB",   "url_interna": "mongodb://mongodb:27017",                 "url_ui": None},
         {"nombre": "Redpanda",  "url_interna": "http://redpanda:9644/v1/status/ready",   "url_ui": "18080"},
         {"nombre": "Langfuse",  "url_interna": "http://langfuse:3000/api/public/health", "url_ui": "13000"},
         {"nombre": "Ollama",    "url_interna": "http://ollama:11434/api/tags",            "url_ui": "11434"},

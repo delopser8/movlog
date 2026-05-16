@@ -46,7 +46,7 @@ CSS = '''
     color: #c9cdd4;
 }
 .infra-row:last-child { border-bottom: none; }
-.infra-label { color: #4b5563; font-size: 11px; }
+.infra-label { color: #8d939b; font-size: 11px; }
 .infra-value { color: #e8eaed; }
 .infra-value-green { color: #22c55e; }
 .infra-value-red   { color: #ef4444; }
@@ -74,7 +74,7 @@ CSS = '''
     width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
 }
 .svc-name { color: #c9cdd4; flex: 1; }
-.svc-link { color: #3b82f6; font-size: 10px; text-decoration: none; }
+.svc-link { color: rgb(39 140 236) !important; font-size: 10px; text-decoration: none; }
 .svc-link:hover { text-decoration: underline; }
 
 /* Barra de progreso RAM/CPU */
