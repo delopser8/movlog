@@ -186,7 +186,7 @@ def backfill_activo(ticker: str):
     if not activo_id:
         return
 
-    df = get_velas(ticker, timeframe="5Min", limite=288)
+    df = get_velas(ticker, timeframe="5Min", limite=576)
     if not isinstance(df, pd.DataFrame):
         df = pd.DataFrame(df) if df else pd.DataFrame()
     if df.empty or len(df) < 2:
