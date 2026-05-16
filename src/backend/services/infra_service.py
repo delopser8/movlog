@@ -12,6 +12,19 @@ import psutil
 import httpx
 import duckdb
 from loguru import logger
+import subprocess
+
+
+# -- Helpers ---
+def _docker_health(container_name: str) -> bool:
+    try:
+        result = subprocess.run(
+            ["docker", "inspect", "--format", "{{.State.Health.Status}}", container_name],
+            capture_output=True, text=True, timeout=3
+        )
+        return result.stdout.strip() == "healthy"
+    except Exception:
+        return False
 
 
 # --- Búsqueda de todas las estadísticas del sistema ---
@@ -32,26 +45,28 @@ def get_infra_stats() -> dict:
         stats["host"] = {"error": str(e)}
 
     # --- Servicios ---
-    servicios = [
-        {"nombre": "FastAPI",   "url_interna": "http://localhost:8000/health",           "url_ui": None},
-        {"nombre": "MongoDB",   "url_interna": "mongodb://mongodb:27017",                 "url_ui": None},
-        {"nombre": "Redpanda",  "url_interna": "http://redpanda:9644/v1/status/ready",   "url_ui": "18080"},
-        {"nombre": "Langfuse",  "url_interna": "http://langfuse:3000/api/public/health", "url_ui": "13000"},
-        {"nombre": "Ollama",    "url_interna": "http://ollama:11434/api/tags",            "url_ui": "11434"},
-        {"nombre": "Portainer", "url_interna": "http://portainer:9000/api/system/status","url_ui": "19000"},
+    servicios_config = [
+        {"nombre": "FastAPI",   "container": None,                  "url_ui": None,    "url_interna": "http://localhost:8000/health"},
+        {"nombre": "MongoDB",   "container": "movlog_mongodb",      "url_ui": None},
+        {"nombre": "Redpanda",  "container": "movlog_redpanda",     "url_ui": "18080"},
+        {"nombre": "Langfuse",  "container": "movlog_langfuse",     "url_ui": "13000"},
+        {"nombre": "Ollama",    "container": "movlog_ollama",       "url_ui": "11434"},
+        {"nombre": "Portainer", "container": "movlog_portainer",    "url_ui": "19000"},
     ]
     stats["servicios"] = []
-    for s in servicios:
-        ok = False
-        try:
-            r = httpx.get(s["url_interna"], timeout=2)
-            ok = r.status_code < 400
-        except Exception:
-            ok = False
+    for s in servicios_config:
+        if s.get("container"):
+            ok = _docker_health(s["container"])
+        else:
+            try:
+                r = httpx.get(s["url_interna"], timeout=2)
+                ok = r.status_code < 400
+            except Exception:
+                ok = False
         stats["servicios"].append({
             "nombre": s["nombre"],
             "ok":     ok,
-            "url_ui": s["url_ui"],
+            "url_ui": s.get("url_ui"),
         })
 
     # --- DuckDB ---
