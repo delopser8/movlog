@@ -170,7 +170,7 @@ def backfill_activo(ticker: str):
 
     logger.info(f"Backfill iniciado: {ticker}")
 
-    # 1. carga noticias 48h
+    # 1. carga noticias 48h desde NewsAPI
     detalles = get_activo_detalles(ticker)
     nombre = detalles.get("nombre", "") if detalles else ""
     query = nombre.split()[0] if nombre else ticker.split(".")[0].split("/")[0]
@@ -180,6 +180,9 @@ def backfill_activo(ticker: str):
     for n in noticias:
         insertar_noticia(n)
     logger.info(f"Backfill: {len(noticias)} noticias cargadas para {ticker}")
+
+    # usar todas las noticias de DuckDB para el matching (más completo que solo las de NewsAPI)
+    noticias_duck = get_noticias_por_activo(ticker, limite=100)
 
     # 2. analiza velas 5Min de las últimas 48h buscando fluctuaciones
     activo_id = get_activo_id(ticker)
@@ -206,11 +209,11 @@ def backfill_activo(ticker: str):
         if abs(var_pct) < umbral:
             continue
 
-        # fluctuación detectada — busca noticias del periodo
+        # fluctuación detectada — busca noticias del periodo en DuckDB
         ts_fluctuacion = df.iloc[i]["timestamp"]
         noticias_periodo = [
-            n for n in noticias
-            if abs((datetime.fromisoformat(str(n["fecha_noticia"])) - ts_fluctuacion.to_pydatetime()).total_seconds()) < 7200  # 2 horas
+            n for n in noticias_duck
+            if abs((pd.Timestamp(n["fecha_noticia"]).to_pydatetime().replace(tzinfo=None) - ts_fluctuacion.to_pydatetime().replace(tzinfo=None)).total_seconds()) < 7200
         ]
 
         if not noticias_periodo:
