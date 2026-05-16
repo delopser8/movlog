@@ -167,7 +167,7 @@ with st.sidebar:
     nav_top = [
         ("seguimientos",    "", "Seguimientos"),
         ("infraestructura", "", "Infraestructura"),
-        ("modelos",         "", "Modelos"),
+        ("modelos",         "", "Modelos de IA"),
     ]
 
     nav_bottom = [

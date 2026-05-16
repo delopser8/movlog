@@ -300,7 +300,7 @@ echo -e " ${GREEN}✅ UI lista${NC}"
 
 
 # --- 5b. chequeo de Langfuse + reset FastAPI ---
-echo -e "${CYAN}>>> Validando Langfuse...${NC}"
+echo -e "${CYAN}>>> Validando API Key de Langfuse...${NC}"
 
 while true; do
     if [ "${LANGFUSE_PUBLIC_KEY}" = "tu_key_aqui" ] || [ -z "${LANGFUSE_PUBLIC_KEY}" ] || \
