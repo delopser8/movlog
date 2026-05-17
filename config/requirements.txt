@@ -33,7 +33,7 @@ pyarrow>=16.0.0                  # lectura/escritura .parquet
 pydantic>=2.7.0
 pydantic-settings>=2.3.0         # gestión de .env con pydantic
 
-# Monitorización del host y Docker
+# Monitorización del host
 psutil>=5.9.8
 
 # Utilidades generales

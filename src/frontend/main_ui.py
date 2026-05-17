@@ -3,10 +3,12 @@
 
     desde aquí se llama a cada sección de la UI de manera centralizada:
         - seguimientos_ui.py
-        - alertas_ui.py
         - infraestructura_ui.py
         - ai_models_ui.py
-        - configuracion_ui.py
+        - alertas_ui.py
+
+    Nota: [contiene el warning/error de las alertas que saltan y su chequeo]
+          [autorefresh cada 5s]
 '''
 
 import streamlit as st
@@ -14,6 +16,7 @@ import psutil
 from streamlit_autorefresh import st_autorefresh
 
 from backend.services.ui.user_service import get_alertas
+
 from seguimientos_ui.seguimientos_ui import render as render_seguimientos
 from infraestructura_ui.infraestructura_ui import render as render_infraestructura
 from ai_models_ui.ai_models_ui import render as render_modelos

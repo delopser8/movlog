@@ -283,7 +283,7 @@ def get_noticias_por_activo(ticker: str, limite: int = 20) -> list[dict]:
         termino1 = nombre.split()[0].lower() if nombre else ticker.split(".")[0].split("/")[0].lower()
         termino2 = ticker.split(".")[0].split("/")[0].lower()
 
-        df = con.execute("""
+        df = con.execute('''
             SELECT
                 nh.noticia_id, nh.titulo, nh.url, nh.origen, nh.body, nh.fecha_noticia,
                 ns.score, ns.tipo, ns.explicacion, ns.var_pct
@@ -295,7 +295,7 @@ def get_noticias_por_activo(ticker: str, limite: int = 20) -> list[dict]:
                OR LOWER(nh.titulo) LIKE ? OR LOWER(nh.body) LIKE ?
             ORDER BY nh.fecha_noticia DESC
             LIMIT ?
-        """, [
+        ''', [
             activo_id,
             f"%{termino1}%", f"%{termino1}%",
             f"%{termino2}%", f"%{termino2}%",

@@ -1,5 +1,7 @@
 '''
     UI de la sección de seguimientos
+
+    Nota: [autorefresh cada 20s] 
 '''
 
 

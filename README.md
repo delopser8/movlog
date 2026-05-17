@@ -53,7 +53,7 @@ movlog/
 │   ├── frontend/
 │   │   ├── main_ui.py                        # entrada principal de Streamlit
 │   │   ├── seguimientos_ui/
-│   │   │   ├── seguimientos_ui.py            # gráfico OHLC, detalles, buscador
+│   │   │   ├── seguimientos_ui.py            # gráfico OHLC, detalles, buscador de activos
 │   │   │   └── noticias_ui.py                # gráfico 5Min + fluctuaciones + noticias
 │   │   ├── infraestructura_ui/
 │   │   │   └── infraestructura_ui.py         # host, servicios, pipeline, bases de datos

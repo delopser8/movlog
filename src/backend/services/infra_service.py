@@ -76,13 +76,13 @@ def get_infra_stats() -> dict:
         velas    = con.execute("SELECT COUNT(*) FROM activos_precios").fetchone()[0]
         noticias = con.execute("SELECT COUNT(*) FROM noticias_historial").fetchone()[0]
         sentim   = con.execute("SELECT COUNT(*) FROM noticias_sentimientos").fetchone()[0]
-        row = con.execute("""
+        row = con.execute('''
             SELECT ns.var_pct, nh.fecha_noticia
             FROM noticias_sentimientos ns
             JOIN noticias_historial nh ON ns.noticia_id = nh.noticia_id
             WHERE ns.var_pct IS NOT NULL AND ns.explicacion IS NOT NULL
             ORDER BY nh.fecha_noticia DESC LIMIT 1
-        """).fetchone()
+        ''').fetchone()
         ultima_fluct = {"var_pct": row[0], "fecha": str(row[1])} if row else None
         con.close()
         stats["duckdb"] = {
