@@ -4,3 +4,4 @@
 2. Crea una conexión por cada tipo de servidor:
     - MongoDB: (host: mongodb) (puerto: 27017)
     - DuckDB: (no se puede usar en este plugin por falta de nodejs)
+

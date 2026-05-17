@@ -186,7 +186,7 @@ services_show() {
         echo "  Langfuse         → http://localhost:13000"
         echo "  Ollama API       → http://localhost:11434"
     fi
-    echo "  MongoDB y DuckDB          → Panel lateral de VS Code (Database Client) (más info en /docs/db.md)"
+    echo "  MongoDB y DuckDB          → Panel lateral de VS Code (Database Client) (más info en /docs/db_guide.md)"
     echo ""
 }
 
