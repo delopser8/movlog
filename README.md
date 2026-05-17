@@ -267,29 +267,31 @@ MONGODB_URL= mongodb://mongodb:27017
 **activos_precios** [velas OHLC en tiempo real]
 - PK compuesta: `(activo_id, timestamp, timeframe)`
 - Timeframes: `1Min | 5Min | 1Day | 1Week | 1Month`
+- Incluye: apertura, máximo, mínimo, cierre, volumen
 
 **activos_detalles** [información fundamental del activo]
 - PK: `activo_id`
-- Incluye: sector, industria, market cap, ratio P/E, EPS, dividend yield, ESG score, recomendación de analistas, target price
+- Incluye: ticker, nombre, sector, industria, url, cierre ajustado (diario, semanal, mensual), apertura (diaria, semanal, mensual), maximo (diario, semanal, mensual), minimo (diario, semanal, mensual), market cap, ratio P/E, EPS, dividend yield, ESG score, recomendación de analistas, target price, fecha de actualización de detalles
 
 **noticias_historial** [noticias financieras crudas]
 - PK: `noticia_id` (hash MD5 del título)
+- Incluye: título, url, origen, body, fecha de la noticia
 
 **noticias_sentimientos** [análisis de IA por noticia y activo]
 - PK compuesta: `(noticia_id, activo_id)`
 - `score`: de -1 (muy negativo) a +1 (muy positivo)
 - `explicacion`: resumen de Qwen (solo en fluctuaciones detectadas)
-- `var_pct`: variación del activo en la fluctuación asociada
+- `var_pct`: variación relativa del activo en la fluctuación asociada
+
 ### MongoDB (`movlog`)
  
 **activos_elegidos**: activos en seguimiento (`ticker`, `nombre`)
  
 **alertas** [configuración de alertas del sistema]
-- `fluctuacion_brusca`: umbral `[0.30, 10]` : dispara el pipeline de IA
-- `ram_alta`: umbral `[80, 95]` : banner warning en la UI
-- `ram_critica`: umbral `95` : banner error en la UI
-- `llm_fallo`: sin umbral : disparo manual (pendiente)
-Ver `/docs/db.md` para el schema completo.
+- `fluctuacion_brusca`: umbral `[0.30, 10]` (dispara el pipeline de IA)
+- `ram_alta`: umbral `[80, 95]` (banner warning en la UI)
+- `ram_critica`: umbral `95` (banner error en la UI)
+- `llm_fallo`: sin umbral (disparo manual)
  
 ---
  
@@ -318,6 +320,7 @@ Base URL: `http://localhost:8000/api` (Swagger en `/docs`)
 - **Qwen 3.5:0.8b en CPU**: ~15s por inferencia sin GPU
 - **Marcador de fluctuación en gráfico**: se posiciona en la noticia más relevante del periodo (±6h), no en el instante exacto de la variación de precio. El schema no persiste el timestamp exacto de la fluctuación. También recibe el título opriginal de la noticia que más relevancia ha tenido en ese rango.
 - **Filtrado de noticias por LIKE**: puede incluir ruido semántico (ej: noticias del condado de Berkshire para BRK.B)
+- **Streaming de datos**: el streaming de la aplicación no es 100% real dado que no hay Websockets implementados. Este se realiza por medio de polling de datos y refrescos de UI cada X tiempo.
 - **Langfuse**: requiere configuración manual de usuario en el primer arranque.
 - **Modo offline**: implementado a nivel interno pero no se puede usar. Inserta datos mock de AAPL y TSLA pero el sistema sigue intentando conectarse a APIs externas en background.
 - **.parquet histórico**: implementado a nivel interno pero no se usa.

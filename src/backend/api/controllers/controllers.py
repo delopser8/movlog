@@ -70,7 +70,6 @@ def ctrl_get_velas(ticker: str, timeframe: str = "1Min", limite: int = 500) -> l
     df = get_velas(ticker, timeframe, limite)
     if df.empty and timeframe != "1Min":
         # carga bajo demanda para timeframes distintos de 1Min
-        import threading
         threading.Thread(
             target=cargar_velas_iniciales,
             args=(ticker, timeframe),
