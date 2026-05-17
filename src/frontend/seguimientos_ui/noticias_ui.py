@@ -15,7 +15,7 @@ from backend.services.ui.user_service import get_velas, get_noticias, get_fluctu
 
 # --- HELPERS ---
 def _fmt_fecha(dt: datetime) -> str:
-    delta = datetime.utcnow() - dt
+    delta = datetime.now() - dt
     horas = int(delta.total_seconds() / 3600)
     if horas < 1:
         return "hace menos de 1h"
@@ -237,7 +237,7 @@ def render_noticias(ticker: str):
             try:
                 fecha = datetime.fromisoformat(fecha)
             except Exception:
-                fecha = datetime.utcnow()
+                fecha = datetime.now()
         return {
             "noticia_id":    n.get("noticia_id", ""),
             "titulo":        n.get("titulo", ""),

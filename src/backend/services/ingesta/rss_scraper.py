@@ -31,7 +31,7 @@ def _parse_fecha(entry) -> datetime:
             return parsedate_to_datetime(entry.published).replace(tzinfo=None)
     except Exception:
         pass
-    return datetime.utcnow()
+    return datetime.now()
 
 
 # --- Fetch ---

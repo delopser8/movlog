@@ -247,7 +247,7 @@ def insertar_noticia(noticia: dict) -> bool:
 def get_noticias_recientes(activo_id: int, minutos: int = 30) -> list[dict]:
     # devuelve las noticias de los últimos X minutos vinculadas a un activo
     # (join con noticias_sentimientos si existe, sino solo historial)
-    desde = datetime.utcnow() - timedelta(minutes=minutos)
+    desde = datetime.now() - timedelta(minutes=minutos)
     with _conn() as con:
         df = con.execute('''
             SELECT

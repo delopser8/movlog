@@ -81,7 +81,7 @@ def _fmt_fecha(fecha) -> str:
     try:
         if isinstance(fecha, str):
             fecha = datetime.fromisoformat(fecha)
-        delta = datetime.utcnow() - fecha
+        delta = datetime.now() - fecha
         h = int(delta.total_seconds() / 3600)
         m = int((delta.total_seconds() % 3600) / 60)
         if h > 0:

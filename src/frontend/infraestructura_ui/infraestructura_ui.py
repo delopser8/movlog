@@ -99,7 +99,7 @@ CSS = '''
 def _fmt_hace(fecha_str: str) -> str:
     try:
         fecha = datetime.fromisoformat(fecha_str)
-        delta = datetime.utcnow() - fecha
+        delta = datetime.now() - fecha
         h = int(delta.total_seconds() / 3600)
         m = int((delta.total_seconds() % 3600) / 60)
         if h > 0:
@@ -241,7 +241,7 @@ def render():
                     <span class="infra-value">{_fmt_num(db.get("sentimientos", 0))}</span>
                 </div>
                 <div class="infra-row">
-                    <span class="infra-label">Última fluctuación</span>
+                    <span class="infra-label">Última fluctuación fuerte</span>
                     <span class="infra-value">{fluct_html}</span>
                 </div>
             </div>
@@ -271,6 +271,6 @@ def render():
         # --- Timestamp último refresh ---
         st.markdown(
             f'<div style="font-family:IBM Plex Mono,monospace;font-size:10px;color:#4b5563;text-align:right;margin-top:4px">'
-            f'Actualizado {datetime.utcnow().strftime("%H:%M:%S")} UTC · refresco cada 5s</div>',
+            f'Actualizado {datetime.now().strftime("%H:%M:%S")} UTC · refresco cada 5s</div>',
             unsafe_allow_html=True,
         )

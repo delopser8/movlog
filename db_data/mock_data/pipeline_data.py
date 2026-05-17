@@ -88,7 +88,7 @@ def _generar_velas(ticker: str, n: int = 2000) -> list[dict]:
     base = MOCK_DETALLES[ticker]["cierre_ajustado_diario"]
     volatilidad = base * 0.003
 
-    ahora = datetime.utcnow().replace(second=0, microsecond=0)
+    ahora = datetime.now().replace(second=0, microsecond=0)
     # empieza hace N minutos en días laborables (aproximado)
     inicio = ahora - timedelta(minutes=n)
 

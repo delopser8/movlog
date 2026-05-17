@@ -136,7 +136,7 @@ def cargar_assets() -> bool:
         ASSETS_PATH.parent.mkdir(parents=True, exist_ok=True)
         with open(ASSETS_PATH, "w") as f:
             json.dump({
-                "actualizado":  datetime.utcnow().isoformat(),
+                "actualizado":  datetime.now().isoformat(),
                 "total":        len(datos),
                 "feed_fuente":  "Alpaca Market Data Free (IEX + Crypto)",
                 "assets":       datos,

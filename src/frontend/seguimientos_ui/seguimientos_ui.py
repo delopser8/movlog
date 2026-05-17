@@ -624,7 +624,7 @@ def render():
                     &nbsp;
                     <span style="color:{color_rel}">{_fmt_var(var_rel_card, pct=True)}</span>
                 </div>
-                <div class="activo-card-meta">Última act. {datetime.utcnow().strftime('%H:%M UTC')}</div>
+                <div class="activo-card-meta">Última act. {datetime.now().strftime('%H:%M UTC')}</div>
             </div>
             ''', unsafe_allow_html=True)
 

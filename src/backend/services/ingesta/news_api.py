@@ -62,7 +62,7 @@ def _fetch_noticias(query: str, desde: datetime) -> list[dict]:
                 "body":          a.get("description") or a.get("content") or "",
                 "fecha_noticia": datetime.strptime(
                     a["publishedAt"], "%Y-%m-%dT%H:%M:%SZ"
-                ) if a.get("publishedAt") else datetime.utcnow(),
+                ) if a.get("publishedAt") else datetime.now(),
             }
             for a in articulos
             if a.get("title") and a["title"] != "[Removed]"
@@ -81,7 +81,7 @@ def fetch_y_guardar(ticker: str) -> int:
     else:
         query = ticker.split(".")[0].split("/")[0]  
 
-    desde = datetime.utcnow() - timedelta(seconds=POLLING_INTERVAL + 60)
+    desde = datetime.now() - timedelta(seconds=POLLING_INTERVAL + 60)
     noticias = _fetch_noticias(query, desde)
 
     if not noticias:
