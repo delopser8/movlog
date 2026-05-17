@@ -27,6 +27,8 @@ def _conn(read_only: bool = False) -> duckdb.DuckDBPyConnection:
     return duckdb.connect(str(DB_PATH), read_only=read_only)
 
 
+# ------------------ CRUD sobre las TABLAS -------------------------
+
 # --- activos_detalles ---
 def get_siguiente_activo_id() -> int:
     with _conn() as con:
@@ -199,7 +201,7 @@ def exportar_parquet(ticker: str, timeframe: str = "1Min") -> Path | None:
 
     destino = PARQUET_PATH / ticker
     destino.mkdir(parents=True, exist_ok=True)
-    archivo = destino / f"{timeframe}_{datetime.now().strftime('%Y%m%d')}.parquet"
+    archivo = destino / f"{timeframe}_{datetime.utcnow().strftime('%Y%m%d')}.parquet"
     df.to_parquet(archivo, index=False)
     logger.info(f"Parquet exportado: {archivo}")
     return archivo
@@ -247,7 +249,7 @@ def insertar_noticia(noticia: dict) -> bool:
 def get_noticias_recientes(activo_id: int, minutos: int = 30) -> list[dict]:
     # devuelve las noticias de los últimos X minutos vinculadas a un activo
     # (join con noticias_sentimientos si existe, sino solo historial)
-    desde = datetime.now() - timedelta(minutes=minutos)
+    desde = datetime.utcnow() - timedelta(minutes=minutos)
     with _conn() as con:
         df = con.execute('''
             SELECT

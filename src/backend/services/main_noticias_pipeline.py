@@ -79,7 +79,7 @@ def procesar_ticker(ticker: str) -> bool:
     if not activo_id:
         return False
 
-    noticias = get_noticias_recientes(activo_id, minutos=30)
+    noticias = get_noticias_recientes(activo_id, minutos=4800)
     if not noticias:
         logger.info(f"Fluctuación en {ticker} sin noticias recientes")
         return False
@@ -181,7 +181,7 @@ def backfill_activo(ticker: str):
     nombre = detalles.get("nombre", "") if detalles else ""
     query = nombre.split()[0] if nombre else ticker.split(".")[0].split("/")[0]
 
-    desde_48h = datetime.now() - timedelta(hours=48)
+    desde_48h = datetime.utcnow() - timedelta(hours=48)
     noticias = _fetch_noticias(query, desde_48h)
     for n in noticias:
         insertar_noticia(n)

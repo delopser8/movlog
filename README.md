@@ -51,18 +51,16 @@ movlog/
 │   └── requirements.txt        # dependencias del proyecto
 ├── src/
 │   ├── frontend/
-│   │   ├── main_ui.py                        # entrada principal de Streamlit
+│   │   ├── main_ui.py                        # entrada principal de Streamlit + mensajes de alertas
 │   │   ├── seguimientos_ui/
 │   │   │   ├── seguimientos_ui.py            # gráfico OHLC, detalles, buscador de activos
-│   │   │   └── noticias_ui.py                # gráfico 5Min + fluctuaciones + noticias
+│   │   │   └── noticias_ui.py                # gráfico de fluctuaciones (velas 5Min) + noticias
 │   │   ├── infraestructura_ui/
-│   │   │   └── infraestructura_ui.py         # host, servicios, pipeline, bases de datos
+│   │   │   └── infraestructura_ui.py         # info de la máquina host, servicios, pipeline, bases de datos
 │   │   ├── ai_models_ui/
-│   │   │   └── ai_models_ui.py               # distribución sentimiento, modelos activos, inferencias
-│   │   ├── alertas_ui/
-│   │   │   └── alertas_ui.py                 # alertas configuradas + banners activos
-│   │   └── configuracion_ui/
-│   │       └── configuracion_ui.py           # pendiente próximo split
+│   │   │   └── ai_models_ui.py               # info de sentimiento scores, modelos activos, inferencias
+│   │   └── alertas_ui/
+│   │       └── alertas_ui.py                 # info de alertas configuradas
 │   └── backend/
 │       ├── app.py                            # FastAPI lifespan + arranque de threads
 │       ├── api/
@@ -71,32 +69,32 @@ movlog/
 │       └── services/
 │           ├── main_noticias_pipeline.py     # orquestador del flujo de noticias
 │           ├── infra_service.py              # métricas del sistema
-│           ├── ui/user_service.py            # llamadas HTTP frontend → backend
+│           ├── ui/user_service.py            # llamadas HTTP del frontend al backend
 │           ├── preprocesamiento/
-│           │   └── analytics_service.py      # cálculos de series temporales
+│           │   └── analytics_service.py      # formateo de datos para el frontend
 │           ├── db/
 │           │   ├── duckdb_client.py          # CRUD DuckDB + exportación parquet
 │           │   └── mongodb_client.py         # CRUD MongoDB
 │           ├── ingesta/
-│           │   ├── alpaca_client.py          # velas en tiempo real + catálogo assets
-│           │   ├── yfinance_client.py        # detalles y fundamentales del activo
-│           │   ├── news_api.py               # polling de noticias NewsAPI
-│           │   └── rss_scraper.py            # scraping Yahoo Finance RSS
+│           │   ├── alpaca_client.py          # velas en tiempo real + catálogo assets con Alpaca Markets (SDK)
+│           │   ├── yfinance_client.py        # detalles del activo con yfinance (SDK)
+│           │   ├── news_api.py               # polling de noticias con NewsAPI (SDK)
+│           │   └── rss_scraper.py            # scraping sobre Yahoo Finance RSS
 │           └── ai_models/
 │               ├── translation.py            # traducción al inglés con Qwen
 │               ├── sentiment.py              # análisis de sentimiento con FinBERT
 │               ├── explicabilidad.py         # explicación de fluctuaciones con Qwen
-│               └── observabilidad.py         # trazabilidad con Langfuse
+│               └── observabilidad.py         # trazabilidad IA con Langfuse
 ├── db_data/
-│   ├── duckdb_init.sql          # schema de DuckDB
-│   ├── mongodb_init.sh          # colecciones e índices de MongoDB
+│   ├── duckdb_init.sql          # creación de tablas de DuckDB
+│   ├── mongodb_init.sh          # inicialización de colecciones e índices de MongoDB
 │   ├── alpaca_assets.json       # catálogo de símbolos negociables
 │   ├── mock_data/
-│   │   └── pipeline_data.py     # datos mock de AAPL y TSLA (MOCK_MODE=true)
+│   │   └── pipeline_data.py     # datos mock de AAPL y TSLA (OHLC + detalles)
 │   └── db_historicos/           # archivos .parquet exportados
 ├── docs/
 │   ├── api_key_guide.md         # guía para obtener y configurar las API Keys
-│   └── db.md                    # schema completo de las bases de datos
+│   └── db_guide.md              # guía de visualización del contenido de las Bases de Datos
 ├── .env                         # variables de entorno (no se sube al repo)
 └── README.md
 ```

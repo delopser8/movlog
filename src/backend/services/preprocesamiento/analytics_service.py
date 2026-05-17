@@ -1,11 +1,8 @@
 '''
     servicio de preprocesamiento de datos (da el formato correcto que necesita el Frontend)
-    - formatea las velas para la UI
-    - formatea detalles del activo para la UI
+    - formatea market cap de velas
+    - formatea detalles del activo
 '''
-
-
-from loguru import logger
 
 
 # --- Seguimientos (general) ---

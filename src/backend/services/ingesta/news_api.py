@@ -15,8 +15,10 @@ import schedule
 from newsapi import NewsApiClient
 from loguru import logger
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
+from dotenv import load_dotenv
 
 from services.db.duckdb_client import insertar_noticia
+from services.db.duckdb_client import get_activo_detalles
 
 
 NEWSAPI_KEY      = os.getenv("NEWSAPI_KEY", "")
@@ -25,7 +27,6 @@ POLLING_INTERVAL = 300  # (5 minutos)
 
 # --- Cliente ---
 def _get_client() -> NewsApiClient:
-    from dotenv import load_dotenv
     load_dotenv()
     return NewsApiClient(api_key=os.getenv("NEWSAPI_KEY", ""))
 
@@ -62,7 +63,7 @@ def _fetch_noticias(query: str, desde: datetime) -> list[dict]:
                 "body":          a.get("description") or a.get("content") or "",
                 "fecha_noticia": datetime.strptime(
                     a["publishedAt"], "%Y-%m-%dT%H:%M:%SZ"
-                ) if a.get("publishedAt") else datetime.now(),
+                ) if a.get("publishedAt") else datetime.utcnow(),
             }
             for a in articulos
             if a.get("title") and a["title"] != "[Removed]"
@@ -74,14 +75,13 @@ def _fetch_noticias(query: str, desde: datetime) -> list[dict]:
 def fetch_y_guardar(ticker: str) -> int:
     # descarga noticias del último intervalo de polling para un ticker y las guarda en DuckDB
     # usa el nombre del activo desde DuckDB como query
-    from services.db.duckdb_client import get_activo_detalles
     detalles = get_activo_detalles(ticker)
     if detalles and detalles.get("nombre"):
         query = detalles["nombre"].split()[0] 
     else:
         query = ticker.split(".")[0].split("/")[0]  
 
-    desde = datetime.now() - timedelta(seconds=POLLING_INTERVAL + 60)
+    desde = datetime.utcnow() - timedelta(seconds=POLLING_INTERVAL + 60)
     noticias = _fetch_noticias(query, desde)
 
     if not noticias:

@@ -40,8 +40,8 @@ def _registrar(modelo: str, tipo: str, input_texto: str, output, latencia_ms: fl
         trace.generation(
             name=modelo,
             model=modelo,
-            input=input_texto[:1000],
-            output=str(output)[:1000],
+            input=input_texto[:1500],
+            output=str(output)[:1500],
             metadata={"latencia_ms": round(latencia_ms, 2)},
         )
         client.flush()
