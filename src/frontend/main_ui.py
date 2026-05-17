@@ -11,6 +11,7 @@
 
 import streamlit as st
 import psutil
+from streamlit_autorefresh import st_autorefresh
 
 from backend.services.ui.user_service import get_alertas
 from seguimientos_ui.seguimientos_ui import render as render_seguimientos
@@ -18,7 +19,6 @@ from infraestructura_ui.infraestructura_ui import render as render_infraestructu
 from ai_models_ui.ai_models_ui import render as render_modelos
 from alertas_ui.alertas_ui import render as render_alertas
 from configuracion_ui.configuracion_ui import render as render_configuracion
-from streamlit_autorefresh import st_autorefresh
 
 
 # --- configuración de página ---
@@ -191,7 +191,7 @@ with st.sidebar:
 
 
 # --- check de alertas globales ---
-st_autorefresh(interval=30000, key="global_alerts_refresh")
+st_autorefresh(interval=5000, key="global_alerts_refresh")
 
 try:
     alertas = get_alertas()
