@@ -1,10 +1,12 @@
 # movlog
  
-Sistema de monitorización financiera en tiempo real que combina ingesta de datos de mercado con análisis de sentimiento y expliaciones de fluctuaciones del mercado mediante IA.
+Sistema de monitorización financiera en tiempo real que combina ingesta de datos de mercado con análisis de sentimiento y explicaciones de fluctuaciones del mercado mediante IA.
  
-Permite seguir activos financieros (acciones de EEUU y criptomonedas) para ver sus datos de precio en tiempo real desde Alpaca Markets, información sobre estos activos desde yfinance y correlaciona automáticamente los movimientos bruscos de precio con noticias financieras analizadas por IA. Estas noticias se traducen con Qwen y se pasan por FinBERT para su análisis de sentimiento. Además, Qwen genera sintetizaciones de las noticias que han sido relevantes para las fuertes fluctuaciones de precio.
+Permite seguir activos financieros (acciones de EEUU y criptomonedas) para ver sus datos de precio en tiempo real, información sobre estos activos y conocer los motivos que hay detrás de los movimientos bruscos de sus precios, mediante noticias financieras analizadas por IA.
 
-El sistema también incluye secciones de monitorización del stack tecnológico empleado y un sistema de alertas para mantener el entorno controlado. 
+Estas noticias son traducidas a nivel interno por Qwen y se pasan por FinBERT para su análisis de sentimiento. Además, cuando se detecta una fluctuación anómala, Qwen genera sintetizaciones de las noticias que han sido relevantes en estos fuertes movimientos del precio.
+
+El sistema también incluye secciones de monitorización de las herramientas internas y un sistema de alertas para mantener el entorno controlado. 
  
 ---
 
@@ -43,10 +45,10 @@ movlog/
 │   ├── devcontainer.json        # configuración del devcontainer y variables de entorno
 │   ├── Dockerfile               # imagen del workspace
 │   ├── docker-compose.yml       # stack completo de servicios Docker
-│   ├── start.sh                 # arranque de contenedores + registro de alias
-│   └── init_all.sh              # inicialización completa (APIs, DBs, FastAPI, Streamlit)
+│   ├── start.sh                 # arranque contenedores + descanga de Qwen + registro de alias
+│   └── init_all.sh              # inicio completo (API keys, DBs, frontend/backend, schedules)
 ├── config/
-│   └── requirements.txt
+│   └── requirements.txt        # dependencias del proyecto
 ├── src/
 │   ├── frontend/
 │   │   ├── main_ui.py                        # entrada principal de Streamlit
