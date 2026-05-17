@@ -155,13 +155,13 @@ def render():
 
     # --- banners de alertas activas ---
     disparadas = _check_alertas_activas(alertas)
-    for d in disparadas:
-        css_class = "banner-critico" if d["tipo"] == "critico" else "banner-warning"
-        icono = "🔴" if d["tipo"] == "critico" else "⚠️"
-        st.markdown(
-            f'<div class="{css_class}">{icono} <b>{d["nombre"]}</b> — {d["mensaje"]}</div>',
-            unsafe_allow_html=True,
-        )
+    # for d in disparadas:
+    #     css_class = "banner-critico" if d["tipo"] == "critico" else "banner-warning"
+    #     icono = "🔴" if d["tipo"] == "critico" else "⚠️"
+    #     st.markdown(
+    #         f'<div class="{css_class}">{icono} <b>{d["nombre"]}</b> — {d["mensaje"]}</div>',
+    #         unsafe_allow_html=True,
+    #     )
 
     st.markdown('<div class="section-title">Alertas del sistema</div>', unsafe_allow_html=True)
 
