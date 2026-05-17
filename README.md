@@ -1,8 +1,10 @@
 # movlog
  
-Sistema de monitorización financiera en tiempo real que combina ingesta de datos de mercado con análisis de sentimiento mediante IA.
+Sistema de monitorización financiera en tiempo real que combina ingesta de datos de mercado con análisis de sentimiento y expliaciones de fluctuaciones del mercado mediante IA.
  
-Permite seguir activos financieros (acciones, crypto) con datos de precio en tiempo real desde Alpaca Markets, y correlaciona automáticamente los movimientos bruscos de precio con noticias financieras analizadas por IA — traduciendo, clasificando el sentimiento con FinBERT y generando una explicación en español con Qwen.
+Permite seguir activos financieros (acciones de EEUU y criptomonedas) para ver sus datos de precio en tiempo real desde Alpaca Markets, información sobre estos activos desde yfinance y correlaciona automáticamente los movimientos bruscos de precio con noticias financieras analizadas por IA. Estas noticias se traducen con Qwen y se pasan por FinBERT para su análisis de sentimiento. Además, Qwen genera sintetizaciones de las noticias que han sido relevantes para las fuertes fluctuaciones de precio.
+
+El sistema también incluye secciones de monitorización del stack tecnológico empleado y un sistema de alertas para mantener el entorno controlado. 
  
 ---
 
@@ -14,7 +16,7 @@ Permite seguir activos financieros (acciones, crypto) con datos de precio en tie
 bash .devcontainer/start.sh
 ```
 3. Espera hasta que veas un mensaje que indique `✔ TODO OK ✔`
-4. Ejecuta `start_movlog` y ve configurando las API Key del `.env` en el orden que se van pidiendo (indicaciones para conseguirlas en `/docs/api_key_guide.md`)
+4. Ejecuta `start_movlog` y ve configurando las API Key del `.env` en el orden que se van pidiendo (indicaciones para obtenerlas en `/docs/api_key_guide.md`)
 5. Revisa que todo haya ido `✅ OK` y accede a la URL de la UI indicada por consola
 
 ---
@@ -29,7 +31,7 @@ bash .devcontainer/start.sh
 
 - **API /docs (Swagger) no carga:** Comprueba que la URL termine en `/docs`.
 
-- **La UI de Langfuse me da problemas** Comprueba que la URL sea correcta (`https://{CODESPACE_NAME}-13000.app.github.dev`).
+- **La UI de Langfuse da problemas** Comprueba que la URL sea correcta (`https://{CODESPACE_NAME}-13000.app.github.dev`).
 
 ---
 
@@ -220,6 +222,15 @@ HF_API_TOKEN=tu_token_aqui
 # Langfuse (generar desde la UI de Langfuse al arrancar por primera vez)
 LANGFUSE_PUBLIC_KEY=tu_key_aqui
 LANGFUSE_SECRET_KEY=tu_secret_aqui
+```
+
+El contenido de las variables de entorno creadas en el `remoteEnv` es el siguiente:
+
+```env
+"FASTAPI_URL": "http://localhost:8000",
+"OLLAMA_HOST": "http://ollama:11434",
+"LANGFUSE_HOST": "http://langfuse:3000",
+"MONGODB_URL": "mongodb://mongodb:27017"
 ```
 
 Ver `/docs/api_key_guide.md` para instrucciones de cómo obtener cada key.
