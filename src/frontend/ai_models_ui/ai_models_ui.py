@@ -165,16 +165,16 @@ def render():
         st.markdown('''
         <div class="modelos-card">
             <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #1a1f26;font-family:IBM Plex Mono,monospace;font-size:12px">
-                <span style="color:rgb(139 146 157);font-size:11px">Sentimiento</span><span style="color:#e8eaed">ProsusAI/FinBERT</span>
+                <span style="color:rgb(139 146 157);font-size:11px">Sentimiento</span><span style="color:#e8eaed">ProsusAI/FinBERT · HF Inference API</span>
             </div>
             <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #1a1f26;font-family:IBM Plex Mono,monospace;font-size:12px">
-                <span style="color:rgb(139 146 157);font-size:11px">Traducción</span><span style="color:#e8eaed">Qwen3.5 · 0.8b · Ollama</span>
+                <span style="color:rgb(139 146 157);font-size:11px">Traducción</span><span style="color:#e8eaed">Qwen3.5 (0.8b) · Ollama</span>
             </div>
             <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #1a1f26;font-family:IBM Plex Mono,monospace;font-size:12px">
-                <span style="color:rgb(139 146 157);font-size:11px">Explicabilidad</span><span style="color:#e8eaed">Qwen3.5 · 0.8b · Ollama</span>
+                <span style="color:rgb(139 146 157);font-size:11px">Explicabilidad</span><span style="color:#e8eaed">Qwen3.5 (0.8b) · Ollama</span>
             </div>
             <div style="display:flex;justify-content:space-between;padding:5px 0;font-family:IBM Plex Mono,monospace;font-size:12px">
-                <span style="color:rgb(139 146 157);font-size:11px">Observabilidad</span><span style="color:#e8eaed">Langfuse OSS v2</span>
+                <span style="color:rgb(139 146 157);font-size:11px">Observabilidad</span><span style="color:#e8eaed">Langfuse v2</span>
             </div>
         </div>
         ''', unsafe_allow_html=True)

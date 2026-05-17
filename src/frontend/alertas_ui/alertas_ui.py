@@ -114,7 +114,7 @@ def _fmt_umbral(umbral) -> str:
     if umbral is None:
         return "—"
     if isinstance(umbral, list):
-        return f"{umbral[0]} – {umbral[1]}"
+        return f"{umbral[0]}"
     return str(umbral)
 
 def _check_alertas_activas(alertas: list) -> list:
