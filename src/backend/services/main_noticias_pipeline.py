@@ -79,7 +79,7 @@ def procesar_ticker(ticker: str) -> bool:
     if not activo_id:
         return False
 
-    noticias = get_noticias_recientes(activo_id, minutos=4800)
+    noticias = get_noticias_recientes(activo_id, minutos=360)
     if not noticias:
         logger.info(f"Fluctuación en {ticker} sin noticias recientes")
         return False

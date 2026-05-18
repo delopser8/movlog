@@ -20,7 +20,7 @@ alpaca-py>=0.26.0                # Alpaca Markets SDK
 
 # Ingesta de noticias
 newsapi-python>=0.2.7            # NewsAPI SDK
-feedparser>=6.0.11               # parsing de Yahoo Finance RSS (XML)
+feedparser>=6.0.11               # parsing para Yahoo Finance RSS (XML)
 
 # Observabilidad de LLMs
 langfuse>=2.28.0,<3.0.0
@@ -31,13 +31,13 @@ pyarrow>=16.0.0                  # lectura/escritura .parquet
 
 # Validación y tipado
 pydantic>=2.7.0
-pydantic-settings>=2.3.0         # gestión de .env con pydantic
+pydantic-settings>=2.3.0         
 
 # Monitorización del host
 psutil>=5.9.8
 
 # Utilidades generales
 python-dotenv>=1.0.1             
-loguru>=0.7.2                    # logging estructurado (APIs externas)
-tenacity>=8.3.0                  # reintentos con backoff
-schedule>=1.2.2                  # polling periódico (ejecutar funciones cada X minutos)
+loguru>=0.7.2                    # logging estructurado 
+tenacity>=8.3.0                  # reintentos peticiones HTTP con backoff
+schedule>=1.2.2                  # jobs diarios 

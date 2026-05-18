@@ -66,27 +66,6 @@ def activos_elegidos_eliminar(ticker: str) -> bool:
         return False
 
 
-# --- ventana_temporal ---
-def ventana_temporal_get() -> int:
-    try:
-        doc = get_col("ventana_temporal").find_one({"tipo": "global"}, {"_id": 0})
-        return doc["valor_minutos"] if doc else 5
-    except errors.PyMongoError as e:
-        logger.error(f"MongoDB ventana_temporal_get: {e}")
-        return 5
-
-def ventana_temporal_set(minutos: int) -> bool:
-    try:
-        get_col("ventana_temporal").update_one(
-            {"tipo": "global"},
-            {"$set": {"valor_minutos": minutos}},
-        )
-        return True
-    except errors.PyMongoError as e:
-        logger.error(f"MongoDB ventana_temporal_set: {e}")
-        return False
-
-
 # --- alertas ---
 def alertas_listar() -> list[dict]:
     try:

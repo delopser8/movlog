@@ -48,7 +48,7 @@ movlog/
 │   ├── start.sh                 # arranque contenedores + descanga de Qwen + registro de alias
 │   └── init_all.sh              # inicio completo (API keys, DBs, frontend/backend, schedules)
 ├── config/
-│   └── requirements.txt        # dependencias del proyecto
+│   └── requirements.txt         # dependencias del proyecto
 ├── src/
 │   ├── frontend/
 │   │   ├── main_ui.py                        # entrada principal de Streamlit + mensajes de alertas
@@ -62,7 +62,7 @@ movlog/
 │   │   └── alertas_ui/
 │   │       └── alertas_ui.py                 # info de alertas configuradas
 │   └── backend/
-│       ├── app.py                            # FastAPI lifespan + arranque de threads
+│       ├── app.py                            # entrada principal de FastAPI + arranque de lifespan
 │       ├── api/
 │       │   ├── routes/routers.py             # endpoints REST
 │       │   └── controllers/controllers.py    # lógica de cada endpoint
@@ -88,13 +88,13 @@ movlog/
 ├── db_data/
 │   ├── duckdb_init.sql          # creación de tablas de DuckDB
 │   ├── mongodb_init.sh          # inicialización de colecciones e índices de MongoDB
-│   ├── alpaca_assets.json       # catálogo de símbolos negociables
+│   ├── alpaca_assets.json       # catálogo de símbolos disponibles
 │   ├── mock_data/
 │   │   └── pipeline_data.py     # datos mock de AAPL y TSLA (OHLC + detalles)
 │   └── db_historicos/           # archivos .parquet exportados
 ├── docs/
 │   ├── api_key_guide.md         # guía para obtener y configurar las API Keys
-│   └── db_guide.md              # guía de visualización del contenido de las Bases de Datos
+│   └── db_guide.md              # guía de visualización del contenido de las Bases de Datos con Client2
 ├── .env                         # variables de entorno (no se sube al repo)
 └── README.md
 ```
@@ -113,9 +113,9 @@ FastAPI lifespan
 ├── iniciar_schedule_yfinance()  → yfinance: actualiza detalles de activos diariamente a las 07:00 UTC
 ├── iniciar_polling()            → Alpaca: polling de velas 1Min cada 15s
 └── iniciar_pipeline_noticias()
-    ├── iniciar_newsapi()        → polling NewsAPI cada 5min
-    ├── iniciar_rss()            → polling RSS Yahoo Finance cada 5min
-    └── _detection_loop()        → detección de fluctuaciones cada 15s
+    ├── iniciar_newsapi()        → NewsAPI: polling noticias cada 5min
+    ├── iniciar_rss()            → RSS Yahoo Finance: polling noticias cada 5min
+    └── _detection_loop()        → detección de fluctuaciones en velas + repaso de sentimientos cada 15s
 ```
  
 ### Al añadir un activo nuevo
@@ -247,7 +247,7 @@ MONGODB_URL= mongodb://mongodb:27017
 | Datos fundamentales | yfinance | Detalles del activo al añadirlo |
 | Noticias | NewsAPI SDK | Polling de noticias financieras cada 5min |
 | Noticias | feedparser + Yahoo Finance RSS | Scraping de noticias adicionales cada 5min |
-| Sentimiento | ProsusAI/FinBERT | Clasificación positivo/neutral/negativo |
+| Sentimiento | ProsusAI/FinBERT (Hugging Face inference API) | Clasificación positivo/neutral/negativo |
 | Traducción | Qwen 3.5:0.8b (Ollama) | Traducción de noticias al inglés |
 | Explicabilidad | Qwen 3.5:0.8b (Ollama) | Resumen explicativo de fluctuaciones |
 | Observabilidad IA | Langfuse (v2) | Trazabilidad de inferencias y latencia |

@@ -231,7 +231,6 @@ def render_noticias(ticker: str):
     noticias_recientes = [n for n in noticias_recientes if n["noticia_id"] not in ids_fluct]
 
     def _normalizar(n: dict, es_fluctuacion: bool) -> dict:
-        from datetime import datetime
         fecha = n.get("fecha_noticia")
         if isinstance(fecha, str):
             try:

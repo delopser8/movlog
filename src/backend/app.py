@@ -26,10 +26,10 @@ def _get_tickers() -> list[str]:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Arrancando backend Movlog...")
-    iniciar_schedule()                          # cada 6am
-    iniciar_schedule_yfinance(_get_tickers)     # cada 7am
-    iniciar_polling(_get_tickers)               # cada 15s
-    iniciar_pipeline_noticias(_get_tickers)     # cada (polling newsapi + RSS YF 5m) (polling sentimientos + fluctuaciones 15s) 
+    iniciar_schedule()                          # cada 6am (catálogo de assets, Alpaca)
+    iniciar_schedule_yfinance(_get_tickers)     # cada 7am (detalles de todos los activos en seguimiento, yfinance)
+    iniciar_polling(_get_tickers)               # cada 15s (carga de velas, Alpaca)
+    iniciar_pipeline_noticias(_get_tickers)     # (polling newsapi + RSS YF cada 5m) (polling repaso de sentimientos + fluctuaciones constantes cada 15s) 
     yield
     logger.info("Backend Movlog detenido")
  

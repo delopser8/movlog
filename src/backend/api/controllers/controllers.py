@@ -52,7 +52,7 @@ def ctrl_añadir_seguimiento(ticker: str, nombre: str) -> dict:
         cargar_detalles_activo(ticker)
         cargar_velas_iniciales(ticker, "1Min")
         cargar_velas_iniciales(ticker, "5Min")
-        # carga inicial de noticias 24h + backfill de fluctuaciones
+        # carga inicial de noticias 48h + backfill de fluctuaciones
         backfill_activo(ticker)
 
     # lanza la carga inicial en background

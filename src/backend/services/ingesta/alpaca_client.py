@@ -248,7 +248,7 @@ def cargar_velas_iniciales(ticker: str, timeframe_str: str = "1Min") -> int:
 
 def actualizar_velas(ticker: str, timeframe_str: str = "1Min") -> int:
     # polling: descarga las velas desde la última guardada hasta ahora
-    # si no hay velas previas, carga las últimas 2 semanas
+    # si no hay velas previas, carga lo que marque el timeframe (2w, 2m, 1y, 3y, 4y)
     activo_id = get_activo_id(ticker)
     if activo_id is None:
         return 0

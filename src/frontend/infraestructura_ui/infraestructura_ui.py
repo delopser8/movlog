@@ -4,6 +4,8 @@
     - estado de servicios (healthcheck)
     - pipeline de datos (activos, velas, noticias)
     - bases de datos (DuckDB, MongoDB)
+
+    [autorefresh de 5s]
 '''
 
 
@@ -258,7 +260,7 @@ def render():
                 <span class="infra-value">{db.get("size_mb", "--")} MB</span>
             </div>
             <div class="infra-row">
-                <span class="infra-label">MongoDB — activos</span>
+                <span class="infra-label">MongoDB — activos en seguimiento</span>
                 <span class="infra-value">{mdb.get("activos", "--")}</span>
             </div>
             <div class="infra-row">
