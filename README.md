@@ -158,8 +158,8 @@ _detection_loop() [cada 15s]
 _polling_loop() [cada 15s]
 └── para cada ticker en seguimiento:
     └── actualizar_velas(1Min)
-        ├── get_ultima_vela()    → DuckDB
-        ├── _fetch_bars()        → Alpaca REST (IEX para equity, crypto para crypto)
+        ├── get_ultima_vela()    → DuckDB para comparar con la nueva
+        ├── _fetch_bars()        → fetch a Alpaca Markets (acciones de EEUU en IEX y criptomonedas)
         └── insertar_velas()     → DuckDB activos_precios
 ```
  
