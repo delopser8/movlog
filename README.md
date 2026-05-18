@@ -23,7 +23,7 @@ bash .devcontainer/start.sh
 
 ---
 
-## Soluciones de errores
+## Resolución de problemas
 
 - **`start_movlog` da problemas:** Escribe `source ~/.bashrc && start_movlog` en el terminal.
 
